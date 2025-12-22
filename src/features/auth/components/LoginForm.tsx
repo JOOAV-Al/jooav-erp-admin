@@ -1,72 +1,147 @@
 "use client";
 
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+
 import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
-import { useState } from "react";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLogin } from "@/features/auth/services/auth.api";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/redux/slices/authSlice";
+import Image from "next/image";
+
+const loginSchema = z.object({
+  email: z.email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const dispatch = useDispatch();
 
-  const handleSubmit = async () => {
-    if (!email) {
-      setError("Email is required");
-      return;
-    }
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    if (!password) {
-      setError("Password is required");
-      return;
-    }
+  const {
+    handleSubmit,
+    control,
+    formState: { isValid },
+  } = form;
 
-    try {
-      setError("");
-      await axios.post("/login", { email, password });
-    } catch (err: any) {
-      setError("Invalid credentials");
-    }
+  const { mutateAsync: login, isPending, error } = useLogin();
+
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    const response = await login(values);
+    dispatch(
+      setCredentials({
+        user: response?.data.user,
+        token: response?.data.token,
+      })
+    );
+    router.push("/dashboard");
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="p-xl rounded-3xl mx-auto w-full max-w-105 bg-card flex flex-col gap-7 shadow-xl">
+      <div className="flex flex-col items-center">
+        <Image
+          src={"/auth/jooav-logo.svg"}
+          alt="JOOAV Logo"
+          width={90.7}
+          height={24}
+          className="py-xl"
+        />
+        <div className="flex flex-col items-center text-center gap-6 font-garantpro">
+          <h3 className="text-heading">Super-admin login</h3>
+          <p className="text-base text-card-foreground font-medium">
+            Log in with your admin credentials.
+          </p>
+        </div>
+      </div>
       <FieldSet>
-        <FieldGroup>
-          <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            {/* EMAIL */}
+            <Controller
+              control={control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <div>
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Email</FieldLabel>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="Enter your email"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </Field>
+                  {fieldState.error && (
+                    <FieldError>{fieldState.error.message}</FieldError>
+                  )}
+                </div>
+              )}
             />
-            <FieldDescription>
-              Choose a unique email for your account.
-            </FieldDescription>
-          </Field>
 
-          <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+            {/* PASSWORD */}
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <div>
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Password</FieldLabel>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="••••••••"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </Field>
+                  {fieldState.error && (
+                    <FieldError>{fieldState.error.message}</FieldError>
+                  )}
+                </div>
+              )}
             />
-          </Field>
 
-          {error && <p>{error}</p>}
+            {/* SERVER ERROR */}
+            {/* {error && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {(error as any)?.response?.data?.message ||
+                    "Login failed. Please try again."}
+                </AlertDescription>
+              </Alert>
+            )} */}
 
-          <Button onClick={handleSubmit}>Login</Button>
-        </FieldGroup>
+            {/* SUBMIT */}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!isValid || isPending}
+            >
+              {isPending ? "Logging in..." : "Login"}
+            </Button>
+          </FieldGroup>
+        </form>
       </FieldSet>
     </div>
   );
