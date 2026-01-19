@@ -1,26 +1,68 @@
 "use client";
-import CSVUpload from "@/components/general/CSVUpload";
+import CSVUpload from "@/features/uploads/components/CSVUpload";
 import DashboardDrawer from "@/components/general/DashboardDrawer";
-import DashboardStatsCard from "@/components/general/DashboardStatsCard";
 import DrawerTabs from "@/components/general/DrawerTabs";
-import EmptyState from "@/components/general/EmptyState";
 import ManufacturerForm from "@/features/manufacturers/components/ManufacturerForm";
-import { useCreateManufacturer } from "@/features/manufacturers/services/manufacturers.api";
+import {
+  useCreateManufacturer,
+  useGetManufacturers,
+  useUpdateManufacturer,
+} from "@/features/manufacturers/services/manufacturers.api";
 import { Tab } from "@/interfaces/general";
 import React, { useState } from "react";
+import DataTable from "@/components/general/DataTable";
+import { ManufacturerItem } from "@/features/manufacturers/types";
+import FilterContainer from "@/components/filters/FilterContainer";
+import AllFilter from "@/components/filters/AllFilter";
+import SortFilter from "@/components/filters/SortFilter";
+import SearchBox from "@/components/filters/SearchBox";
+import { useDebounce } from "@/hooks/useDebounce";
+import StatsContainer from "@/components/general/StatsContainer";
 
 const ManufacturerPage = () => {
+  const [page, setPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(false);
+  const [query, setQuery] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+
+  const { mutateAsync: updateManufacturer, isPending: updating } =
+    useUpdateManufacturer();
   // lift mutation here so drawer footer can show loading and we can close on success
-  const { mutateAsync: createManufacturer, isPending } =
+  const { mutateAsync: createManufacturer, isPending: creating } =
     useCreateManufacturer();
+  const [selectedManufacturer, setSelectedManufacturer] = useState<
+    ManufacturerItem | undefined
+  >(undefined);
+  const [selectedManufacturers, setSelectedManufacturers] = useState<
+    ManufacturerItem[] | []
+  >([]);
+  const debouncedQuery = useDebounce(query);
+  const {
+    data,
+    isPending: isManufacturersPending,
+    isRefetching,
+    refetch,
+  } = useGetManufacturers({ search: debouncedQuery, sortOrder });
+
+  const manufacturers = data?.data;
 
   const handleCreate = async (values: any) => {
-    await createManufacturer(values);
+    if (selectedManufacturer) {
+      await updateManufacturer(values);
+    } else {
+      await createManufacturer(values);
+    }
     // close drawer on success
     setOpen(false);
-    // optionally show toast or refresh list
+    setSelectedManufacturer(undefined);
   };
+
+  const handleBulkDelete = async (
+    selectedManufacturers: ManufacturerItem[]
+  ) => {
+    console.log({ selectedManufacturers });
+  };
+  
   const stats = [
     { value: "200", label: "Total Manufacturers" },
     { value: "10", label: "In Draft" },
@@ -34,8 +76,9 @@ const ManufacturerPage = () => {
       heading: "Enter manufacturer details",
       content: (
         <ManufacturerForm
+          manufacturer={selectedManufacturer}
           handleSubmitForm={handleCreate}
-          loading={isPending}
+          loading={updating || creating}
           closeDialog={() => setOpen(false)}
         />
       ),
@@ -43,34 +86,94 @@ const ManufacturerPage = () => {
     {
       value: "bulk",
       label: "Bulk Import",
-      heading: "Upload manufacturer details",
-      content: <CSVUpload />,
+      // heading: "Upload manufacturer details",
+      content: (
+        <CSVUpload
+          catalog={"manufacturer"}
+          onCTAClick={() => setOpen(!open)}
+          onDownload={() => {
+            console.log("download");
+          }}
+        />
+      ),
     },
   ];
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-8 h-full px-md mt-5">
-        <div className="flex py-main gap-6">
-          {stats.map((stat, i) => (
-            <DashboardStatsCard key={i} value={stat.value} label={stat.label} />
-          ))}
-        </div>
-        <EmptyState
-          header={"Create manufacturer"}
-          description="No manufacturer record yet. Add records to see manufacturer list"
-          cta="Add Manufacturer"
-          image="/dashboard/import-csv.svg"
-          onCTAClick={() => setOpen(!open)}
-        />
+      {manufacturers && manufacturers?.length > 0 && (
+        <StatsContainer stats={stats} />
+      )}
 
-        <DashboardDrawer
-          openDrawer={() => setOpen(!open)}
-          isOpen={open}
-          submitFormId="manufacturer-form"
-          submitLoading={isPending}
-          submitLabel="Create manufacturer"
-          children={<DrawerTabs tabs={tabs} />}
+      <div className="px-xl pt-xl pb-1 flex flex-col gap-7 mb-24">
+        <div className="flex justify-between flex-wrap gap-6">
+          <FilterContainer label="Filter">
+            <AllFilter />
+            <SortFilter
+              value={sortOrder}
+              onChange={(value) => setSortOrder(value)}
+            />
+          </FilterContainer>
+          <div className="flex items-center gap-6">
+            <SearchBox
+              value={query}
+              onChange={(value) => {
+                setPage(1);
+                setQuery(value);
+              }}
+            />
+            <DashboardDrawer
+              showTrigger
+              openDrawer={(isOpen) => {
+                if (isOpen) {
+                  setSelectedManufacturer(undefined);
+                }
+                setOpen(isOpen);
+              }}
+              isOpen={open}
+              submitFormId={"manufacturer-form"}
+              submitLoading={updating || creating}
+              submitLabel="Save record"
+              children={<DrawerTabs tabs={tabs} />}
+              showFooter
+            />
+          </div>
+        </div>
+
+        <DataTable
+          withCheckbox
+          getRowId={(row) => row.id}
+          onRowClick={(row) => {
+            setSelectedManufacturer(row);
+            setOpen(!open);
+          }}
+          onSelectionChange={(selectedRows) => {
+            console.log("Selected rows:", selectedRows);
+            setSelectedManufacturers(selectedRows);
+          }}
+          onDelete={(selectedRows) => {
+            console.log("Delete these:", selectedRows);
+            // Call your delete API here
+            handleBulkDelete(selectedRows);
+          }}
+          loading={isManufacturersPending || isRefetching}
+          data={manufacturers ?? []}
+          refetch={refetch}
+          columns={[
+            { key: "name", label: "Manufacturer" },
+            { key: "updatedAt", label: "Modified" },
+            { key: "createdAt", label: "Created" },
+          ]}
+          page={page}
+          pageSize={20}
+          totalCount={data?.meta?.totalItems}
+          hasNext={data?.meta?.hasNextPage}
+          hasPrevious={data?.meta?.hasPreviousPage}
+          onPageChange={setPage}
+          header="Create manufacturer"
+          description="No manufacturer record yet. Add records to see manufacturer list"
+          image={"/dashboard/import-csv.svg"}
+          cta="Add Manufacturer"
         />
       </div>
     </div>

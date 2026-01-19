@@ -1,0 +1,188 @@
+"use client";
+import CSVUpload from "@/features/uploads/components/CSVUpload";
+import DashboardDrawer from "@/components/general/DashboardDrawer";
+import DrawerTabs from "@/components/general/DrawerTabs";
+import VariantForm from "@/features/variants/components/VariantForm";
+import {
+  useCreateVariant,
+  useGetVariants,
+  useUpdateVariant,
+} from "@/features/variants/services/variants.api";
+import { Tab } from "@/interfaces/general";
+import React, { useState } from "react";
+import DataTable from "@/components/general/DataTable";
+import { VariantItem } from "@/features/variants/types";
+import FilterContainer from "@/components/filters/FilterContainer";
+import AllFilter from "@/components/filters/AllFilter";
+import SortFilter from "@/components/filters/SortFilter";
+import SearchBox from "@/components/filters/SearchBox";
+import { useDebounce } from "@/hooks/useDebounce";
+import StatsContainer from "@/components/general/StatsContainer";
+
+const VariantPage = () => {
+  const [page, setPage] = useState<number>(1);
+  const [open, setOpen] = useState<boolean>(false);
+  const [query, setQuery] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+
+  const { mutateAsync: updateVariant, isPending: updating } =
+    useUpdateVariant();
+  const { mutateAsync: createVariant, isPending: creating } =
+    useCreateVariant();
+  const [selectedVariant, setSelectedVariant] = useState<
+    VariantItem | undefined
+  >(undefined);
+  const [selectedVariants, setSelectedVariants] = useState<VariantItem[] | []>(
+    []
+  );
+  const debouncedQuery = useDebounce(query);
+
+  const {
+    data,
+    isPending: isVariantsPending,
+    isRefetching,
+    refetch,
+  } = useGetVariants({ search: debouncedQuery, sortOrder });
+
+  const variants = data?.data;
+
+  const handleCreate = async (values: any) => {
+    if (selectedVariant) {
+      await updateVariant(values);
+    } else {
+      await createVariant(values);
+    }
+    // close drawer on success
+    setOpen(false);
+    setSelectedVariant(undefined);
+  };
+
+  const handleBulkDelete = async (
+    selectedVariants: VariantItem[]
+  ) => {
+    console.log({ selectedVariants });
+  };
+
+  const stats = [
+    { value: "200", label: "Total Variants" },
+    { value: "10", label: "In Draft" },
+    { value: "190", label: "Total Published" },
+  ];
+
+  const tabs: Tab[] = [
+    {
+      value: "manual",
+      label: "Manual",
+      heading: "Enter variant details",
+      content: (
+        <VariantForm
+          variant={selectedVariant}
+          handleSubmitForm={handleCreate}
+          loading={creating || updating}
+          closeDialog={() => setOpen(false)}
+        />
+      ),
+    },
+    {
+      value: "bulk",
+      label: "Bulk Import",
+      // heading: "Upload variant details",
+      content: (
+        <CSVUpload
+          catalog={"variant"}
+          onCTAClick={() => setOpen(!open)}
+          onDownload={() => {
+            console.log("download");
+          }}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-5">
+      {variants && variants?.length > 0 && <StatsContainer stats={stats} />}
+
+      <div className="px-xl pt-xl pb-1 flex flex-col gap-7">
+        <div className="flex justify-between flex-wrap gap-6">
+          <FilterContainer label="Filter">
+            <AllFilter />
+            <SortFilter
+              value={sortOrder}
+              onChange={(value) => setSortOrder(value)}
+            />
+          </FilterContainer>
+          <div className="flex items-center gap-6">
+            <SearchBox
+              value={query}
+              onChange={(value) => {
+                setPage(1);
+                setQuery(value);
+              }}
+            />
+            <DashboardDrawer
+              showTrigger
+              openDrawer={(isOpen) => {
+                if (isOpen) {
+                  setSelectedVariant(undefined);
+                }
+                setOpen(isOpen);
+              }}
+              isOpen={open}
+              submitFormId={"variant-form"}
+              submitLoading={updating || creating}
+              submitLabel="Save record"
+              children={<DrawerTabs tabs={tabs} />}
+              showFooter
+            />
+          </div>
+        </div>
+        <DataTable
+          onRowClick={(row) => {
+            setSelectedVariant(row);
+            setOpen(!open);
+          }}
+          withCheckbox
+          getRowId={(row) => row.id}
+          onSelectionChange={(selectedRows) => {
+            console.log("Selected rows:", selectedRows);
+            setSelectedVariants(selectedRows);
+          }}
+          onDelete={(selectedRows) => {
+            console.log("Delete these:", selectedRows);
+            // Call your delete API here
+            handleBulkDelete(selectedRows);
+          }}
+          loading={isVariantsPending || isRefetching}
+          data={variants ?? []}
+          refetch={refetch}
+          columns={[
+            { key: "name", label: "Variant" },
+            {
+              key: "logo",
+              label: "Logo",
+            },
+            {
+              key: "brand.name",
+              label: "Brand",
+            },
+            { key: "updatedAt", label: "Modified" },
+            { key: "createdAt", label: "Created" },
+          ]}
+          page={page}
+          pageSize={20}
+          totalCount={data?.meta?.totalItems}
+          hasNext={data?.meta?.hasNextPage}
+          hasPrevious={data?.meta?.hasPreviousPage}
+          onPageChange={setPage}
+          header="Create variant"
+          description="No variant record yet. Add records to see variant list"
+          image={"/dashboard/import-csv.svg"}
+          cta="Add Variant"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default VariantPage;
