@@ -56,22 +56,24 @@ export default function SidebarLink({
           isActive ? "bg-gray-300 sidebar-link font-medium" : "font-medium"
         } ${isCollapsed ? "w-fit mx-auto" : ""}`}
       >
-        {isTransitioning ? (
+        {/* {isTransitioning ? (
           <Spinner />
         ) : (
-          <>
+          <> */}
             {!isCollapsed ? (
               <Icon
                 size={18}
+                strokeWidth={2.5}
                 className={`transition-colors ${
                   isActive ? "text-outline" : "text-outline-passive"
                 } group-hover:text-outline`}
               />
             ) : (
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger asChild className="">
                   <Icon
-                    size={24}
+                    strokeWidth={2.5}
+                    size={18}
                     className={`transition-colors ${
                       isActive ? "text-outline" : "text-outline-passive"
                     } group-hover:text-outline`}
@@ -81,8 +83,8 @@ export default function SidebarLink({
                   <p>{label}</p>
                 </TooltipContent>
               </Tooltip>
-            )}
-          </>
+          //   )}
+          // </>
         )}
         {!isCollapsed && (
           <p

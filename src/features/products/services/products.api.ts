@@ -43,7 +43,7 @@ export const useCreateProduct = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateProductPayload) =>
       api.post<ProductItem>("/products", payload), 
-    invalidateQueries: [["all-products"]]
+    invalidateQueries: [["all-products"], ["products-stats"]]
   });
 };
 
@@ -59,7 +59,15 @@ export const useDeleteProduct = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete<ProductItem>(`/products/${id}`), 
-    invalidateQueries: [["all-products"], ["product-details"]]
+    invalidateQueries: [["all-products"], ["product-details"], ["products-stats"]]
+  });
+};
+
+export const useDeleteMultipleProducts = () => {
+  return useInvalidatingMutation({
+    mutationFn: ({productIds}: {productIds: string[]}) =>
+      api.post(`/products/bulk-delete`, {productIds}), 
+    invalidateQueries: [["all-products"], ["product-details"], ["products-stats"]]
   });
 };
 

@@ -4,12 +4,12 @@ import { api, CustomAxiosRequestConfig } from "@/lib/api/axiosInstance"
 
 const LIMIT = 20
 export async function fetchCategories (params: GeneralFetchingParams): Promise<PaginatedResponse<CategoryItem>> {
-  const {search, parentId, includeChildren, isActive, includeProductCount, page, limit=LIMIT} = params
+  const {search, parentId, includeChildren, isActive, sortOrder, page, limit=LIMIT} = params
   const filterParams = new URLSearchParams({})
   if(search) filterParams.append('search', search)
   if(parentId) filterParams.append('parentId', parentId)
   if(isActive) filterParams.append('isActive', String(isActive))
-  if(includeProductCount) filterParams.append('includeProductCount', String(includeProductCount))
+  if(sortOrder) filterParams.append('sortOrder', String(sortOrder))
   if(includeChildren) filterParams.append('includeChildren', String(includeChildren))
   if(page) filterParams.append('page', page.toString())
   if(limit) filterParams.append('limit', limit.toString())
@@ -71,5 +71,5 @@ export async function fetchCategoryDetails ({id}: {id: string}): Promise<Categor
 
 export async function fetchCategoriesStats (): Promise<CategoryStatsItem> {
   const response = await api.get(`/categories/stats`, { noToast: true } as CustomAxiosRequestConfig)
-  return response.data
+  return response.data.data
 }
