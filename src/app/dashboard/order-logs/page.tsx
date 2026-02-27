@@ -21,52 +21,31 @@ import StatsSkeleton from "@/components/general/StatsSkeleton";
 import StatusFilter from "@/components/filters/StatusFilter";
 import DrawerBoxContent from "@/components/general/DrawerBoxContent";
 import TableTag from "@/components/general/TableTag";
-import { useGetBrands } from "@/features/brands/services/brands.api";
-import { useGetCategories } from "@/features/categories/services/category.api";
+import { useGetProducts } from "@/features/products/services/products.api";
+import { useGetUsers } from "@/features/users/services/users.api";
 import OrdersGroupedTable from "@/features/orders/components/OrdersGroupedTable";
 import SearchBox from "@/components/filters/SearchBox";
-
-const getOrderStatusStyles = (status = "") => {
-  switch (status?.toUpperCase()) {
-    case "ACTIVE":
-      return {
-        styles: "border-green-200 bg-green-50 text-green-600",
-        text: "Active",
-      };
-    case "PENDING":
-    case "PENDING_APPROVAL":
-      return {
-        styles: "border-orange-200 bg-orange-50 text-orange-500",
-        text: "Pending",
-      };
-    case "SUSPENDED":
-    case "BLOCKED":
-      return { styles: "border-red-200 bg-red-50 text-red-500", text: status };
-    case "DEACTIVATED":
-      return {
-        styles: "border-border-main bg-tag-draft text-body-passive",
-        text: "Deactivated",
-      };
-    default:
-      return {
-        styles: "border-border-main bg-tag-draft text-body-passive",
-        text: status || "Draft",
-      };
-  }
-};
+import { getItemStatusStyles, getOrderStatusStyles } from "@/lib/utils";
 
 const OrderLogsPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [query, setQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
-  // const [showLink, setShowLink] = useState<boolean>(false);
+  const [showPaymentScreen, setShowPaymentScreen] = useState<boolean>(false);
+  const [messageObject, setMessageObject] = useState<{
+    phone: string;
+    role: string;
+  }>({
+    phone: "",
+    role: "",
+  });
   const [selectedOrder, setSelectedOrder] = useState<Order | undefined>(
     undefined,
   );
-  const [selectedOrderItem, setSelectedOrderItem] = useState<OrderItem | undefined>(
-    undefined,
-  );
+  const [selectedOrderItem, setSelectedOrderItem] = useState<
+    OrderItem | undefined
+  >(undefined);
 
   const debouncedQuery = useDebounce(query);
   const ordersFormResetRef = useRef<(() => void) | null>(null);
@@ -90,17 +69,24 @@ const OrderLogsPage = () => {
     refetch,
   } = useGetOrders({ page, search: debouncedQuery, status: statusFilter });
 
-  const { data: brands } = useGetBrands({});
-  const { data: categories } = useGetCategories({});
+  const { data: products } = useGetProducts({});
+  const { data: wholesalers } = useGetUsers({ role: "WHOLESALER" });
+  const { data: officers } = useGetUsers({ role: "PROCUREMENT_OFFICER" });
 
   const orders: Order[] = data?.data?.orders ?? [];
 
   const handleCreate = async (values: any) => {
+      console.log(values);
     if (selectedOrder) {
+      console.log(values);
       await updateOrder(values);
       setOpen(false);
     } else {
-      await createOrder(values);
+      console.log(values)
+      const res = await createOrder(values);
+      if (res.data.status === "success") {
+        setShowPaymentScreen(true);
+      }
     }
     setSelectedOrder(undefined);
     setSelectedOrderItem(undefined);
@@ -109,9 +95,10 @@ const OrderLogsPage = () => {
   const handleUpdateOrderItemStatus = async (
     status: string,
     itemId: string,
+    orderNumber: string,
   ) => {
     await updateItemStatus({
-      orderNumber: selectedOrder?.orderNumber ?? "",
+      orderNumber,
       id: itemId,
       payload: {
         status,
@@ -134,7 +121,7 @@ const OrderLogsPage = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 pb-main">
       {isStatsPending ? (
         <StatsSkeleton count={2} />
       ) : (
@@ -161,7 +148,7 @@ const OrderLogsPage = () => {
             />
             <DashboardDrawer
               // isCustomWidth
-              // customWidthStyle="aspect-829/959 max-w-md mdl:max-w-md lg:max-w-[829px]"
+              // customWidthStyle="aspect-517/959 max-w-md mdl:max-w-md lg:max-w-[517px]"
               // customImage="/dashboard/wide-drawer-top-img.svg"
               showTrigger
               triggerText="Create Order"
@@ -170,7 +157,7 @@ const OrderLogsPage = () => {
                 if (isOpen) {
                   setSelectedOrder(undefined);
                   setSelectedOrderItem(undefined);
-                } 
+                }
                 setOpen(isOpen);
               }}
               isOpen={open}
@@ -179,77 +166,131 @@ const OrderLogsPage = () => {
               submitLabel="Save order"
               // showFooter={!showLink}
             >
-              <DrawerBoxContent
-                heading={`${selectedOrderItem ? "Update item" : "New order"} details`}
-                content={
-                  <OrderForm
-                    product={selectedOrderItem as any}
-                    handleSubmitForm={handleCreate}
-                    loading={creating || updating}
-                    closeDialog={() => setOpen(false)}
-                    brands={brands?.data}
-                    categories={categories?.data}
-                    onResetReady={(fn) => {
-                      ordersFormResetRef.current = fn;
-                    }}
-                  />
-                }
-                actionDropdown={
-                  <FormDropdown
-                    deleteAction={handleDelete}
-                    onMarkItemPending={() =>
-                      handleUpdateOrderItemStatus("PENDING", selectedOrderItem?.id ?? "")
-                    }
-                    onMarkItemCancelled={() =>
-                      handleUpdateOrderItemStatus("CANCELLED", selectedOrderItem?.id ?? "")
-                    }
-                    onMarkItemComplete={() =>
-                      handleUpdateOrderItemStatus("DELIVERED", selectedOrderItem?.id ?? "")
-                    }
-                    onMarkItemInProgress={() =>
-                      handleUpdateOrderItemStatus("SOURCING", selectedOrderItem?.id ?? "")
-                    }
-                    onReset={() => ordersFormResetRef.current?.()}
-                  />
-                }
-                statusTag={
-                  <TableTag
-                    className={
-                      getOrderStatusStyles(selectedOrder?.status).styles
-                    }
-                    text={getOrderStatusStyles(selectedOrder?.status).text}
-                  />
-                }
-              />
+              {showPaymentScreen ? (
+                <DrawerBoxContent
+                  heading={`${selectedOrderItem ? "Update item" : "New order"} details`}
+                  content={<></>}
+                />
+              ) : (
+                <DrawerBoxContent
+                  heading={`${selectedOrderItem ? "Update item" : "New order"} details`}
+                  content={
+                    <OrderForm
+                      order={selectedOrder as any}
+                      orderItem={selectedOrderItem as any}
+                      handleSubmitForm={handleCreate}
+                      loading={creating || updating}
+                      closeDialog={() => setOpen(false)}
+                      products={products?.data}
+                      wholesalers={wholesalers?.data}
+                      onResetReady={(fn) => {
+                        ordersFormResetRef.current = fn;
+                      }}
+                    />
+                  }
+                  actionDropdown={
+                    selectedOrderItem && (
+                      <FormDropdown
+                        heading="Select item status"
+                        // deleteAction={handleDelete}
+                        onMarkItemPending={() =>
+                          handleUpdateOrderItemStatus(
+                            "PENDING",
+                            selectedOrderItem?.id ?? "",
+                            selectedOrder?.orderNumber ?? "",
+                          )
+                        }
+                        onMarkItemCancelled={() =>
+                          handleUpdateOrderItemStatus(
+                            "CANCELLED",
+                            selectedOrderItem?.id ?? "",
+                            selectedOrder?.orderNumber ?? "",
+                          )
+                        }
+                        onMarkItemComplete={() =>
+                          handleUpdateOrderItemStatus(
+                            "DELIVERED",
+                            selectedOrderItem?.id ?? "",
+                            selectedOrder?.orderNumber ?? "",
+                          )
+                        }
+                        onMarkItemInProgress={() =>
+                          handleUpdateOrderItemStatus(
+                            "SOURCING",
+                            selectedOrderItem?.id ?? "",
+                            selectedOrder?.orderNumber ?? "",
+                          )
+                        }
+                        // onReset={() => ordersFormResetRef.current?.()}
+                      />
+                    )
+                  }
+                  statusTag={
+                    selectedOrderItem ? (
+                      <TableTag
+                        small
+                        className={
+                          getItemStatusStyles(selectedOrderItem?.status).styles
+                        }
+                        text={
+                          getItemStatusStyles(selectedOrderItem?.status).text
+                        }
+                      />
+                    ) : (
+                      <TableTag
+                        small
+                        className={
+                          getOrderStatusStyles(selectedOrder?.status).styles
+                        }
+                        text={getOrderStatusStyles(selectedOrder?.status).text}
+                      />
+                    )
+                  }
+                />
+              )}
             </DashboardDrawer>
           </div>
         </div>
 
         <OrdersGroupedTable
           orders={orders}
+          officers={officers?.data}
           loading={isOrdersPending || isRefetching}
           onOrderClick={(order) => {
             setSelectedOrder(order);
             // setOpen(true);
           }}
-          onOrderItemClick={(orderItem) => {
+          onOrderItemClick={(orderItem, order) => {
             setSelectedOrderItem(orderItem);
+            setSelectedOrder(order);
             setOpen(true);
           }}
           onDelete={(rows) =>
             deleteMultipleOrders({ orderIds: rows.map((o) => o.id) })
           }
-          onMarkItemPending={(item) =>
-            handleUpdateOrderItemStatus("PENDING", item?.id)
+          onMarkItemPending={(item, order) =>
+            handleUpdateOrderItemStatus("PENDING", item?.id, order?.orderNumber)
           }
-          onMarkItemCancelled={(item) =>
-            handleUpdateOrderItemStatus("CANCELLED", item?.id)
+          onMarkItemCancelled={(item, order) =>
+            handleUpdateOrderItemStatus(
+              "CANCELLED",
+              item?.id,
+              order?.orderNumber,
+            )
           }
-          onMarkItemComplete={(item) =>
-            handleUpdateOrderItemStatus("DELIVERED", item?.id)
+          onMarkItemComplete={(item, order) =>
+            handleUpdateOrderItemStatus(
+              "DELIVERED",
+              item?.id,
+              order?.orderNumber,
+            )
           }
-          onMarkItemInProgress={(item) =>
-            handleUpdateOrderItemStatus("SOURCING", item?.id)
+          onMarkItemInProgress={(item, order) =>
+            handleUpdateOrderItemStatus(
+              "SOURCING",
+              item?.id,
+              order?.orderNumber,
+            )
           }
           actionLoading={updatingItem}
           deletingMultiple={deletingMultiple}
