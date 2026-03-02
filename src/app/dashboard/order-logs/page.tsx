@@ -26,6 +26,7 @@ import { useGetUsers } from "@/features/users/services/users.api";
 import OrdersGroupedTable from "@/features/orders/components/OrdersGroupedTable";
 import SearchBox from "@/components/filters/SearchBox";
 import { getItemStatusStyles, getOrderStatusStyles } from "@/lib/utils";
+import PaymentScreen from "@/features/orders/components/PaymentScreen";
 
 const OrderLogsPage = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -33,12 +34,12 @@ const OrderLogsPage = () => {
   const [query, setQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [showPaymentScreen, setShowPaymentScreen] = useState<boolean>(false);
-  const [messageObject, setMessageObject] = useState<{
-    phone: string;
-    role: string;
+  const [paymentObject, setPaymentObject] = useState<{
+    checkoutUrl: string;
+    transactionId: string;
   }>({
-    phone: "",
-    role: "",
+    checkoutUrl: "",
+    transactionId: "",
   });
   const [selectedOrder, setSelectedOrder] = useState<Order | undefined>(
     undefined,
@@ -86,6 +87,10 @@ const OrderLogsPage = () => {
       const res = await createOrder(values);
       if (res.data.status === "success") {
         setShowPaymentScreen(true);
+        setPaymentObject({
+          checkoutUrl: res.data.data.checkoutUrl,
+          transactionId: ""
+        })
       }
     }
     setSelectedOrder(undefined);
@@ -117,7 +122,10 @@ const OrderLogsPage = () => {
 
   const displayStats = [
     { value: `${stats?.totalOrders ?? 0}`, label: "Orders" },
-    { value: `${stats?.archived ?? 0}`, label: "Archived" },
+    { value: `${stats?.summary?.activeOrders ?? 0}`, label: "Active Order" },
+    { value: `${stats?.summary?.completedOrders ?? 0}`, label: "Completed Order" },
+    { value: `${stats?.statusBreakdown?.confirmed ?? 0}`, label: "Pending Order" },
+    { value: `${stats?.summary?.cancelledOrders ?? 0}`, label: "Cancelled Order" },
   ];
 
   return (
@@ -164,12 +172,16 @@ const OrderLogsPage = () => {
               submitFormId="order-form"
               submitLoading={updating || creating || deleting}
               submitLabel="Save order"
-              // showFooter={!showLink}
+              showFooter={!showPaymentScreen}
+              showHeader={!showPaymentScreen}
             >
               {showPaymentScreen ? (
                 <DrawerBoxContent
-                  heading={`${selectedOrderItem ? "Update item" : "New order"} details`}
-                  content={<></>}
+                  content={
+                    <div className="">
+                      <PaymentScreen />
+                    </div>
+                  }
                 />
               ) : (
                 <DrawerBoxContent
@@ -293,6 +305,7 @@ const OrderLogsPage = () => {
             )
           }
           actionLoading={updatingItem}
+          showActions
           deletingMultiple={deletingMultiple}
           deletingMultipleStatus={status}
           emptyHeader="No orders yet"
