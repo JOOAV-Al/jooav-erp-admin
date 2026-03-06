@@ -102,6 +102,7 @@ const ProductPage = () => {
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const handleCreate = async (values: any) => {
+    console.log(values)
     if (selectedProduct) {
       await updateProduct(values);
     } else {
@@ -120,6 +121,7 @@ const ProductPage = () => {
 
   const handleBulkPublish = async (selectedProducts: ProductItem[]) => {
     const idsToPublish = selectedProducts.map((product) => product?.id);
+    // const isLive = selectedProducts?.find((p) => p.status === "LIVE")
     const payload = {
       productIds: idsToPublish,
       status: "LIVE",
