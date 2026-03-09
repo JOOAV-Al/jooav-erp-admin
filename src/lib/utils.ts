@@ -133,6 +133,8 @@ export const getItemStatusStyles = (status = "") => {
 export const getOrderStatusStyles = (status = "") => {
   switch (status?.toUpperCase()) {
     case "COMPLETED":
+    //For order assignment status(Procurement)
+    case "ACCEPTED":
       return {
         styles:
           "table-tag border-border-main bg-storey-foreground text-heading!",
@@ -169,6 +171,29 @@ export const getOrderStatusStyles = (status = "") => {
       return {
         styles: "table-tag border-border-main bg-tag-draft text-body-passive",
         text: "Draft",
+      };
+  }
+};
+
+export const getOrderAssignmentStatusStyles = (status = "") => {
+  switch (status?.toUpperCase()) {
+    case "ACCEPTED":
+      return {
+        styles:
+          "table-tag border-border-main bg-storey-foreground text-heading!",
+        text: "Processing",
+      };
+    // case "PENDING_ACCEPTANCE":
+    // case "REASSIGNED":
+    //   return {
+    //     styles:
+    //       "table-tag border-border-main bg-storey-foreground text-heading!",
+    //     text: "Pending",
+    //   };
+    default:
+      return {
+        styles: "table-tag border-border-main bg-tag-draft text-body-passive",
+        text: "Unassigned",
       };
   }
 };

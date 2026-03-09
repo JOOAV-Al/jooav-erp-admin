@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useLogin = () => {
   return useMutation({
-    mutationFn: (payload: { email: string; password: string }) =>
+    mutationFn: (payload: { email: string; password: string, role?: string }) =>
       api.post("/admin/auth/login", payload, {noAuth: true} as CustomAxiosRequestConfig),
   });
 };

@@ -37,22 +37,24 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     return pathname.startsWith("/dashboard/manufacturer")
       ? "Manage manufacturer"
       : pathname.startsWith("/dashboard/brand")
-      ? "Manage brands"
-      : pathname.startsWith("/dashboard/variant")
-      ? "Manage variant"
-      : pathname.startsWith("/dashboard/category")
-      ? "Manage category"
-      : pathname.startsWith("/dashboard/product")
-      ? "Manage product"
-      : pathname.startsWith("/dashboard/users")
-      ? "Manage user"
-      : pathname.startsWith("/dashboard/roles-and-permissions")
-      ? "Permission categories"
-      : pathname.startsWith("/dashboard/order-logs")
-      ? "Order Management"
-      : pathname.startsWith("/dashboard/fulfilled-orders")
-      ? "Order Management"
-      : "Dashboard";
+        ? "Manage brands"
+        : pathname.startsWith("/dashboard/variant")
+          ? "Manage variant"
+          : pathname.startsWith("/dashboard/category")
+            ? "Manage category"
+            : pathname.startsWith("/dashboard/product")
+              ? "Manage product"
+              : pathname.startsWith("/dashboard/users")
+                ? "Manage user"
+                : pathname.startsWith("/dashboard/roles-and-permissions")
+                  ? "Permission categories"
+                  : pathname.startsWith("/dashboard/order-logs")
+                    ? "Order Management"
+                    : pathname.startsWith("/dashboard/fulfilled-orders")
+                      ? auth?.user?.role === "PROCUREMENT_OFFICER"
+                        ? "Order processing"
+                        : "Order Management"
+                      : "Dashboard";
   };
   return (
     <div className="flex min-h-screen overflow-hidden">
@@ -79,8 +81,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               isSidebarHidden
                 ? "md:ml-0"
                 : isCollapsed
-                ? "md:ml-17"
-                : "md:ml-57.5"
+                  ? "md:ml-17"
+                  : "md:ml-57.5"
             }`}
           >
             <DashboardTopBar

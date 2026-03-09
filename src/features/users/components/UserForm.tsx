@@ -39,7 +39,7 @@ import { RootState } from "@/redux/store";
 
 const createUserSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Second name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.email("Email is required"),
   // phone: z.string().min(10, "Phone is required"),
   phone: z.string().refine((val) => {
@@ -200,7 +200,7 @@ export function UserForm({
               <div>
                 <Field data-invalid={fieldState.invalid}>
                   <div className="flex gap-3 items-center">
-                    <FieldLabel>Second name</FieldLabel>
+                    <FieldLabel>Last name</FieldLabel>
                     {fieldState.error && (
                       <FieldError>: {fieldState.error.message}</FieldError>
                     )}
@@ -208,7 +208,7 @@ export function UserForm({
                   <Input
                     {...field}
                     type="text"
-                    placeholder="Enter second name"
+                    placeholder="Enter last name"
                     aria-invalid={fieldState.invalid}
                     leftIcon={<FieldIcon Icon={UserRoundPlus} />}
                     isEdit={!!user}

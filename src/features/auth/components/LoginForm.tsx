@@ -37,10 +37,20 @@ export function LoginForm({ toggleForm }: { toggleForm: () => void }) {
   const getFormHeader = (): string => {
     if (pathname.includes("super-admin")) {
       return "Super-admin login";
-    } else if (pathname.includes("sub-admin")) {
-      return "Sub-admin login";
+    } else if (pathname.includes("procurement-officer")) {
+      return "Procurement officer login";
     } else {
       return "Admin login";
+    }
+  };
+
+  const getRole = (): string => {
+    if (pathname.includes("super-admin")) {
+      return "SUPER_ADMIN";
+    } else if (pathname.includes("procurement-officer")) {
+      return "PROCUREMENT_OFFICER";
+    } else {
+      return "ADMIN";
     }
   };
 
@@ -62,7 +72,7 @@ export function LoginForm({ toggleForm }: { toggleForm: () => void }) {
   const { mutateAsync: login, isPending } = useLogin();
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    const { data } = await login(values);
+    const { data } = await login({ ...values, role: getRole() });
     // console.log(data)
 
     Cookies.set("authToken", data.data.accessToken);
@@ -74,7 +84,11 @@ export function LoginForm({ toggleForm }: { toggleForm: () => void }) {
     //     token: data.data.accessToken,
     //   })
     // );
-    router.push("/dashboard");
+    if (data?.data?.admin?.role === "PROCUREMENT_OFFICER") {
+      router.push("/dashboard/order-logs");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   return (

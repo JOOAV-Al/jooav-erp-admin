@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/slices/authSlice";
 import AuthCardHeader from "@/features/auth/components/AuthCardHeader";
 import PasswordInput from "@/features/auth/components/PasswordInput";
+import { getLoginRoute } from "@/features/auth/services/helpers";
 
 const useResetPasswordSchema = z
   .object({
@@ -60,13 +61,13 @@ export function ResetPasswordForm() {
       token: otp ?? token ?? "",
       password: values.password,
     });
-    dispatch(
-      setCredentials({
-        user: response?.data.user,
-        token: response?.data.token,
-      })
-    );
-    router.push("/dashboard");
+    // dispatch(
+    //   setCredentials({
+    //     user: response?.data.user,
+    //     token: response?.data.token,
+    //   })
+    // );
+    router.push(getLoginRoute(response?.data?.role));
   };
 
   const watchedPassword = form.watch("password");

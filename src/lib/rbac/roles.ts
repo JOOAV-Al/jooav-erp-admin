@@ -15,3 +15,5 @@ export const userRoles = [
   {value: ROLES.SUPER_ADMIN, label: "Superadmin"},
   // {value: ROLES.SUB_ADMIN, label: "Sub Admin"},
 ]
+
+export const majorRoles = [ROLES.ADMIN, ROLES.SUPER_ADMIN]

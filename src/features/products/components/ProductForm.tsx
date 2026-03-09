@@ -159,7 +159,7 @@ export function ProductForm({
   // ── Single async reset effect ─────────────────────────────────────────────
   // Only one reset() call happens here, so draft can never be wiped by a second reset.
   useEffect(() => {
-    const run = async () => {
+    // const run = async () => {
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
 
       if (isEditMode) {
@@ -184,14 +184,19 @@ export function ProductForm({
         setShowDraftBanner(false);
       } else {
         // readDraft is async — it reconstructs File objects from stored base64
-        const draft = await readDraft();
+        const draft = readDraft();
         if (draft) {
-          reset({ ...EMPTY_VALUES, ...draft });
-          // Banner shows for 3 seconds then auto-hides
+          reset({
+            ...EMPTY_VALUES,
+            ...draft,
+            thumbnail: undefined,
+            images: [],
+          });
+          // Banner shows for 5 seconds then auto-hides
           setShowDraftBanner(true);
           bannerTimer.current = setTimeout(
             () => setShowDraftBanner(false),
-            3000,
+            5000,
           );
         } else {
           reset(EMPTY_VALUES);
@@ -201,9 +206,9 @@ export function ProductForm({
         setImagesToDelete([]);
         setShouldDeleteThumbnail(false);
       }
-    };
+    // };
 
-    run();
+    // run();
     return () => {
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
     };
@@ -312,9 +317,9 @@ export function ProductForm({
     >
       {/* ── Draft restored banner ── */}
       {showDraftBanner && !isEditMode && (
-        <div className="mx-xl mb-main flex items-center justify-between gap-4 rounded-lg border border-border-brand-stroke bg-tag-added px-md py-sm text-sm">
+        <div className="mx-xl mb-main mt-1 flex items-center justify-between gap-4 rounded-lg border border-border-main bg-white shadow-input px-md py-sm text-sm">
           <span className="text-brand-primary font-medium">
-            Draft restored — continue where you left off.
+            Draft restored — Please re-select any images or thumbnail.
           </span>
           <button
             type="button"
@@ -322,7 +327,7 @@ export function ProductForm({
               discardDraft(reset, EMPTY_VALUES);
               setShowDraftBanner(false);
             }}
-            className="text-xs text-body-passive underline hover:text-body shrink-0"
+            className="text-sm text-body-passive underline hover:text-body shrink-0 cursor-pointer"
           >
             Discard draft
           </button>
