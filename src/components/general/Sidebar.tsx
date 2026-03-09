@@ -48,6 +48,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RootState } from "@/redux/store";
 import { HideIfRole } from "@/lib/rbac/HideIfRole";
+import SidebarDropdown from "@/features/users/components/SidebarDropdown";
+import AdminSidebarDropdown from "@/features/users/components/AdminSidebarDropdown";
 // import { logout } from "@/redux/slices/authSlice";
 interface SidebarProps {
   isOpen: boolean;
@@ -141,7 +143,7 @@ export default function Sidebar({
   const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   // const auth = useSelector((state: RootState) => state.auth);
-
+  const isProcurement = user?.role === "PROCUREMENT_OFFICER";
   // Close sidebar on mobile (<768px) whenever the route changes
   useEffect(() => {
     if (isOpen && window.innerWidth < 768) {
@@ -212,47 +214,26 @@ export default function Sidebar({
               </button> */}
             </div>
           </div>
+          <div className="px-md">
+            {isProcurement ? <SidebarDropdown /> : <AdminSidebarDropdown />}
+          </div>
           {/* Divider */}
           <ScrollArea isSidebar className="flex-1 min-h-52 min-w-0">
             <div className="py-main flex flex-col gap-sm px-md">
               {/* Overview */}
-              <div
-                className={`flex flex-col gap-7 ${
-                  isCollapsed ? "border-t-2 border-border-main pt-main" : ""
-                }`}
-              >
-                {!isCollapsed && (
-                  <h6 className="font-mono leading-[1.2] tracking-[0.08em] text-[12px] text-body-passive">
-                    OVERVIEW
-                  </h6>
-                )}
-                <nav className="flex flex-col gap-4">
-                  {links.overview.map((link) => (
-                    <SidebarLink
-                      key={link.href}
-                      href={link.href}
-                      label={link.label}
-                      Icon={link.icon}
-                      isCollapsed={isCollapsed}
-                    />
-                  ))}
-                </nav>
-              </div>
-
-              {/* Order */}
               <HideIfRole roles={["PROCUREMENT_OFFICER"]}>
                 <div
                   className={`flex flex-col gap-7 ${
-                    isCollapsed ? "border-t-2 border-[#EDEDED] pt-main" : ""
+                    isCollapsed ? "border-t-2 border-border-main pt-main" : ""
                   }`}
                 >
                   {!isCollapsed && (
                     <h6 className="font-mono leading-[1.2] tracking-[0.08em] text-[12px] text-body-passive">
-                      ORDER
+                      OVERVIEW
                     </h6>
                   )}
                   <nav className="flex flex-col gap-4">
-                    {links.order.map((link) => (
+                    {links.overview.map((link) => (
                       <SidebarLink
                         key={link.href}
                         href={link.href}
@@ -264,6 +245,31 @@ export default function Sidebar({
                   </nav>
                 </div>
               </HideIfRole>
+
+              {/* Order */}
+
+              <div
+                className={`flex flex-col gap-7 ${
+                  isCollapsed ? "border-t-2 border-[#EDEDED] pt-main" : ""
+                }`}
+              >
+                {!isCollapsed && (
+                  <h6 className="font-mono leading-[1.2] tracking-[0.08em] text-[12px] text-body-passive">
+                    ORDER
+                  </h6>
+                )}
+                <nav className="flex flex-col gap-4">
+                  {links.order.map((link) => (
+                    <SidebarLink
+                      key={link.href}
+                      href={link.href}
+                      label={link.label}
+                      Icon={link.icon}
+                      isCollapsed={isCollapsed}
+                    />
+                  ))}
+                </nav>
+              </div>
 
               {/* Catalog */}
               <HideIfRole roles={["PROCUREMENT_OFFICER"]}>

@@ -1,8 +1,6 @@
 "use client";
 import DashboardStatsCard from "@/components/general/DashboardStatsCard";
-import EmptyState from "@/components/general/EmptyState";
 import Spinner from "@/components/general/Spinner";
-import LogoutButton from "@/features/auth/components/LogoutButton";
 import DashboardActiveOrders from "@/features/orders/components/DashboardActiveOrders";
 import DashboardUsers from "@/features/users/components/DashboardUsers";
 import { useGetDashboardData } from "@/hooks/dashboard.api";
@@ -59,13 +57,6 @@ const SuperAdminDashboardHome = () => {
               <DashboardUsers users={users} />
             </div>
           </div>
-
-          {/* <div>
-            <h2>
-              Hi {user?.firstName} {user?.lastName}
-            </h2>
-            <LogoutButton />
-          </div> */}
         </>
       )}
     </div>

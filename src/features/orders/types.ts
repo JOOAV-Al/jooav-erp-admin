@@ -2,7 +2,7 @@ import { ProductItem } from "@/features/products/types";
 import { UserItem } from "@/features/users/types";
 
 export type OrderStatus = "DRAFT" | "CONFIRMED" | "IN_PROGRESS" | "ASSIGNED" | "COMPLETED" | "CANCELLED" | "PENDING_PAYMENT"
-export type OrderAssignmentStatus = "UNASSIGNED" | "ACTIVE" | "BLOCKED" | "PENDING_APPROVAL" | "DEACTIVATED"
+export type OrderAssignmentStatus = "UNASSIGNED" | "REJECTED" | "REASSIGNED" | "PENDING_ACCEPTANCE" | "ACCEPTED"
 export interface CreateOrderPayload {
   wholesalerId?: string;
   items?: {
@@ -37,6 +37,8 @@ export interface CreateOrderPayload {
   assignmentNotes?: string;
   response?: string;
   reason?: string;
+  availabilityStatus?: string;
+  maxActiveOrders?: number;
 }
 
 export interface UpdateOrderItemStatusPayload {

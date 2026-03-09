@@ -45,7 +45,7 @@ const DashboardUsers = ({
               {users?.map((user, idx) => {
                 const userInitials =
                   (user?.firstName ?? "") + " " + (user?.lastName ?? "");
-                const userStatusStyles = getUserTagStyles(user.status);
+                const userStatusStyles = getUserTagStyles(user.role);
                 const isLast = idx === users.length - 1;
                 return (
                   <div

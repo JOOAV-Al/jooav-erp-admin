@@ -14,16 +14,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserItem } from "@/features/users/types";
-import { useAssignOfficerToOrder } from "@/features/orders/services/orders.api";
+import {
+  useAssignOfficerToOrder,
+  useOfficerResponseToOrder,
+} from "@/features/orders/services/orders.api";
 import {
   cn,
   enumToTitleCase,
   formatCurrency,
   formatOrderDate,
   getItemStatusStyles,
+  getOrderAssignmentStatusStyles,
   getOrderStatusStyles,
 } from "@/lib/utils";
 import { format } from "date-fns";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -73,6 +79,14 @@ export function OrderCard({
   onMarkItemInProgress,
   onRemoveItem,
 }: OrderCardProps) {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const hideAssignmentStatuses = ["DRAFT", "PENDING_PAYMENT"];
+  const responseStatuses = ["PENDING_ACCEPTANCE", "REASSIGNED"];
+  const isProcurement = user?.role === "PROCUREMENT_OFFICER";
+  const isThreeHeaderColumns =
+    isProcurement || hideAssignmentStatuses.includes(order?.status);
+  const needsResponse = responseStatuses.includes(order?.assignmentStatus);
+
   const [selectedOfficer, setSelectedOfficer] = useState<UserItem | undefined>(
     () =>
       officers?.find((o) => o.id === order?.assignedProcurementOfficerId || ""),
@@ -81,6 +95,8 @@ export function OrderCard({
 
   const { mutateAsync: assignOfficer, isPending: assigning } =
     useAssignOfficerToOrder();
+  const { mutateAsync: respondToOrder, isPending: responding } =
+    useOfficerResponseToOrder();
 
   const handleAssignOfficer = async (officerId: string) => {
     const officer = officers?.find((o) => o.id === officerId);
@@ -88,6 +104,16 @@ export function OrderCard({
     await assignOfficer({
       orderNumber: order.orderNumber,
       payload: { procurementOfficerId: officerId },
+    });
+  };
+
+  const handleProcurementResponseToOrder = async (
+    response: "ACCEPT" | "REJECT",
+  ) => {
+    if(responding) return;
+    await respondToOrder({
+      orderNumber: order.orderNumber,
+      payload: { response, reason: "" },
     });
   };
 
@@ -110,6 +136,7 @@ export function OrderCard({
     (order.wholesaler?.lastName ?? "");
 
   const orderStatusStyles = getOrderStatusStyles(order.status);
+  const acceptedAssignment = getOrderAssignmentStatusStyles("ACCEPTED");
 
   const displayOfficerName = selectedOfficer
     ? `${selectedOfficer.firstName} ${selectedOfficer.lastName}`
@@ -119,7 +146,7 @@ export function OrderCard({
     <div className="flex flex-col rounded-3xl border-[2px] border-border-main overflow-hidden px-main pt-main pb-sm gap-5 bg-white">
       {/* ── Order header ───────────────────────────────────────────────────── */}
       <div
-        className="grid grid-cols-1 mdxl:grid-cols-3 lg:grid-cols-4 align-top gap-[8px] px-md py-main border-b-2 border-border-main cursor-pointer transition-colors"
+        className={`grid grid-cols-1 ${isThreeHeaderColumns ? "lg:grid-cols-3" : "lg:grid-cols-4"} align-top gap-[8px] px-md py-main border-b-2 border-border-main cursor-pointer transition-colors`}
         onClick={() => onOrderClick?.(order)}
       >
         {/* Ordered By */}
@@ -136,65 +163,68 @@ export function OrderCard({
         </div>
 
         {/* Assigned To */}
-        <div className="flex flex-col gap-5">
-          <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-            Assigned To:
-          </span>
-          <div onClick={(e) => e.stopPropagation()}>
-            {order.status !== "DRAFT" && order?.status !== "PENDING_PAYMENT" ? (
-              <div className="flex flex-col gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <div className="flex items-center gap-[8px] cursor-pointer">
-                      <InitialsAvatar name={displayOfficerName ?? "?"} />
-                      <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                        {displayOfficerName ?? "Unassigned"}
-                      </span>
-                      {assigning ? (
-                        <Spinner className="h-[14px] w-[14px] text-outline" />
-                      ) : (
-                        <ChevronDown
-                          strokeWidth={2}
-                          className="h-[16px] w-[16px] text-outline"
-                        />
-                      )}
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="start"
-                    className="flex flex-col gap-5 p-sm! rounded-lg! max-h-90 overflow-y-auto user-dropdown"
-                  >
-                    {officers?.map((o) => (
-                      <DropdownMenuItem
-                        key={o.id}
-                        className={cn(
-                          "rounded-main h-8 cursor-pointer transition-colors text-body-passive hover:bg-storey-foreground select-option",
-                          o.id === selectedOfficer?.id &&
-                            "bg-storey-foreground text-body table-selected",
-                        )}
-                        onClick={() => handleAssignOfficer(o.id)}
-                      >
-                        <div className="flex items-center gap-5">
-                          <InitialsAvatar
-                            name={`${o.firstName} ${o.lastName}`}
+        {!isThreeHeaderColumns && (
+          <div className="flex flex-col gap-5">
+            <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+              Assigned To:
+            </span>
+            <div onClick={(e) => e.stopPropagation()}>
+              {order.status !== "DRAFT" &&
+              order?.status !== "PENDING_PAYMENT" ? (
+                <div className="flex flex-col gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <div className="flex items-center gap-[8px] cursor-pointer">
+                        <InitialsAvatar name={displayOfficerName ?? "?"} />
+                        <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                          {displayOfficerName ?? "Unassigned"}
+                        </span>
+                        {assigning ? (
+                          <Spinner className="h-[14px] w-[14px] text-outline" />
+                        ) : (
+                          <ChevronDown
+                            strokeWidth={2}
+                            className="h-[16px] w-[16px] text-outline"
                           />
-                          <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                            {o.firstName} {o.lastName}
-                          </span>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <TableTag text={enumToTitleCase(order?.assignmentStatus)} />
-              </div>
-            ) : (
-              <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                Unassigned
-              </span>
-            )}
+                        )}
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="start"
+                      className="flex flex-col gap-5 p-sm! rounded-lg! max-h-90 overflow-y-auto user-dropdown"
+                    >
+                      {officers?.map((o) => (
+                        <DropdownMenuItem
+                          key={o.id}
+                          className={cn(
+                            "rounded-main h-8 cursor-pointer transition-colors text-body-passive hover:bg-storey-foreground select-option",
+                            o.id === selectedOfficer?.id &&
+                              "bg-storey-foreground text-body table-selected",
+                          )}
+                          onClick={() => handleAssignOfficer(o.id)}
+                        >
+                          <div className="flex items-center gap-5">
+                            <InitialsAvatar
+                              name={`${o.firstName} ${o.lastName}`}
+                            />
+                            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                              {o.firstName} {o.lastName}
+                            </span>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <TableTag text={enumToTitleCase(order?.assignmentStatus)} />
+                </div>
+              ) : (
+                <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                  Unavailable
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Delivery Address */}
         <div className="flex flex-col gap-5 lg:place-self-center">
@@ -212,11 +242,42 @@ export function OrderCard({
             {formatOrderDate(order.orderDate ?? order.createdAt)}
           </span>
           <div className="lg:ml-auto">
-            <TableTag
-              small
-              className={orderStatusStyles.styles}
-              text={orderStatusStyles.text}
-            />
+            {isProcurement ? (
+              <div>
+                {needsResponse ? (
+                  <div className="flex items-center gap-[8px] p-2 ">
+                    <div
+                      onClick={() => handleProcurementResponseToOrder("REJECT")}
+                    >
+                      <TableTag
+                        className={`${responding ? "bg-border-main" : ""} hover:bg-border-main table-tag border-none h-[34px]! px-main py-md tracking-[0.02em] text-body-passive bg-white`}
+                        text={"Decline"}
+                      />
+                    </div>
+                    <div
+                      onClick={() => handleProcurementResponseToOrder("ACCEPT")}
+                    >
+                      <TableTag
+                        className={`${responding ? "bg-border-main" : ""} hover:bg-border-main table-tag border-none h-[34px]! px-main py-md tracking-[0.02em] border-[0.5px] text-brand-primary bg-tag-draft`}
+                        text={"Accept"}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <TableTag
+                    small
+                    className={acceptedAssignment.styles}
+                    text={acceptedAssignment.text}
+                  />
+                )}
+              </div>
+            ) : (
+              <TableTag
+                small
+                className={orderStatusStyles.styles}
+                text={orderStatusStyles.text}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -349,7 +410,7 @@ export function OrderCard({
                                 onMarkItemCancelled(item, order);
                               }}
                             >
-                              Cancelled
+                              Cancel
                             </DropdownMenuItem>
                           )}
                           {onRemoveItem && (
