@@ -230,20 +230,19 @@ const OrderLogsPageComponent = () => {
     if (!selectedOrder) return;
 
     // Check if a previous checkout URL exists and is still valid
-    // const now = new Date();
-    // const expiresAt = selectedOrder.paymentExpiresAt
-    //   ? new Date(selectedOrder.paymentExpiresAt)
-    //   : null;
-    // const isExpired = !expiresAt || expiresAt <= now;
-    // const hasValidCheckout = !!selectedOrder.checkoutUrl && !isExpired;
+    const now = new Date();
+    const expiresAt = selectedOrder.paymentExpiresAt
+      ? new Date(selectedOrder.paymentExpiresAt)
+      : null;
+    const isExpired = !expiresAt || expiresAt <= now;
+    const hasValidCheckout = !!selectedOrder.checkoutUrl && !isExpired;
 
-    // if (hasValidCheckout) {
-    //   console.log(selectedOrder);
-    //   // Still valid — skip re-initiation, show existing virtual accounts
-    //   // setPaymentObject(selectedOrder?.virtualAccounts?.[0]);
-    //   setDrawerView("payment");
-    //   return;
-    // }
+    if (hasValidCheckout) {
+      // Still valid — skip re-initiation, show existing virtual accounts
+      setCheckoutUrl(selectedOrder?.checkoutUrl);
+      setDrawerView("payment");
+      return;
+    }
 
     // Expired or never initiated — call initiate-payment endpoint
     const res =
@@ -254,29 +253,9 @@ const OrderLogsPageComponent = () => {
         : await reInitiatePayment({
             orderNumber: selectedOrder.orderNumber,
           });
-    // if (selectedOrder?.status === "DRAFT") {
-    //   const res = await initiatePayment({
-    //     orderNumber: selectedOrder.orderNumber,
-    //   });
-    //   setPaymentObject(
-    //     res.data.data?.virtualAccounts ?? selectedOrder.virtualAccounts,
-    //   );
-    //   setDrawerView("payment");
-    //   return;
-    // }
-
-    // const res = await reInitiatePayment({
-    //   orderNumber: selectedOrder.orderNumber,
-    // });
 
     if (res.data.status === "success") {
-      // Use fresh virtual accounts from response; fall back to existing ones
-      // setPaymentObject(
-      //   res.data.data?.virtualAccounts?.[0] ??
-      //     selectedOrder?.virtualAccounts?.[0],
-      // );
       // Sync updated order data (new paymentExpiresAt, checkoutUrl)
-      //TODO: Important!! to sync state and do a refresh on the FormOrderList
       setSelectedOrder(res.data.data?.order ?? selectedOrder);
       setDynamicOrderNumber(
         res.data.data?.order?.orderNumber ?? selectedOrder?.orderNumber,

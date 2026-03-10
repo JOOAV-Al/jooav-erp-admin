@@ -11,7 +11,9 @@ import {
   formatOrderDate,
   getOrderStatusStyles,
   getUserTagStyles,
+  truncateText,
 } from "@/lib/utils";
+import { truncate } from "fs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -56,10 +58,10 @@ const DashboardUsers = ({
                       <InitialsAvatar name={userInitials || "—"} />
                     </div>
                     <p className="px-sm justify-self-start font-medium text-sm leading-[1.5] tracking-[0.04em] text-body">
-                      {user?.firstName}
+                      {truncateText(user?.firstName, 5)}
                     </p>
                     <p className="px-sm font-medium text-sm leading-[1.5] tracking-[0.04em] text-body">
-                      {user?.lastName}
+                      {truncateText(user?.lastName, 5)}
                     </p>
                     <div className="ml-auto px-sm">
                       <TableTag

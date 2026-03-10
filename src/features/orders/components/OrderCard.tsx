@@ -86,7 +86,7 @@ export function OrderCard({
   const isThreeHeaderColumns =
     isProcurement || hideAssignmentStatuses.includes(order?.status);
   const needsResponse = responseStatuses.includes(order?.assignmentStatus);
-
+  const shouldShowActions = isProcurement ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED" : showActions
   const [selectedOfficer, setSelectedOfficer] = useState<UserItem | undefined>(
     () =>
       officers?.find((o) => o.id === order?.assignedProcurementOfficerId || ""),
@@ -345,7 +345,7 @@ export function OrderCard({
                   </div>
 
                   {/* Item status dropdown */}
-                  {showActions && (
+                  {shouldShowActions && (
                     <div
                       className="flex-shrink-0"
                       onClick={(e) => e.stopPropagation()}
