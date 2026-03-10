@@ -45,7 +45,7 @@ export default function PaymentVerificationPageComponent() {
   }, [paymentReference]);
 
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex bg-white! items-center justify-center min-h-200">
       <Spinner className="size-6" />
     </div>
   );

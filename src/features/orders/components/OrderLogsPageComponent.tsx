@@ -282,7 +282,7 @@ const OrderLogsPageComponent = () => {
         res.data.data?.order?.orderNumber ?? selectedOrder?.orderNumber,
       );
       setCheckoutUrl(
-        res.data.data?.order?.checkoutUrl ?? selectedOrder?.checkoutUrl,
+        res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl,
       );
       setDrawerView("payment");
     }
