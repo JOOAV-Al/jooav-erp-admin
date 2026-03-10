@@ -422,6 +422,8 @@ const OrderLogsPageComponent = () => {
                     <PaymentScreen
                       checkoutUrl={checkoutUrl ?? ""}
                       setOpen={setOpen}
+                      refetch={refetch}
+                      setFormView={setDrawerView}
                     />
                   }
                 />
