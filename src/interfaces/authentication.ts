@@ -11,6 +11,7 @@ export interface User {
   emailVerified: boolean;
   status: string;
   avatar: string | null;
+  availabilityStatus: string | null;
   role: Role;
   assignedRegions: [];
   permissions: {

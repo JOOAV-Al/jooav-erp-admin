@@ -132,7 +132,7 @@ export const useOfficerResponseToOrder = () => {
 export const useOfficerSetAvailability = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload}: {payload: CreateOrderPayload}) =>
-      api.put<Order>(`/orders/procurement-officer/availability`, payload), 
+      api.put<{availabilityStatus: string}>(`/orders/procurement-officer/availability`, payload), 
     invalidateQueries: [["admin-auth-me"]],
     onSuccess: () => {
       // Update Redux state if procurement status is there
