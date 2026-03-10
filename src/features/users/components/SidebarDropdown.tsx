@@ -14,29 +14,35 @@ import {
   useOfficerSetAvailability,
 } from "@/features/orders/services/orders.api";
 import { cn, toProperCase } from "@/lib/utils";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { setAvailabilityStatus } from "@/redux/slices/authSlice";
 
 const SidebarDropdown = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch()
+  const auth = useSelector((state: RootState) => state.auth);
   const { mutateAsync: updateAvailability, isPending: isUpdating } =
     useOfficerSetAvailability();
   const options = [
     { value: "AVAILABLE", label: "Active" },
     { value: "UNAVAILABLE", label: "Offline" },
   ];
-  const [status, setStatus] = useState(toProperCase(user?.status ?? ""));
+  const [status, setStatus] = useState(
+    toProperCase(auth?.user?.availabilityStatus ?? ""),
+  );
 
   const handleOfficerStatusUpdate = async (status: string) => {
-    setStatus(status); // optimistic update
-    await updateAvailability({
+    // setStatus(status); // optimistic update
+    const res = await updateAvailability({
       payload: { availabilityStatus: status },
     });
+    dispatch(setAvailabilityStatus({availabilityStatus: res.data.availabilityStatus }))
+    setStatus(res.data.availabilityStatus);
   };
 
   const getUserStatusStyles = (status = "") => {
     switch (status?.toUpperCase()) {
-      case "ACTIVE":
+      case "AVAILABLE":
         return {
           styles:
             "table-tag border-border-main bg-tag-queue text-brand-signal px-4! py-5! rounded-main!",
@@ -57,7 +63,7 @@ const SidebarDropdown = () => {
         <span className="text-[15px] font-medium text-body leading-[1.2] tracking-[0.04em]">
           Status
         </span>
-        <TableTag text={status} className={statusStyles.styles} />
+        <TableTag text={statusStyles.text} className={statusStyles.styles} />
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

@@ -120,7 +120,7 @@ const PaymentScreen = ({
   }, [setOpen]);
 
   return (
-    <ScrollArea isSidebar className="min-h-0 flex-1">
+    <ScrollArea isSidebar className="h-120 flex-1">
        <div className="relative w-full rounded-lg border">
          {/* Loader */}
          {iframeLoading && (
@@ -129,7 +129,7 @@ const PaymentScreen = ({
           </div>
         )}
 
-        <div className="min-h-200">
+        <div className="flex-1 h-200">
           <iframe
             src={checkoutUrl}
             title="Monnify Checkout"

@@ -17,4 +17,5 @@ export interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isUserLoading: boolean;
+  availabilityStatus: string | null
 }

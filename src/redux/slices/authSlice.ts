@@ -8,6 +8,7 @@ const initialState: AuthState = {
   token: null,
   isAuthenticated: false,
   isUserLoading: true,
+  availabilityStatus: null,
 }
 
 export const authSlice = createSlice({
@@ -18,19 +19,23 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
-      state.isUserLoading = false
+      state.isUserLoading = false;
       Cookies.set("authToken", action.payload.token, {
         sameSite: "strict",
       });
+    },
+    setAvailabilityStatus: (state, action: PayloadAction<{availabilityStatus: string | null}>) => {
+      state.availabilityStatus = action.payload?.availabilityStatus;
     },
     logout: (state) => {
       state.isUserLoading = true;
       state.token = null;
       state.user = null;
       state.isAuthenticated = false;
+      state.availabilityStatus = null;
     },
   }
 })
 
-export const { setCredentials, logout} = authSlice.actions;
+export const { setCredentials, setAvailabilityStatus, logout} = authSlice.actions;
 export default authSlice.reducer
