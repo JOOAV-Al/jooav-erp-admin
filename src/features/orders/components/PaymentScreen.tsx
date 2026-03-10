@@ -101,17 +101,32 @@ import { useState, useEffect } from "react";
 const PaymentScreen = ({
   checkoutUrl,
   setOpen,
+  refetch,
+  setFormView,
 }: {
   checkoutUrl?: string;
   setOpen?: (open: boolean) => void;
+  refetch?: () => void
+  setFormView?: (view: "form" | "order-list" | "payment") => void
 }) => {
   const [iframeLoading, setIframeLoading] = useState(true);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "PAYMENT_SUCCESS") {
-        setOpen?.(false);
-      }
+        setTimeout(() => {
+          setOpen?.(false);
+        }, 2000);
+        refetch?.()
+      } 
+      if (event.data?.type === "PAYMENT_FAILED") {
+        // setTimeout(() => {
+        //   setOpen?.(false);
+        // }, 2000);
+        setFormView?.("order-list")
+        refetch?.()
+      } 
+      
     };
 
     window.addEventListener("message", handleMessage);
@@ -121,9 +136,9 @@ const PaymentScreen = ({
 
   return (
     <ScrollArea isSidebar className="h-120 flex-1">
-       <div className="relative w-full rounded-lg border">
-         {/* Loader */}
-         {iframeLoading && (
+      <div className="relative w-full rounded-lg border">
+        {/* Loader */}
+        {iframeLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
             <Spinner className="size-6" />
           </div>

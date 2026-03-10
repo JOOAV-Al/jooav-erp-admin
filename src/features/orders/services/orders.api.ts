@@ -1,6 +1,6 @@
 import { fetchOrderDetails, fetchOrders, fetchOrdersStats } from "@/features/orders/services/queryFunctions";
 import { Order, CreateOrderPayload, UpdateOrderItemStatusPayload, UpdateMultipleOrderItemStatusPayload, OrderVirtualAccount } from "@/features/orders/types";
-import { GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
+import { ConfirmationData, GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
 import { api } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
 import { useQuery } from "@tanstack/react-query";
@@ -68,7 +68,7 @@ export const useReInitiateOrderPayment = () => {
 export const useConfirmOrderPayment = () => {
   return useInvalidatingMutation({
     mutationFn: ({ orderNumber }: { orderNumber: string }) =>
-      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/verify-payment`,),
+      api.post<MutationResponse<ConfirmationData>>(`/orders/${orderNumber}/verify-payment`,),
     invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]],
   });
 };
@@ -132,7 +132,7 @@ export const useOfficerResponseToOrder = () => {
 export const useOfficerSetAvailability = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload}: {payload: CreateOrderPayload}) =>
-      api.put<{availabilityStatus: string}>(`/orders/procurement-officer/availability`, payload), 
+      api.put<MutationResponse<{availabilityStatus: string}>>(`/orders/procurement-officer/availability`, payload), 
     invalidateQueries: [["admin-auth-me"]],
     onSuccess: () => {
       // Update Redux state if procurement status is there

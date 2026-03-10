@@ -36,8 +36,8 @@ const SidebarDropdown = () => {
     const res = await updateAvailability({
       payload: { availabilityStatus: status },
     });
-    dispatch(setAvailabilityStatus({availabilityStatus: res.data.availabilityStatus }))
-    setStatus(res.data.availabilityStatus);
+    dispatch(setAvailabilityStatus({availabilityStatus: res.data?.data?.availabilityStatus }))
+    setStatus(res.data?.data?.availabilityStatus);
   };
 
   const getUserStatusStyles = (status = "") => {

@@ -99,6 +99,17 @@ export interface MutationResponse<T> {
   data: T;
 }
 
+export interface ConfirmationData {
+  message: string;
+  success: boolean;
+  paymentDetails: {
+    transactionReference: string,
+    amountPaid: string, 
+    paidOn: string; 
+    paymentMethod: string;
+  }
+}
+
 export interface DefaultBulkMutationData {
   id: string;
   success: boolean;
