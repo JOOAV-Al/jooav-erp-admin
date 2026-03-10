@@ -7,6 +7,7 @@ import {
   formatCurrency,
   formatOrderDate,
   getOrderStatusStyles,
+  truncateText,
 } from "@/lib/utils";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -127,7 +128,7 @@ const DashboardActiveOrders = ({
                       <div className="flex items-center gap-5">
                         <InitialsAvatar name={wholesaler || "—"} />
                         <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em] text-nowrap">
-                          {wholesaler || "—"}
+                          {truncateText(wholesaler, 10) || "—"}
                         </span>
                       </div>
                     </div>

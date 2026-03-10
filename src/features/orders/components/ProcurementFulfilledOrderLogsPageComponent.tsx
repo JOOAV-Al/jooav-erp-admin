@@ -36,7 +36,7 @@ const ProcurementFulfilledOrderLogsPageComponent = () => {
     isPending: isOrdersPending,
     isRefetching,
     refetch,
-  } = useGetOrders({ page, search: debouncedQuery });
+  } = useGetOrders({ page, search: debouncedQuery,status: "COMPLETED" });
 
   const orders: Order[] = data?.data?.orders ?? [];
 
