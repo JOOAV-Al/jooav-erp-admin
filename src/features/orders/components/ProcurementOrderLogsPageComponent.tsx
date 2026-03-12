@@ -83,6 +83,7 @@ const ProcurementOrderLogsPageComponent = () => {
       payload: { status, processingNotes: "" },
     });
     setSelectedOrder(undefined);
+    refetch()
   };
 
   // ── Row click handlers ─────────────────────────────────────────────────────
@@ -188,6 +189,7 @@ const ProcurementOrderLogsPageComponent = () => {
           emptyDescription={
             "You will see a summary of recent orders here once order are initiated.  "
           }
+          refetch={refetch}
         />
       </div>
     </div>

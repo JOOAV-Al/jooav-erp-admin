@@ -51,6 +51,7 @@ export interface OrderCardProps {
   officers?: UserItem[];
   actionLoading?: boolean;
   showActions?: boolean;
+  withCheckbox?: boolean;
   selectedItemIds: Set<string>;
   onOrderClick?: (order: Order) => void;
   onOrderItemClick?: (item: OrderItem, parentOrder: Order) => void;
@@ -60,6 +61,7 @@ export interface OrderCardProps {
   onMarkItemCancelled?: (item: OrderItem, parentOrder: Order) => void;
   onMarkItemInProgress?: (item: OrderItem, parentOrder: Order) => void;
   onRemoveItem?: (item: OrderItem) => void;
+  refetch?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -69,6 +71,7 @@ export function OrderCard({
   officers,
   actionLoading,
   showActions = true,
+  withCheckbox = true,
   selectedItemIds,
   onOrderClick,
   onOrderItemClick,
@@ -78,6 +81,7 @@ export function OrderCard({
   onMarkItemCancelled,
   onMarkItemInProgress,
   onRemoveItem,
+  refetch,
 }: OrderCardProps) {
   const user = useSelector((state: RootState) => state.auth.user);
   const hideAssignmentStatuses = ["DRAFT", "PENDING_PAYMENT"];
@@ -86,7 +90,9 @@ export function OrderCard({
   const isThreeHeaderColumns =
     isProcurement || hideAssignmentStatuses.includes(order?.status);
   const needsResponse = responseStatuses.includes(order?.assignmentStatus);
-  const shouldShowActions = isProcurement ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED" : showActions
+  const shouldShowActions = isProcurement
+    ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
+    : hideAssignmentStatuses?.includes(order?.status) || order?.status === "COMPLETED" ? false : showActions;
   const [selectedOfficer, setSelectedOfficer] = useState<UserItem | undefined>(
     () =>
       officers?.find((o) => o.id === order?.assignedProcurementOfficerId || ""),
@@ -105,16 +111,18 @@ export function OrderCard({
       orderNumber: order.orderNumber,
       payload: { procurementOfficerId: officerId },
     });
+    refetch?.();
   };
 
   const handleProcurementResponseToOrder = async (
     response: "ACCEPT" | "REJECT",
   ) => {
-    if(responding) return;
+    if (responding) return;
     await respondToOrder({
       orderNumber: order.orderNumber,
       payload: { response, reason: "" },
     });
+    refetch?.();
   };
 
   const items = order.items ?? [];
@@ -146,7 +154,7 @@ export function OrderCard({
     <div className="flex flex-col rounded-3xl border-[2px] border-border-main overflow-hidden px-main pt-main pb-sm gap-5 bg-white">
       {/* ── Order header ───────────────────────────────────────────────────── */}
       <div
-        className={`grid grid-cols-1 ${isThreeHeaderColumns ? "lg:grid-cols-3" : "lg:grid-cols-4"} align-top gap-[8px] px-md py-main border-b-2 border-border-main cursor-pointer transition-colors`}
+        className={`grid grid-cols-1 ${isThreeHeaderColumns ? "lg:grid-cols-3" : "lg:grid-cols-4"} align-top gap-[8px] px-md py-main border-b-2 border-border-main ${isProcurement ? "" : "cursor-pointer"} transition-colors`}
         onClick={() => onOrderClick?.(order)}
       >
         {/* Ordered By */}
@@ -169,8 +177,15 @@ export function OrderCard({
               Assigned To:
             </span>
             <div onClick={(e) => e.stopPropagation()}>
-              {order.status !== "DRAFT" &&
-              order?.status !== "PENDING_PAYMENT" ? (
+              {order.status === "COMPLETED" ? (
+                <div className="flex items-center gap-[8px] cursor-pointer">
+                  <InitialsAvatar name={displayOfficerName ?? "?"} />
+                  <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                    {displayOfficerName ?? "Unassigned"}
+                  </span>
+                </div>
+              ) : order.status !== "DRAFT" &&
+                order?.status !== "PENDING_PAYMENT" ? (
                 <div className="flex flex-col gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -244,7 +259,7 @@ export function OrderCard({
           <div className="lg:ml-auto">
             {isProcurement ? (
               <div>
-                {needsResponse ? (
+                {needsResponse && shouldShowActions ? (
                   <div className="flex items-center gap-[8px] p-2 ">
                     <div
                       onClick={() => handleProcurementResponseToOrder("REJECT")}
@@ -267,7 +282,11 @@ export function OrderCard({
                   <TableTag
                     small
                     className={acceptedAssignment.styles}
-                    text={acceptedAssignment.text}
+                    text={
+                      order?.status === "COMPLETED"
+                        ? "Fulfilled"
+                        : acceptedAssignment.text
+                    }
                   />
                 )}
               </div>
@@ -294,23 +313,25 @@ export function OrderCard({
               key={item.id}
               onClick={() => onOrderItemClick?.(item, order)}
               className={`
-                flex items-start gap-main px-main py-md ml-4 cursor-pointer transition-colors hover:rounded-xl
+                flex items-start gap-main px-main py-md ml-4 ${isProcurement ? "" : "cursor-pointer"} transition-colors hover:rounded-xl
                 ${isSelected ? "bg-storey-foreground shadow-input rounded-xl" : "hover:bg-storey-foreground"}
               `}
             >
               {/* Checkbox */}
-              <div
-                className="flex-shrink-0 mt-0.5"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={(checked) =>
-                    onSelectItem(order, item.id, !!checked)
-                  }
-                  aria-label={`Select ${productName}`}
-                />
-              </div>
+              {withCheckbox && (
+                <div
+                  className="flex-shrink-0 mt-0.5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={(checked) =>
+                      onSelectItem(order, item.id, !!checked)
+                    }
+                    aria-label={`Select ${productName}`}
+                  />
+                </div>
+              )}
 
               {/* Thumbnail */}
               <div className="flex-shrink-0 w-[65px] h-[65px] rounded-lg border border-border-main overflow-hidden bg-storey-foreground flex items-center justify-center">

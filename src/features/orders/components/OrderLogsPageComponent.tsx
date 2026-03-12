@@ -82,10 +82,6 @@ const OrderLogsPageComponent = () => {
     useInitiateOrderPayment();
   const { mutateAsync: reInitiatePayment, isPending: reInitiatingPayment } =
     useReInitiateOrderPayment();
-  const {
-    mutateAsync: confirmPayment,
-    isPending: isPaymentConfirmationPending,
-  } = useConfirmOrderPayment();
   const { mutateAsync: deleteOrder, isPending: deleting } = useDeleteOrder();
   const { mutateAsync: updateItemStatus, isPending: updatingItem } =
     useUpdateOrderItemStatus();
@@ -186,6 +182,7 @@ const OrderLogsPageComponent = () => {
       if (res.data.status === "success") {
         updatedOrder = res.data?.data?.order;
       }
+      refetch();
     } else {
       // "add" or "update" — PATCH /orders/:id
       const res = await updateDraftOrder({
@@ -195,6 +192,7 @@ const OrderLogsPageComponent = () => {
       if (res.data.status === "success") {
         updatedOrder = res.data?.data?.order ?? selectedOrder;
       }
+      refetch();
     }
 
     if (updatedOrder) {
@@ -222,6 +220,7 @@ const OrderLogsPageComponent = () => {
       payload,
       id: selectedOrder!.orderNumber,
     });
+    refetch();
   };
 
   // ── Proceed to payment (primary on order-list) ────────────────────────────
@@ -253,16 +252,16 @@ const OrderLogsPageComponent = () => {
         : await reInitiatePayment({
             orderNumber: selectedOrder.orderNumber,
           });
+    
 
     if (res.data.status === "success") {
+      refetch()
       // Sync updated order data (new paymentExpiresAt, checkoutUrl)
       setSelectedOrder(res.data.data?.order ?? selectedOrder);
       setDynamicOrderNumber(
         res.data.data?.order?.orderNumber ?? selectedOrder?.orderNumber,
       );
-      setCheckoutUrl(
-        res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl,
-      );
+      setCheckoutUrl(res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl);
       setDrawerView("payment");
     }
   };
@@ -286,6 +285,7 @@ const OrderLogsPageComponent = () => {
       id: itemId,
       payload: { status, processingNotes: "" },
     });
+    refetch()
     setSelectedOrder(undefined);
     setDynamicOrderNumber(undefined);
     setCheckoutUrl(undefined);
@@ -295,6 +295,7 @@ const OrderLogsPageComponent = () => {
     await deleteOrder({ id: selectedOrder?.id ?? "" });
     setOpen(false);
     resetDrawer();
+    refetch()
   };
 
   // const handleConfirmPayment = async () => {
@@ -559,7 +560,7 @@ const OrderLogsPageComponent = () => {
         <OrdersGroupedTable
           orders={orders}
           officers={officers?.data}
-          loading={isOrdersPending || isRefetching}
+          loading={isOrdersPending}
           onOrderClick={handleOrderClick}
           onOrderItemClick={handleOrderItemClick}
           onDelete={(rows) =>
@@ -586,6 +587,7 @@ const OrderLogsPageComponent = () => {
           emptyImage="/dashboard/import-csv.svg"
           emptyCta="Refresh"
           onEmptyCta={refetch}
+          refetch={refetch}
         />
       </div>
     </div>

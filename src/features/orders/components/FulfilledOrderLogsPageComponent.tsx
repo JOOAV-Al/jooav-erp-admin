@@ -45,7 +45,7 @@ const FulfilledOrderLogsPageComponent = () => {
     isPending: isOrdersPending,
     isRefetching,
     refetch,
-  } = useGetOrders({ page, search: debouncedQuery, status: "COMPLETED" });
+  } = useGetOrders({ page, search: debouncedQuery, status: "COMPLETED", sortOrder });
 
   // const { data: products } = useGetProducts({});
   // const { data: wholesalers } = useGetUsers({ role: "WHOLESALER" });

@@ -159,7 +159,6 @@
 /* Semantic Color Tokens */
 :root {
   /* Borders */
-  /* --border-accent: hsl(0 0 100%); */
   --border-accent: hsla(45, 16%, 80%, 1);
   --border-main: hsla(0, 0%, 93%, 1);
   --border-brand-stroke: hsla(216, 82%, 78%, 1);
@@ -548,6 +547,9 @@
   --color-cosmic-latte-700: var(--cosmic-latte-700);
   --color-cosmic-latte-800: var(--cosmic-latte-800);
 
+  --color-tag-draft: var(--tag-draft);
+  --color-nominal-background: var(--nominal-background);
+  
   /* Semantic UI Colors */
   --color-background: var(--nominal-background);
   --color-foreground: var(--text-body-color);
@@ -912,7 +914,6 @@
   border-bottom: 5px solid magenta; */
 }
 
-/* In your global CSS file */
 .lucide {
   stroke-width: 2px;
   vector-effect: non-scaling-stroke;
