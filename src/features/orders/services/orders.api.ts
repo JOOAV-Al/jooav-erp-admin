@@ -1,7 +1,7 @@
 import { fetchOrderDetails, fetchOrders, fetchOrdersStats } from "@/features/orders/services/queryFunctions";
 import { Order, CreateOrderPayload, UpdateOrderItemStatusPayload, UpdateMultipleOrderItemStatusPayload, OrderVirtualAccount } from "@/features/orders/types";
 import { ConfirmationData, GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
-import { api } from "@/lib/api/axiosInstance";
+import { api, CustomAxiosRequestConfig } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosHeaders, AxiosRequestHeaders } from "axios";
@@ -28,7 +28,7 @@ export const useCreateDraftOrder = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateOrderPayload) =>
       api.post<MutationResponse<{order: Order}>>("/orders", payload), 
-    invalidateQueries: [["all-orders"], ["orders-stats"], ["order-details"]]
+    invalidateQueries: [["orders-stats"], ["order-details"]]
   });
 };
 
@@ -36,7 +36,7 @@ export const useUpdateDraftOrder = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload, id}: {payload: CreateOrderPayload, id: string}) =>
       api.patch<MutationResponse<{order: Order}>>(`/orders/${id}`, payload), 
-    invalidateQueries: [["all-orders"], ["order-details"]]
+    invalidateQueries: [["orders-stats"], ["order-details"]]
   });
 };
 
@@ -53,15 +53,15 @@ export const useUpdateDraftOrder = () => {
 export const useInitiateOrderPayment = () => {
   return useInvalidatingMutation({
     mutationFn: ({ orderNumber }: { orderNumber: string }) =>
-      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/initiate-payment`,),
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]],
+      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/initiate-payment`, {noToast: true} as CustomAxiosRequestConfig),
+    invalidateQueries: [["order-details"], ["orders-stats"]],
   });
 };
 export const useReInitiateOrderPayment = () => {
   return useInvalidatingMutation({
     mutationFn: ({ orderNumber }: { orderNumber: string }) =>
-      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/reinitiate-payment`),
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]],
+      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/reinitiate-payment`, {noToast: true} as CustomAxiosRequestConfig),
+    invalidateQueries: [["order-details"], ["orders-stats"]],
   });
 };
 
@@ -77,7 +77,7 @@ export const useDeleteOrder = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete(`/orders/${id}/cancel`), 
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]]
+    invalidateQueries: [["order-details"], ["orders-stats"]]
   });
 };
 
@@ -85,7 +85,7 @@ export const useDeleteMultipleOrders = () => {
   return useInvalidatingMutation({
     mutationFn: ({orderIds}: {orderIds: string[]}) =>
       api.post(`/orders/bulk/delete`, {orderIds}), 
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]]
+    invalidateQueries: [["order-details"], ["orders-stats"]]
   });
 };
 
@@ -93,7 +93,7 @@ export const useUpdateOrderItemStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({orderNumber, id, payload}: {orderNumber: string; id: string, payload: UpdateOrderItemStatusPayload}) =>
       api.patch<Order>(`/orders/${orderNumber}/items/${id}/status`, payload), 
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]]
+    invalidateQueries: [["order-details"], ["orders-stats"]]
   });
 };
 
@@ -101,7 +101,7 @@ export const useUpdateMultipleOrderItemStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({orderNumber, payload}: {orderNumber: string; payload: UpdateMultipleOrderItemStatusPayload}) =>
       api.patch<Order>(`/orders/${orderNumber}/items/bulk-update`, payload), 
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]]
+    invalidateQueries: [["order-details"], ["orders-stats"]]
   });
 };
 
@@ -109,7 +109,7 @@ export const useAssignOfficerToOrder = () => {
   return useInvalidatingMutation({
     mutationFn: ({orderNumber, payload}: {orderNumber: string, payload: CreateOrderPayload}) =>
       api.patch<Order>(`/orders/${orderNumber}/assign`, payload), 
-    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]]
+    invalidateQueries: [["order-details"], ["orders-stats"]]
   });
 };
 

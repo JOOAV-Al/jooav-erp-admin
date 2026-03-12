@@ -34,6 +34,7 @@ interface OrdersGroupedTableProps {
   emptyImage?: string;
   emptyCta?: string;
   onEmptyCta?: () => void;
+  refetch?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -59,17 +60,18 @@ function OrdersGroupedTable({
   emptyImage = "/dashboard/import-csv.svg",
   emptyCta,
   onEmptyCta,
+  refetch,
 }: OrdersGroupedTableProps) {
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(
     new Set(),
   );
-
   const [openBulkStatus, setOpenBulkStatus] = useState<boolean>(false);
   // Track selected item IDs and the single order they belong to
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(
     new Set(),
   );
+  const noActionStatuses = ["COMPLETED", "DRAFT", "PENDING_PAYMENT"];
 
   const { mutateAsync: bulkUpdateItems, isPending: bulkUpdating } =
     useUpdateMultipleOrderItemStatus();
@@ -102,6 +104,7 @@ function OrdersGroupedTable({
   const handleBulkStatus = async (status: string) => {
     const order = orders.find((o) => o.id === activeOrderId);
     if (!order) return;
+    if (noActionStatuses.includes(order?.status)) return;
 
     await bulkUpdateItems({
       orderNumber: order.orderNumber,
@@ -116,6 +119,7 @@ function OrdersGroupedTable({
     });
 
     handleClearSelection();
+    refetch?.()
   };
 
   useEffect(() => {
@@ -173,6 +177,8 @@ function OrdersGroupedTable({
           onMarkItemInProgress={onMarkItemInProgress}
           onRemoveItem={onRemoveItem}
           showActions={showActions}
+          withCheckbox={!noActionStatuses.includes(order?.status)}
+          refetch={refetch}
         />
       ))}
 
