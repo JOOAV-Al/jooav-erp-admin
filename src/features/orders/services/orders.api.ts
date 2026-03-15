@@ -53,14 +53,14 @@ export const useUpdateDraftOrder = () => {
 export const useInitiateOrderPayment = () => {
   return useInvalidatingMutation({
     mutationFn: ({ orderNumber }: { orderNumber: string }) =>
-      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/initiate-payment`, {noToast: true} as CustomAxiosRequestConfig),
+      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/initiate-payment`, {}, {noToast: true} as CustomAxiosRequestConfig),
     invalidateQueries: [["order-details"], ["orders-stats"]],
   });
 };
 export const useReInitiateOrderPayment = () => {
   return useInvalidatingMutation({
     mutationFn: ({ orderNumber }: { orderNumber: string }) =>
-      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/reinitiate-payment`, {noToast: true} as CustomAxiosRequestConfig),
+      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/reinitiate-payment`, {}, {noToast: true} as CustomAxiosRequestConfig),
     invalidateQueries: [["order-details"], ["orders-stats"]],
   });
 };

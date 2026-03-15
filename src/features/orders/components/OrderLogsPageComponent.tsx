@@ -65,7 +65,7 @@ const OrderLogsPageComponent = () => {
     string | undefined
   >(selectedOrder?.orderNumber ?? "");
   const [checkoutUrl, setCheckoutUrl] = useState<string | undefined>(
-    selectedOrder?.orderNumber ?? "",
+    selectedOrder?.checkoutUrl ?? "",
   );
   const [selectedOrderItem, setSelectedOrderItem] = useState<
     OrderItem | undefined
