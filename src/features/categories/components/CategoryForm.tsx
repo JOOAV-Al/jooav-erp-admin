@@ -22,10 +22,15 @@ import {
 import { useEffect, useRef, useState } from "react";
 import FieldIcon from "@/components/general/FieldIcon";
 
-const createCategorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
-  subcategories: z.array(z.string()).optional(),
-});
+const createCategorySchema = z
+  .object({
+    name: z.string().min(1, "Category name is required"),
+    subcategories: z.array(z.string()).optional(),
+  })
+  .superRefine((data, ctx) => {
+    // This refinement will run on submit
+    // We'll handle the actual validation in the component since we need access to existingSubcategories
+  });
 
 export function CategoryForm({
   handleSubmitForm,
@@ -44,6 +49,7 @@ export function CategoryForm({
   const [subcategoriesToDelete, setSubcategoriesToDelete] = useState<string[]>(
     [],
   );
+    const [subcategoryError, setSubcategoryError] = useState<string>("");
   const subcategoriesInputRef = useRef<TagInputHandle>(null);
   const form = useForm<CategoryData>({
     resolver: zodResolver(createCategorySchema),
@@ -90,9 +96,15 @@ export function CategoryForm({
     );
     if (itemToRemove) {
       setSubcategoriesToDelete((prev) => [...prev, itemToRemove.id]);
-      setExistingSubcategories((prev) =>
-        prev.filter((item) => item.id !== itemToRemove.id),
+      const updatedExisting = existingSubcategories.filter(
+        (item) => item.id !== itemToRemove.id,
       );
+      setExistingSubcategories(updatedExisting);
+
+      // Show error if removing this would leave us with zero subcategories
+      if (updatedExisting.length === 0 && pendingSubcategories.length === 0) {
+        setSubcategoryError("Min: 1 Subcategory");
+      }
     }
   };
 
@@ -100,6 +112,11 @@ export function CategoryForm({
     setPendingSubcategories((prev) => {
       const merged = [...prev, ...tags.filter((t) => !prev.includes(t))];
       form.setValue("subcategories", merged); // ✅ uses the same merged array
+      // Clear error if we now have subcategories
+      if (merged.length > 0 || existingSubcategories.length > 0) {
+        setSubcategoryError("");
+        form.clearErrors("subcategories");
+      }
       return merged;
     });
   };
@@ -108,11 +125,30 @@ export function CategoryForm({
     const updated = pendingSubcategories.filter((t) => t !== tag);
     setPendingSubcategories(updated);
     form.setValue("subcategories", updated);
-  };
+    // Show error if removing this tag would leave us with zero subcategories
+    if (updated.length === 0 && existingSubcategories.length === 0) {
+      setSubcategoryError("Min: 1 Subcategory");
+    }
+  };;
 
   const onSubmit = async (values: CategoryData) => {
     if (!handleSubmitForm) return;
     const newSubcategoryNames = values.subcategories ?? [];
+    // Calculate total subcategories (existing + new pending)
+    const totalSubcategories =
+      existingSubcategories.length + newSubcategoryNames.length;
+    // Validate: must have at least one subcategory
+    if (totalSubcategories === 0) {
+      setSubcategoryError("Min: 1 Subcategory");
+      form.setError("subcategories", {
+        type: "manual",
+        message: "Min: 1 Subcategory",
+      });
+      return;
+    }
+
+    // Clear any previous error
+    setSubcategoryError("");
 
     if (category?.id) {
       // EDITING MODE
@@ -189,11 +225,13 @@ export function CategoryForm({
             name="subcategories"
             render={({ field: { onChange, value }, fieldState }) => (
               <div>
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={!!subcategoryError || fieldState.invalid}>
                   <div className="flex gap-3 items-center">
                     <FieldLabel>Sub-category name</FieldLabel>
-                    {fieldState.error && (
-                      <FieldError>: {fieldState.error.message}</FieldError>
+                    {(subcategoryError || fieldState.error) && (
+                      <FieldError>
+                        : {subcategoryError || fieldState?.error?.message}
+                      </FieldError>
                     )}
                   </div>
                   <TagInput

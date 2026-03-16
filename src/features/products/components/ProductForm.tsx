@@ -739,55 +739,56 @@ export function ProductForm({
                   </div>
 
                   <div className="flex flex-col gap-6">
-                    {/* Existing images (URLs from backend) */}
-                    {existingImages?.map((imageUrl, index) => (
-                      <ImageUploadBox
-                        key={`existing-${index}`}
-                        value={imageUrl}
-                        onChange={(file) => {
-                          if (!file) {
-                            // User clicked X to remove
-                            handleRemoveExistingImage(imageUrl);
-                          }
-                        }}
-                        width={376.5}
-                        height={376.5}
-                        // imageClassName="p-16!"
-                      />
-                    ))}
+                    {Array.from({ length: 3 }).map((_, index) => {
+                      // Determine what value this slot holds:
+                      // In edit mode, existing images (URLs) fill slots first, then new File objects
+                      const existingImage = existingImages[index] ?? null;
+                      const newImage = !existingImage
+                        ? ((field.value ?? [])[index - existingImages.length] ??
+                          null)
+                        : null;
+                      const slotValue = existingImage ?? newImage;
 
-                    {/* New images (Files being uploaded) */}
-                    {(field.value ?? []).map((img: File, index: number) => (
-                      <ImageUploadBox
-                        key={`new-${index}`}
-                        value={img}
-                        onChange={(file) => {
-                          const copy = [...(field.value ?? [])];
-                          if (file) {
-                            copy[index] = file;
-                          } else {
-                            copy.splice(index, 1);
-                          }
-                          field.onChange(copy);
-                        }}
-                        width={376.5}
-                        height={376.5}
-                        imageClassName="p-16!"
-                      />
-                    ))}
-                    {/* Add new image box */}
-                    <ImageUploadBox
-                      onChange={(file) => {
-                        if (!file) return;
-                        field.onChange([...(field.value || []), file]);
-                      }}
-                      width={376.5}
-                      height={376.5}
-                    />
+                      return (
+                        <ImageUploadBox
+                          key={`image-slot-${index}`}
+                          value={slotValue}
+                          onChange={(file) => {
+                            if (existingImage) {
+                              // Replacing or removing an existing (URL) image
+                              if (!file) {
+                                handleRemoveExistingImage(existingImage);
+                              } else {
+                                // Mark old URL for deletion, add new file
+                                handleRemoveExistingImage(existingImage);
+                                const copy = [...(field.value ?? [])];
+                                // Place it at the front to keep slot order stable
+                                copy.unshift(file);
+                                field.onChange(copy);
+                              }
+                            } else {
+                              // Managing a new File slot
+                              const newFileIndex =
+                                index - existingImages.length;
+                              const copy = [...(field.value ?? [])];
+                              if (file) {
+                                copy[newFileIndex] = file;
+                              } else {
+                                copy.splice(newFileIndex, 1);
+                              }
+                              field.onChange(copy);
+                            }
+                          }}
+                          width={376.5}
+                          height={376.5}
+                        />
+                      );
+                    })}
                   </div>
                 </Field>
               )}
             />
+            
           </FieldGroup>
         </div>
       </FieldSet>

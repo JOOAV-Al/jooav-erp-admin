@@ -179,7 +179,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           >
             Assigned
           </Button>
-          <Button
+          {/* <Button
             size={"filter"}
             variant={"filter"}
             onClick={() => handleToggle("COMPLETED")}
@@ -188,7 +188,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
         `}
           >
             Completed
-          </Button>
+          </Button> */}
 
           <Button
             onClick={() => handleToggle("IN_PROGRESS")}
