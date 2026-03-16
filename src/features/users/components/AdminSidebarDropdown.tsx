@@ -25,8 +25,8 @@ const AdminSidebarDropdown = () => {
   };
 
   return (
-    <div className="flex items-center gap-6 px-sm py-5 rounded-md">
-      <div className="flex gap-6 items-center">
+    <div className="flex items-center px-sm py-5 rounded-md">
+      <div onClick={() => setTriggerOpen(true)} className="flex gap-6 items-center mr-2 cursor-pointer">
         <Plus size={18} className="text-outline" />
         <span className="text-[15px] font-medium text-body leading-[1.2] tracking-[0.04em]">
           Create new

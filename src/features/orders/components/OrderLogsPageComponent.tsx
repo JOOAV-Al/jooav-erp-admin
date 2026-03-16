@@ -45,7 +45,7 @@ import { useSearchParams } from "next/navigation";
 // "payment"     → PaymentScreen (virtual account details)
 type DrawerView = "form" | "order-list" | "payment";
 
-const PAYMENT_PENDING_STATUSES = ["PENDING_PAYMENT", "CONFIRMED"];
+const PAYMENT_PENDING_STATUSES = ["PENDING_PAYMENT", "DRAFT"];
 
 const OrderLogsPageComponent = () => {
   const searchParams = useSearchParams();
@@ -398,13 +398,16 @@ const OrderLogsPageComponent = () => {
               {/* ── Payment screen ─────────────────────────────────────── */}
               {drawerView === "payment" && (
                 <DrawerBoxContent
+                  fillHeight
                   content={
-                    <PaymentScreen
-                      checkoutUrl={checkoutUrl ?? ""}
-                      setOpen={setOpen}
-                      refetch={refetch}
-                      setFormView={setDrawerView}
-                    />
+                    (
+                      <PaymentScreen
+                        checkoutUrl={checkoutUrl ?? ""}
+                        setOpen={setOpen}
+                        refetch={refetch}
+                        setFormView={setDrawerView}
+                      />
+                    )
                   }
                 />
               )}

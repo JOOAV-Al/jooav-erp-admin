@@ -57,6 +57,10 @@ export function VariantForm({
   const [packSizesToDelete, setPackSizesToDelete] = useState<string[]>([]);
   const [packTypesToDelete, setPackTypesToDelete] = useState<string[]>([]);
 
+  // Error states for validation
+  const [packSizeError, setPackSizeError] = useState<string>("");
+  const [packTypeError, setPackTypeError] = useState<string>("");
+
   const packSizesInputRef = useRef<TagInputHandle>(null);
   const packTypesInputRef = useRef<TagInputHandle>(null);
 
@@ -92,6 +96,8 @@ export function VariantForm({
     setPackTypesToDelete([]);
     setPendingPackSizes([]);
     setPendingPackTypes([]);
+    setPackSizeError("");
+    setPackTypeError("");
   }, [variant?.id, reset]);
 
   useEffect(() => {
@@ -108,6 +114,8 @@ export function VariantForm({
       setPackTypesToDelete([]);
       setPendingPackSizes([]);
       setPendingPackTypes([]);
+      setPackSizeError("");
+      setPackTypeError("");
       packSizesInputRef.current?.clear();
       packTypesInputRef.current?.clear();
     });
@@ -117,9 +125,15 @@ export function VariantForm({
     const itemToRemove = existingPackSizes.find((item) => item.name === name);
     if (itemToRemove) {
       setPackSizesToDelete((prev) => [...prev, itemToRemove.id]);
-      setExistingPackSizes((prev) =>
-        prev.filter((item) => item.id !== itemToRemove.id),
+      const updatedExisting = existingPackSizes.filter(
+        (item) => item.id !== itemToRemove.id,
       );
+      setExistingPackSizes(updatedExisting);
+
+      // Show error if removing this would leave us with zero pack sizes
+      if (updatedExisting.length === 0 && pendingPackSizes.length === 0) {
+        setPackSizeError("Min: 1 Pack size");
+      }
     }
   };
 
@@ -127,16 +141,29 @@ export function VariantForm({
     const itemToRemove = existingPackTypes.find((item) => item.name === name);
     if (itemToRemove) {
       setPackTypesToDelete((prev) => [...prev, itemToRemove.id]);
-      setExistingPackTypes((prev) =>
-        prev.filter((item) => item.id !== itemToRemove.id),
+      const updatedExisting = existingPackTypes.filter(
+        (item) => item.id !== itemToRemove.id,
       );
+      setExistingPackTypes(updatedExisting);
+
+      // Show error if removing this would leave us with zero pack types
+      if (updatedExisting.length === 0 && pendingPackTypes.length === 0) {
+        setPackTypeError("Min: 1 Pack type");
+      }
     }
   };
 
   const handleConfirmSizes = (tags: string[]) => {
     setPendingPackSizes((prev) => {
       const merged = [...prev, ...tags.filter((t) => !prev.includes(t))];
-      form.setValue("packSizes", merged); // ✅ uses the same merged array
+      form.setValue("packSizes", merged);
+
+      // Clear error if we now have pack sizes
+      if (merged.length > 0 || existingPackSizes.length > 0) {
+        setPackSizeError("");
+        form.clearErrors("packSizes");
+      }
+
       return merged;
     });
   };
@@ -144,7 +171,14 @@ export function VariantForm({
   const handleConfirmTypes = (tags: string[]) => {
     setPendingPackTypes((prev) => {
       const merged = [...prev, ...tags.filter((t) => !prev.includes(t))];
-      form.setValue("packTypes", merged); // ✅ uses the same merged array
+      form.setValue("packTypes", merged);
+
+      // Clear error if we now have pack types
+      if (merged.length > 0 || existingPackTypes.length > 0) {
+        setPackTypeError("");
+        form.clearErrors("packTypes");
+      }
+
       return merged;
     });
   };
@@ -153,12 +187,22 @@ export function VariantForm({
     const updated = pendingPackSizes.filter((t) => t !== tag);
     setPendingPackSizes(updated);
     form.setValue("packSizes", updated);
+
+    // Show error if removing this tag would leave us with zero pack sizes
+    if (updated.length === 0 && existingPackSizes.length === 0) {
+      setPackSizeError("Min: 1 Pack size");
+    }
   };
 
   const handleRemovePendingType = (tag: string) => {
     const updated = pendingPackTypes.filter((t) => t !== tag);
     setPendingPackTypes(updated);
     form.setValue("packTypes", updated);
+
+    // Show error if removing this tag would leave us with zero pack types
+    if (updated.length === 0 && existingPackTypes.length === 0) {
+      setPackTypeError("Min: 1 Pack type");
+    }
   };
 
   const onSubmit = async (values: VariantData) => {
@@ -166,6 +210,37 @@ export function VariantForm({
 
     const newPackSizes = values.packSizes ?? [];
     const newPackTypes = values.packTypes ?? [];
+
+    // Calculate totals
+    const totalPackSizes = existingPackSizes.length + newPackSizes.length;
+    const totalPackTypes = existingPackTypes.length + newPackTypes.length;
+
+    // Validate: must have at least one of each
+    let hasError = false;
+
+    if (totalPackSizes === 0) {
+      setPackSizeError("Min: 1 Pack size");
+      form.setError("packSizes", {
+        type: "manual",
+        message: "Min: 1 Pack size",
+      });
+      hasError = true;
+    }
+
+    if (totalPackTypes === 0) {
+      setPackTypeError("Min: 1 Pack type");
+      form.setError("packTypes", {
+        type: "manual",
+        message: "Min: 1 Pack type",
+      });
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Clear any previous errors
+    setPackSizeError("");
+    setPackTypeError("");
 
     if (variant?.id) {
       // EDITING MODE
@@ -214,7 +289,7 @@ export function VariantForm({
 
       await handleSubmitForm(payload);
     }
-  };
+  };;;
 
   return (
     <form
@@ -297,8 +372,10 @@ export function VariantForm({
                   <Field data-invalid={fieldState.invalid}>
                     <div className="flex gap-3 items-center">
                       <FieldLabel>Pack size</FieldLabel>
-                      {fieldState.error && (
-                        <FieldError>: {fieldState.error.message}</FieldError>
+                      {(packSizeError || fieldState.error) && (
+                        <FieldError>
+                          : {packSizeError || fieldState?.error?.message}
+                        </FieldError>
                       )}
                     </div>
                     <TagInput
@@ -338,8 +415,10 @@ export function VariantForm({
                   <Field data-invalid={fieldState.invalid}>
                     <div className="flex gap-3 items-center">
                       <FieldLabel>Pack type</FieldLabel>
-                      {fieldState.error && (
-                        <FieldError>: {fieldState.error.message}</FieldError>
+                      {(packTypeError || fieldState.error) && (
+                        <FieldError>
+                          : {packTypeError || fieldState?.error?.message}
+                        </FieldError>
                       )}
                     </div>
                     <TagInput

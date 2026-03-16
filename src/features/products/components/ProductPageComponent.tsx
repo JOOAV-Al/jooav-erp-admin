@@ -37,6 +37,7 @@ import { useGetCategories } from "@/features/categories/services/category.api";
 import { useFileObjectUpload } from "@/features/uploads/hooks/useFileObjectUpload";
 import { toProperCase } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { useProductDraft } from "@/features/products/hooks/useProductDraft";
 
 const MANUAL_FORM_ID = "product-form";
 const BULK_FORM_ID = "bulk-upload-form";
@@ -102,6 +103,8 @@ const ProductPageComponent = () => {
     removeFile,
     clearFiles,
   } = useFileObjectUpload(true);
+
+const hasDraft = localStorage.getItem("product-form-draft")
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const handleCreate = async (values: any) => {
@@ -383,6 +386,7 @@ const ProductPageComponent = () => {
               }
               customImage={"/dashboard/wide-drawer-top-img.svg"}
               showTrigger
+              triggerText={hasDraft ? "Finish draft" : "New product"}
               openDrawer={(isOpen) => {
                 if (isOpen) {
                   setSelectedProduct(undefined);

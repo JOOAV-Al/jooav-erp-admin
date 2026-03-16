@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import TableTag from "@/components/general/TableTag";
 import Spinner from "@/components/general/Spinner";
 import {
@@ -10,16 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  useOfficerSetAvailability,
-} from "@/features/orders/services/orders.api";
+import { useOfficerSetAvailability } from "@/features/orders/services/orders.api";
 import { cn, toProperCase } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { setAvailabilityStatus } from "@/redux/slices/authSlice";
 
 const SidebarDropdown = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
   const { mutateAsync: updateAvailability, isPending: isUpdating } =
     useOfficerSetAvailability();
@@ -30,13 +28,18 @@ const SidebarDropdown = () => {
   const [status, setStatus] = useState(
     toProperCase(auth?.user?.availabilityStatus ?? ""),
   );
+  const [triggerOpen, setTriggerOpen] = useState<boolean>(false);
 
   const handleOfficerStatusUpdate = async (status: string) => {
     // setStatus(status); // optimistic update
     const res = await updateAvailability({
       payload: { availabilityStatus: status },
     });
-    dispatch(setAvailabilityStatus({availabilityStatus: res.data?.data?.availabilityStatus }))
+    dispatch(
+      setAvailabilityStatus({
+        availabilityStatus: res.data?.data?.availabilityStatus,
+      }),
+    );
     setStatus(res.data?.data?.availabilityStatus);
   };
 
@@ -58,18 +61,26 @@ const SidebarDropdown = () => {
   };
   const statusStyles = getUserStatusStyles(status);
   return (
-    <div className="flex items-center gap-6 px-sm rounded-md">
-      <div className="flex gap-[8px] items-center">
+    <div className="flex items-center px-sm rounded-md">
+      <div
+        onClick={() => setTriggerOpen(true)}
+        className="flex gap-[8px] mr-2 items-center cursor-pointer"
+      >
         <span className="text-[15px] font-medium text-body leading-[1.2] tracking-[0.04em]">
           Status
         </span>
         <TableTag text={statusStyles.text} className={statusStyles.styles} />
       </div>
-      <DropdownMenu>
+      <DropdownMenu open={triggerOpen} onOpenChange={setTriggerOpen}>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center cursor-pointer">
             {isUpdating ? (
               <Spinner className="h-[14px] w-[14px] text-outline" />
+            ) : triggerOpen ? (
+              <ChevronUp
+                strokeWidth={2}
+                className="h-[16px] w-[16px] text-outline"
+              />
             ) : (
               <ChevronDown
                 strokeWidth={2}
@@ -82,7 +93,9 @@ const SidebarDropdown = () => {
           align="start"
           className="flex flex-col gap-5 p-sm! rounded-lg! max-h-90 w-[208px] overflow-y-auto user-dropdown"
         >
-          <p className="py-5 px-3 tracking-[0.08em] text-body-passive font-mono leading-[1.2] text-xs font-normal">CHANGE STATUS</p>
+          <p className="py-5 px-3 tracking-[0.08em] text-body-passive font-mono leading-[1.2] text-xs font-normal">
+            CHANGE STATUS
+          </p>
           {options?.map((o) => (
             <DropdownMenuItem
               key={o.value}

@@ -9,6 +9,7 @@ export interface DrawerBoxContentProps {
   actionDropdown?: React.ReactNode;
   statusTag?: React.ReactNode;
   loading?: boolean;
+  fillHeight?: boolean;
 }
 const DrawerBoxContent = ({
   heading,
@@ -17,6 +18,7 @@ const DrawerBoxContent = ({
   actionDropdown,
   statusTag,
   loading,
+  fillHeight=true
 }: DrawerBoxContentProps) => {
   return (
     <div className="flex flex-col flex-1 min-h-0 mt-0">
@@ -37,10 +39,15 @@ const DrawerBoxContent = ({
         {actionDropdown && <div>{actionDropdown}</div>}
       </div>
 
-      {/* Scrollable content area */}
-      <ScrollArea isSidebar className="flex-1 min-h-0 overflow-y-auto">
-        <div className="px-xl">{content}</div>
-      </ScrollArea>
+      {fillHeight ? (
+        <div className="flex-1 min-h-0 px-xl overflow-hidden">
+          {content}
+        </div>
+      ) : (
+        <ScrollArea isSidebar className="flex-1 min-h-0 overflow-y-auto">
+          <div className="px-xl">{content}</div>
+        </ScrollArea>
+      )}
     </div>
   );
 };
