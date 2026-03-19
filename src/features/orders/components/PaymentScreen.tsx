@@ -1,7 +1,6 @@
 "use client";
 
 import Spinner from "@/components/general/Spinner";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 
 const PaymentScreen = ({

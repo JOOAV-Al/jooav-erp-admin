@@ -215,7 +215,7 @@ export default function Sidebar({
             </div>
           </div>
           <div className="px-md">
-            {isProcurement ? <SidebarDropdown /> : <AdminSidebarDropdown />}
+            {isProcurement ? <SidebarDropdown isCollapsed={isCollapsed} /> : <AdminSidebarDropdown isCollapsed={isCollapsed} />}
           </div>
           {/* Divider */}
           <ScrollArea isSidebar className="flex-1 min-h-52 min-w-0">

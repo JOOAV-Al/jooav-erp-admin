@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { setAvailabilityStatus } from "@/redux/slices/authSlice";
 
-const SidebarDropdown = () => {
+const SidebarDropdown = ({ isCollapsed }: { isCollapsed?: boolean }) => {
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
   const { mutateAsync: updateAvailability, isPending: isUpdating } =
@@ -62,7 +62,7 @@ const SidebarDropdown = () => {
   const statusStyles = getUserStatusStyles(status);
   return (
     <div className="flex items-center px-sm rounded-md">
-      <div
+      {!isCollapsed && <div
         onClick={() => setTriggerOpen(true)}
         className="flex gap-[8px] mr-2 items-center cursor-pointer"
       >
@@ -70,10 +70,10 @@ const SidebarDropdown = () => {
           Status
         </span>
         <TableTag text={statusStyles.text} className={statusStyles.styles} />
-      </div>
+      </div>}
       <DropdownMenu open={triggerOpen} onOpenChange={setTriggerOpen}>
         <DropdownMenuTrigger asChild>
-          <div className="flex items-center cursor-pointer">
+          <div className={`flex items-center cursor-pointer ${isCollapsed && "ml-1.5"}`}>
             {isUpdating ? (
               <Spinner className="h-[14px] w-[14px] text-outline" />
             ) : triggerOpen ? (
