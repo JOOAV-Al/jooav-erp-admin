@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-const AdminSidebarDropdown = () => {
+const AdminSidebarDropdown = ({ isCollapsed }: { isCollapsed?: boolean }) => {
   const router = useRouter();
   const options = [
     { value: "/dashboard/order-logs?open=true", label: "Order" },
@@ -26,28 +26,35 @@ const AdminSidebarDropdown = () => {
 
   return (
     <div className="flex items-center px-sm py-5 rounded-md">
-      <div onClick={() => setTriggerOpen(true)} className="flex gap-6 items-center mr-2 cursor-pointer">
-        <Plus size={18} className="text-outline" />
-        <span className="text-[15px] font-medium text-body leading-[1.2] tracking-[0.04em]">
-          Create new
-        </span>
+      <div
+        onClick={() => setTriggerOpen(true)}
+        className="flex gap-6 items-center mr-2 cursor-pointer"
+      >
+        <Plus size={18} className={`text-outline ${isCollapsed && "ml-1.5"}`} />
+        {!isCollapsed && (
+          <span className="text-[15px] font-medium text-body leading-[1.2] tracking-[0.04em]">
+            Create new
+          </span>
+        )}
       </div>
       <DropdownMenu open={triggerOpen} onOpenChange={setTriggerOpen}>
-        <DropdownMenuTrigger asChild>
-          <div className="flex items-center cursor-pointer">
-            {triggerOpen ? (
-              <ChevronUp
-                strokeWidth={2}
-                className="h-[16px] w-[16px] text-outline"
-              />
-            ) : (
-              <ChevronDown
-                strokeWidth={2}
-                className="h-[16px] w-[16px] text-outline"
-              />
-            )}
-          </div>
-        </DropdownMenuTrigger>
+        {!isCollapsed && (
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center cursor-pointer">
+              {triggerOpen ? (
+                <ChevronUp
+                  strokeWidth={2}
+                  className="h-[16px] w-[16px] text-outline"
+                />
+              ) : (
+                <ChevronDown
+                  strokeWidth={2}
+                  className="h-[16px] w-[16px] text-outline"
+                />
+              )}
+            </div>
+          </DropdownMenuTrigger>
+        )}
         <DropdownMenuContent
           align="start"
           className="flex flex-col gap-5 p-sm! rounded-lg! max-h-90 w-[208px] overflow-y-auto user-dropdown"

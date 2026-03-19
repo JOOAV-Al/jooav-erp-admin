@@ -90,6 +90,10 @@ export function OrderCard({
   const isThreeHeaderColumns =
     isProcurement || hideAssignmentStatuses.includes(order?.status);
   const needsResponse = responseStatuses.includes(order?.assignmentStatus);
+  
+  // const shouldShowProcurementActions = isProcurement
+  //   ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
+  //   : hideAssignmentStatuses?.includes(order?.status) || order?.status === "COMPLETED" ? false : showActions;
   const shouldShowActions = isProcurement
     ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
     : hideAssignmentStatuses?.includes(order?.status) || order?.status === "COMPLETED" ? false : showActions;
@@ -259,7 +263,7 @@ export function OrderCard({
           <div className="lg:ml-auto">
             {isProcurement ? (
               <div>
-                {needsResponse && shouldShowActions ? (
+                {needsResponse ? (
                   <div className="flex items-center gap-[8px] p-2 ">
                     <div
                       onClick={() => handleProcurementResponseToOrder("REJECT")}
