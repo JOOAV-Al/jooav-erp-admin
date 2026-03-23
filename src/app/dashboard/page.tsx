@@ -54,11 +54,11 @@ const SuperAdminDashboardHome = () => {
               />
             ))}
           </div>
-          <div className="grid grid-cols-1 xl:grid-cols-10 gap-main">
+          <div className="grid grid-cols-1 xl:grid-cols-11 gap-main">
             <div className="col-span-10 xl:col-span-7 pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[70vh]">
               <DashboardActiveOrders orders={orders} />
             </div>
-            <div className="col-span-10 xl:col-span-3 flex flex-col gap-main min-h-[70vh]">
+            <div className="col-span-10 xl:col-span-4 flex flex-col gap-main min-h-[70vh]">
               <div className="pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[33vh]">
                 <DashboardOutOfStock reports={outOfStockReports} />
               </div>
