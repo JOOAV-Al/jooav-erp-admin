@@ -1,4 +1,6 @@
 import TableTag from "@/components/general/TableTag";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { OutOfStockReport } from "@/hooks/dashboard.api";
 import { formatCurrency, formatOrderDate, normalizePhone } from "@/lib/utils";
 import { MoreHorizontal } from "lucide-react";
@@ -94,17 +96,17 @@ const OutOfStockRequestDetails = ({
               {formatOrderDate(report.createdAt)}
             </span>
           </div>
-          <button
+          <Button
             type="button"
+            variant={"tag"}
+            size={"tag"}
             disabled={resolving}
             onClick={() => onResolve?.(report.id)}
-            className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+            className="text-brand-primary"
           >
-            <TableTag
-              className="table-tag border-border-main bg-storey-foreground text-brand-primary"
-              text={resolving ? "Resolving..." : "Resolve"}
-            />
-          </button>
+            {resolving && <Spinner />}
+            {resolving ? "Resolving..." : "Resolve"}
+          </Button>
         </div>
       </div>
 

@@ -182,6 +182,7 @@ const CategoryPageComponent = () => {
             />
             <DashboardDrawer
               showTrigger
+              triggerText="Create category"
               openDrawer={(isOpen) => {
                 if (isOpen) {
                   setSelectedCategory(undefined);

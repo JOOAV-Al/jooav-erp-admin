@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { MoreHorizontal, Trash2, X } from "lucide-react";
 import { Order, OrderItem } from "@/features/orders/types";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import EmptyState from "@/components/general/EmptyState";
 import { UserItem } from "@/features/users/types";
 import OrderCard from "@/features/orders/components/OrderCard";

@@ -1,6 +1,6 @@
 "use client";
 import DashboardStatsCard from "@/components/general/DashboardStatsCard";
-import Spinner from "@/components/general/Spinner";
+import {PageSpinner} from "@/components/ui/spinner";
 import DashboardActiveOrders from "@/features/orders/components/DashboardActiveOrders";
 import DashboardOutOfStock from "@/features/orders/components/DashboardOutOfStock";
 import DashboardUsers from "@/features/users/components/DashboardUsers";
@@ -41,7 +41,7 @@ const SuperAdminDashboardHome = () => {
     <div className="flex flex-col gap-5 px-sm pb-main">
       {isPending ? (
         <div className="flex min-h-[80vh] justify-center items-center">
-          <Spinner />
+          <PageSpinner />
         </div>
       ) : (
         <>
@@ -54,11 +54,11 @@ const SuperAdminDashboardHome = () => {
               />
             ))}
           </div>
-          <div className="grid grid-cols-1 xl:grid-cols-10 gap-main">
+          <div className="grid grid-cols-1 xl:grid-cols-11 gap-main">
             <div className="col-span-10 xl:col-span-7 pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[70vh]">
               <DashboardActiveOrders orders={orders} />
             </div>
-            <div className="col-span-10 xl:col-span-3 flex flex-col gap-main min-h-[70vh]">
+            <div className="col-span-10 xl:col-span-4 flex flex-col gap-main min-h-[70vh]">
               <div className="pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[33vh]">
                 <DashboardOutOfStock reports={outOfStockReports} />
               </div>

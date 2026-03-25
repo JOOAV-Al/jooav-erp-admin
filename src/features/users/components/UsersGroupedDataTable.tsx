@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CloudUpload, Trash2, X } from "lucide-react";
 import { format } from "date-fns";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import EmptyState from "@/components/general/EmptyState";
 import { TableSkeleton } from "@/components/general/TableSkeleton";
 import GroupTableHeader from "@/components/general/GroupTableHeader";
@@ -348,7 +348,7 @@ function GroupedDataTable<T>({
               aria-label="Delete selected"
             >
               {deletingMultiple ? (
-                <Spinner color="red" className="w-5 h-5" />
+                <Spinner className="w-5 h-5" />
               ) : (
                 <Trash2 className="w-5 h-5 text-outline group-hover:text-red-500 group-hover:scale-105" />
               )}

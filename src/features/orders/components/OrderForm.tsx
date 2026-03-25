@@ -11,25 +11,25 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { MailIcon, Package, Phone, ShieldUser } from "lucide-react";
+import { Package, ShieldUser } from "lucide-react";
 import { DialogFormProps } from "@/interfaces/general";
 import { CreateOrderPayload, Order, OrderItem } from "@/features/orders/types";
 import { useEffect, useState } from "react";
 import { Select } from "@/components/general/Select";
 import FieldIcon from "@/components/general/FieldIcon";
-import {
-  isValidPhoneNumber,
-  parsePhoneNumberFromString,
-} from "libphonenumber-js";
-import { Button } from "@/components/ui/button";
-import CopyLinkBox from "@/components/general/CopyLinkBox";
+// import {
+//   isValidPhoneNumber,
+//   parsePhoneNumberFromString,
+// } from "libphonenumber-js";
+// import { Button } from "@/components/ui/button";
+// import CopyLinkBox from "@/components/general/CopyLinkBox";
 import Image from "next/image";
-import { normalizePhone } from "@/lib/utils";
-import Spinner from "@/components/general/Spinner";
+// import { normalizePhone } from "@/lib/utils";
+// import {Spinner} from "@/components/ui/spinner";
 import { UserItem } from "@/features/users/types";
 import { ProductItem } from "@/features/products/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import FormOrderList from "@/features/orders/components/FormOrderList";
+// import FormOrderList from "@/features/orders/components/FormOrderList";
 
 const createOrderSchema = z.object({
   wholesalerId: z.string().min(1, "Wholesaler is required"),

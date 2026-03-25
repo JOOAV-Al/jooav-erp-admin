@@ -12,6 +12,7 @@ import {
 } from "@/components/general/right-drawer";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DashboardDrawerProps {
   children: React.ReactNode;
@@ -121,7 +122,12 @@ const DashboardDrawer = ({
                     }}
                   >
                     <span className="px-2">
-                      {secondaryBtnIcon && secondaryBtnIcon}
+                      {secondarySubmitLoading &&
+                      submitAction === "secondary" ? (
+                        <Spinner />
+                      ) : (
+                        secondaryBtnIcon && secondaryBtnIcon
+                      )}
                     </span>
                     <span className="px-2 py-4">
                       {secondarySubmitLoading && submitAction === "secondary"
@@ -154,7 +160,13 @@ const DashboardDrawer = ({
                 if (!submitFormId) onPrimaryAction?.();
               }}
             >
-              <span className="px-2">{primaryBtnIcon && primaryBtnIcon}</span>
+              <span className="px-2">
+                {submitLoading && submitAction === "primary" ? (
+                  <Spinner color="white" />
+                ) : (
+                  primaryBtnIcon && primaryBtnIcon
+                )}
+              </span>
               <span className="px-2 py-4">
                 {submitLoading && submitAction === "primary"
                   ? "Loading..."

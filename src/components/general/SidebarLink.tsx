@@ -1,13 +1,13 @@
 "use client";
 
-import CustomLoader from "@/components/general/CustomLoader";
-import Spinner from "@/components/general/Spinner";
+// import CustomLoader from "@/components/general/CustomLoader";
+// import {Spinner} from "@/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Loader2 } from "lucide-react";
+// import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";

@@ -174,6 +174,7 @@ const ManufacturerPageComponent = () => {
             />
             <DashboardDrawer
               showTrigger
+              triggerText="Create manufacturer"
               openDrawer={(isOpen) => {
                 if (isOpen) {
                   setSelectedManufacturer(undefined);

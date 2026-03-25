@@ -3,7 +3,7 @@ import { Upload } from "lucide-react";
 import { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import { FileDataProps } from "@/features/uploads/types";
 
 interface FileUploadAreaProps {

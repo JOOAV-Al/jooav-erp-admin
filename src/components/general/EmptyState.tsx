@@ -15,7 +15,7 @@ const EmptyState = ({
   header,
   description,
   cta,
-  image = "",
+  // image = "",
   onCTAClick,
   showCTA=true,
 }: EmptyStateProps) => {

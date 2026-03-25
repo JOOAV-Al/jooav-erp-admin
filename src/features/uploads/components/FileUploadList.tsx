@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import { formatBytesToKB } from "@/lib/utils";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import { FileDataProps } from "@/features/uploads/types";
 
 interface FileUploadListProps {

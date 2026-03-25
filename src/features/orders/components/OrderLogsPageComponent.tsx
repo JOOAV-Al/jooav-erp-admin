@@ -363,7 +363,7 @@ const OrderLogsPageComponent = () => {
             />
             <DashboardDrawer
               showTrigger
-              triggerText="Create Order"
+              triggerText="Create order"
               openDrawer={(isOpen) => {
                 if (isOpen) resetDrawer();
                 setOpen(isOpen);
