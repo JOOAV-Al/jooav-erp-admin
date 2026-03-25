@@ -23,6 +23,7 @@ import Cookies from "js-cookie";
 import PasswordInput from "@/features/auth/components/PasswordInput";
 import FieldIcon from "@/components/general/FieldIcon";
 import { EyeIcon, Mail } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 const loginSchema = z.object({
   email: z.email("Enter a valid email"),
@@ -174,6 +175,7 @@ export function LoginForm({ toggleForm }: { toggleForm: () => void }) {
           <div className="mt-auto">
             {/* SUBMIT */}
             <Button type="submit" className="w-full mt-7" disabled={isPending}>
+              {isPending && <Spinner color="white" />}
               {isPending ? "Logging in..." : "Admin login"}
             </Button>
           </div>

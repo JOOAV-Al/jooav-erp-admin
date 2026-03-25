@@ -20,6 +20,7 @@ import AuthCardHeader from "@/features/auth/components/AuthCardHeader";
 import { useState } from "react";
 import { MailIcon } from "lucide-react";
 import FieldIcon from "@/components/general/FieldIcon";
+import { Spinner } from "@/components/ui/spinner";
 
 const forgotPasswordSchema = z.object({
   email: z.email("Enter a valid email"),
@@ -110,6 +111,7 @@ export function ForgotPasswordForm({ toggleForm }: { toggleForm: () => void }) {
             {/* SUBMIT */}
 
             <Button type="submit" className="w-full mt-7" disabled={isPending}>
+              {isPending && <Spinner color="white" />}
               {isPending ? "Loading..." : "Get reset link"}
             </Button>
           </div>

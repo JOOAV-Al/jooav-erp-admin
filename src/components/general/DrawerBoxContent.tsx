@@ -1,4 +1,4 @@
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 

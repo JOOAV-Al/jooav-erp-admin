@@ -167,6 +167,7 @@ const BrandPageComponent = () => {
             />
             <DashboardDrawer
               showTrigger
+              triggerText="Create brand"
               openDrawer={(isOpen) => {
                 if (isOpen) {
                   setSelectedBrand(undefined);

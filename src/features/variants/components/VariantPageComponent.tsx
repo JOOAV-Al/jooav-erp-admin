@@ -182,6 +182,7 @@ const VariantPageComponent = () => {
             />
             <DashboardDrawer
               showTrigger
+              triggerText="Create variant"
               openDrawer={(isOpen) => {
                 if (isOpen) {
                   setSelectedVariant(undefined);

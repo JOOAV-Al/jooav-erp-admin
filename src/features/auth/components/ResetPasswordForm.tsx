@@ -21,6 +21,7 @@ import { setCredentials } from "@/redux/slices/authSlice";
 import AuthCardHeader from "@/features/auth/components/AuthCardHeader";
 import PasswordInput from "@/features/auth/components/PasswordInput";
 import { getLoginRoute } from "@/features/auth/services/helpers";
+import { Spinner } from "@/components/ui/spinner";
 
 const useResetPasswordSchema = z
   .object({
@@ -167,6 +168,7 @@ export function ResetPasswordForm() {
           {/* SUBMIT */}
           <div className="mt-auto">
             <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending && <Spinner color="white" />}
               {isPending ? "Loading..." : "Change Password"}
             </Button>
           </div>

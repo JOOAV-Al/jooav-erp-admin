@@ -6,7 +6,7 @@ import { ChevronDown, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import { Order, OrderItem } from "@/features/orders/types";
 import TableTag from "@/components/general/TableTag";
-import Spinner from "@/components/general/Spinner";
+import { Spinner } from "@/components/ui/spinner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +30,8 @@ import {
 import { format } from "date-fns";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import AppImage from "@/components/general/AppImage";
+import { Button } from "@/components/ui/button";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -84,19 +86,25 @@ export function OrderCard({
   refetch,
 }: OrderCardProps) {
   const user = useSelector((state: RootState) => state.auth.user);
+  const [respondingOrderNumber, setRespondingOrderNumber] = useState("");
+  const [responseAction, setResponseAction] = useState("");
   const hideAssignmentStatuses = ["DRAFT", "PENDING_PAYMENT"];
   const responseStatuses = ["PENDING_ACCEPTANCE", "REASSIGNED"];
   const isProcurement = user?.role === "PROCUREMENT_OFFICER";
+  const isAdmin = user?.role === "SUPER_ADMIN" || user?.role === "ADMIN";
   const isThreeHeaderColumns =
     isProcurement || hideAssignmentStatuses.includes(order?.status);
   const needsResponse = responseStatuses.includes(order?.assignmentStatus);
-  
+
   // const shouldShowProcurementActions = isProcurement
   //   ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
   //   : hideAssignmentStatuses?.includes(order?.status) || order?.status === "COMPLETED" ? false : showActions;
   const shouldShowActions = isProcurement
     ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
-    : hideAssignmentStatuses?.includes(order?.status) || order?.status === "COMPLETED" ? false : showActions;
+    : hideAssignmentStatuses?.includes(order?.status) ||
+        order?.status === "COMPLETED"
+      ? false
+      : showActions;
   const [selectedOfficer, setSelectedOfficer] = useState<UserItem | undefined>(
     () =>
       officers?.find((o) => o.id === order?.assignedProcurementOfficerId || ""),
@@ -154,152 +162,209 @@ export function OrderCard({
     ? `${selectedOfficer.firstName} ${selectedOfficer.lastName}`
     : (order.procurementOfficerName ?? null);
 
+  const dummyFiveDaysEstimated = new Date();
+  dummyFiveDaysEstimated.setDate(dummyFiveDaysEstimated.getDate() + 5);
   return (
     <div className="flex flex-col rounded-3xl border-[2px] border-border-main overflow-hidden px-main pt-main pb-sm gap-5 bg-white">
       {/* ── Order header ───────────────────────────────────────────────────── */}
       <div
-        className={`grid grid-cols-1 ${isThreeHeaderColumns ? "lg:grid-cols-3" : "lg:grid-cols-4"} align-top gap-[8px] px-md py-main border-b-2 border-border-main ${isProcurement ? "" : "cursor-pointer"} transition-colors`}
+        className={`flex flex-col lg:flex-row lg:items-center justify-between flex-wrap gap-y-main gap-x-xl px-md py-main border-b-2 border-border-main transition-colors ${isProcurement ? "" : "cursor-pointer"} cursor-pointer overflow-hidden`}
         onClick={() => onOrderClick?.(order)}
       >
-        {/* Ordered By */}
-        <div className="flex flex-col gap-5">
-          <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-            Ordered By:
-          </span>
-          <div className="flex items-center gap-5">
-            <InitialsAvatar name={wholesaler || "—"} />
-            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-              {wholesaler || "—"}
+        <div className="flex gap-sm w-fit">
+          {/* Ordered By */}
+          <div className="flex flex-col gap-5">
+            <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+              Ordered By:
             </span>
+            <div className="flex items-center gap-5">
+              <InitialsAvatar name={wholesaler || "—"} />
+              <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                {wholesaler || "—"}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Assigned To */}
-        {!isThreeHeaderColumns && (
+          {/* Assigned To */}
           <div className="flex flex-col gap-5">
             <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
               Assigned To:
             </span>
-            <div onClick={(e) => e.stopPropagation()}>
-              {order.status === "COMPLETED" ? (
-                <div className="flex items-center gap-[8px] cursor-pointer">
-                  <InitialsAvatar name={displayOfficerName ?? "?"} />
-                  <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                    {displayOfficerName ?? "Unassigned"}
-                  </span>
-                </div>
-              ) : order.status !== "DRAFT" &&
-                order?.status !== "PENDING_PAYMENT" ? (
-                <div className="flex flex-col gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <div className="flex items-center gap-[8px] cursor-pointer">
-                        <InitialsAvatar name={displayOfficerName ?? "?"} />
-                        <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                          {displayOfficerName ?? "Unassigned"}
-                        </span>
-                        {assigning ? (
-                          <Spinner className="h-[14px] w-[14px] text-outline" />
-                        ) : (
-                          <ChevronDown
-                            strokeWidth={2}
-                            className="h-[16px] w-[16px] text-outline"
-                          />
-                        )}
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      className="flex flex-col gap-5 p-sm! rounded-lg! max-h-90 overflow-y-auto user-dropdown"
-                    >
-                      {officers?.map((o) => (
-                        <DropdownMenuItem
-                          key={o.id}
-                          className={cn(
-                            "rounded-main h-8 cursor-pointer transition-colors text-body-passive hover:bg-storey-foreground select-option",
-                            o.id === selectedOfficer?.id &&
-                              "bg-storey-foreground text-body table-selected",
-                          )}
-                          onClick={() => handleAssignOfficer(o.id)}
-                        >
-                          <div className="flex items-center gap-5">
-                            <InitialsAvatar
-                              name={`${o.firstName} ${o.lastName}`}
+            {!isProcurement ? (
+              <div onClick={(e) => e.stopPropagation()}>
+                {order.status === "COMPLETED" ? (
+                  <div className="flex items-center gap-[8px] cursor-pointer">
+                    <InitialsAvatar name={displayOfficerName ?? "?"} />
+                    <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                      {displayOfficerName ?? "Unassigned"}
+                    </span>
+                  </div>
+                ) : order.status !== "DRAFT" &&
+                  order?.status !== "PENDING_PAYMENT" &&
+                  isAdmin ? (
+                  <div className="flex flex-col gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <div className="flex items-center gap-[8px] cursor-pointer">
+                          <InitialsAvatar name={displayOfficerName ?? "?"} />
+                          <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                            {displayOfficerName ?? "Unassigned"}
+                          </span>
+                          {assigning ? (
+                            <Spinner className="h-[14px] w-[14px] text-outline" />
+                          ) : (
+                            <ChevronDown
+                              strokeWidth={2}
+                              className="h-[16px] w-[16px] text-outline"
                             />
-                            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                              {o.firstName} {o.lastName}
-                            </span>
-                          </div>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <TableTag text={enumToTitleCase(order?.assignmentStatus)} />
-                </div>
-              ) : (
-                <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                  Unavailable
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Delivery Address */}
-        <div className="flex flex-col gap-5 lg:place-self-center">
-          <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-            Delivery Address:
-          </span>
-          <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-            {address}
-          </span>
-        </div>
-
-        {/* Date + Status */}
-        <div className="flex flex-col gap-5 lg:ml-auto">
-          <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-            {formatOrderDate(order.orderDate ?? order.createdAt)}
-          </span>
-          <div className="lg:ml-auto">
-            {isProcurement ? (
-              <div>
-                {needsResponse ? (
-                  <div className="flex items-center gap-[8px] p-2 ">
-                    <div
-                      onClick={() => handleProcurementResponseToOrder("REJECT")}
-                    >
-                      <TableTag
-                        className={`${responding ? "bg-border-main" : ""} hover:bg-border-main table-tag border-none h-[34px]! px-main py-md tracking-[0.02em] text-body-passive bg-white`}
-                        text={"Decline"}
-                      />
-                    </div>
-                    <div
-                      onClick={() => handleProcurementResponseToOrder("ACCEPT")}
-                    >
-                      <TableTag
-                        className={`${responding ? "bg-border-main" : ""} hover:bg-border-main table-tag border-none h-[34px]! px-main py-md tracking-[0.02em] border-[0.5px] text-brand-primary bg-tag-draft`}
-                        text={"Accept"}
-                      />
-                    </div>
+                          )}
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        className="flex flex-col gap-5 p-sm! rounded-lg! max-h-90 overflow-y-auto user-dropdown"
+                      >
+                        {officers?.map((o) => (
+                          <DropdownMenuItem
+                            key={o.id}
+                            className={cn(
+                              "rounded-main h-8 cursor-pointer transition-colors text-body-passive hover:bg-storey-foreground select-option",
+                              o.id === selectedOfficer?.id &&
+                                "bg-storey-foreground text-body table-selected",
+                            )}
+                            onClick={() => handleAssignOfficer(o.id)}
+                          >
+                            <div className="flex items-center gap-5">
+                              <InitialsAvatar
+                                name={`${o.firstName} ${o.lastName}`}
+                              />
+                              <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                                {o.firstName} {o.lastName}
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <TableTag text={enumToTitleCase(order?.assignmentStatus)} />
                   </div>
                 ) : (
-                  <TableTag
-                    small
-                    className={acceptedAssignment.styles}
-                    text={
-                      order?.status === "COMPLETED"
-                        ? "Fulfilled"
-                        : acceptedAssignment.text
-                    }
-                  />
+                  <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                    Unavailable
+                  </span>
                 )}
               </div>
             ) : (
-              <TableTag
-                small
-                className={orderStatusStyles.styles}
-                text={orderStatusStyles.text}
-              />
+              <div className="flex items-center gap-[8px] cursor-pointer">
+                <InitialsAvatar name={displayOfficerName ?? "?"} />
+                <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                  {displayOfficerName ?? "Unassigned"}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right side */}
+        <div className="flex flex-col lg:flex-row lg:items-center gap-sm">
+          {/* Delivery Address */}
+          <div className="flex flex-col gap-5 max-w-[276px] w-full">
+            <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+              Delivery Address:
+            </span>
+            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+              {address}
+            </span>
+          </div>
+          <div className="hidden lg:block w-[1.38px] h-7 bg-[#D9D9D9]"></div>
+          <div className="flex flex-col gap-5 min-w-fit">
+            <span className="text-[12px] font-normal tracking-[0.08em] leading-[1.2] text-body uppercase font-mono">
+              order date:
+            </span>
+            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+              {formatOrderDate(order.orderDate ?? order.createdAt)}
+            </span>
+          </div>
+          <div className="hidden lg:block w-[1.38px] h-7 bg-[#D9D9D9]"></div>
+          <div className="flex flex-col gap-5 min-w-fit">
+            <span className="text-[12px] font-normal tracking-[0.08em] leading-[1.2] text-body uppercase font-mono">
+              delivery date:
+            </span>
+            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+              {format(dummyFiveDaysEstimated, "dd/MM/yyyy.")}
+            </span>
+          </div>
+          <div className="hidden lg:block w-[1.38px] h-7 bg-[#D9D9D9] justify-self-center"></div>
+          {/* Date + Status */}
+          <div className="flex flex-col gap-5 lg:ml-auto">
+            {isAdmin ||
+              (isProcurement && !needsResponse && (
+                <span className="text-[12px] font-normal tracking-[0.08em] leading-[1.2] text-body uppercase font-mono">
+                  status
+                </span>
+              ))}
+            <div className="lg:ml-auto">
+              {isProcurement ? (
+                <div>
+                  {needsResponse ? (
+                    <div className="flex items-center gap-[8px] p-2 ">
+                      <Button
+                        variant="tag"
+                        size="tag"
+                        className="text-body-passive bg-white"
+                        onClick={() => {
+                          setRespondingOrderNumber(order?.orderNumber);
+                          handleProcurementResponseToOrder("REJECT");
+                          setResponseAction("REJECT");
+                        }}
+                        disabled={responding}
+                      >
+                        {responding &&
+                          respondingOrderNumber === order?.orderNumber &&
+                          responseAction === "REJECT" && <Spinner />}
+                        {responding ? "Declining" : "Decline"}
+                      </Button>
+                      <Button
+                        variant="tag"
+                        size="tag"
+                        className="text-brand-primary bg-white"
+                        onClick={() => {
+                          setRespondingOrderNumber(order?.orderNumber);
+                          handleProcurementResponseToOrder("ACCEPT");
+                          setResponseAction("ACCEPT");
+                        }}
+                        disabled={responding}
+                      >
+                        {responding &&
+                          respondingOrderNumber === order?.orderNumber &&
+                          responseAction === "ACCEPT" && <Spinner />}
+                        {responding ? "Accepting" : "Accept"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <TableTag
+                      small
+                      className={acceptedAssignment.styles}
+                      text={
+                        order?.status === "COMPLETED"
+                          ? "Fulfilled"
+                          : acceptedAssignment.text
+                      }
+                    />
+                  )}
+                </div>
+              ) : (
+                <TableTag
+                  small
+                  className={orderStatusStyles.styles}
+                  text={orderStatusStyles.text}
+                />
+              )}
+            </div>
+            {!isAdmin && isProcurement && needsResponse && (
+              <div className="text-[12px] font-normal tracking-[0.08em] leading-[1.2] text-white uppercase font-mono">
+                Status
+              </div>
             )}
           </div>
         </div>
@@ -338,8 +403,8 @@ export function OrderCard({
               )}
 
               {/* Thumbnail */}
-              <div className="flex-shrink-0 w-[65px] h-[65px] rounded-lg border border-border-main overflow-hidden bg-storey-foreground flex items-center justify-center">
-                {(item as any)?.product?.thumbnail &&
+              <div className="flex-shrink-0 w-[61px] h-[61px] rounded-lg border border-border-main overflow-hidden bg-storey-foreground flex items-center justify-center">
+                {/* {(item as any)?.product?.thumbnail &&
                 (item as any)?.product?.thumbnail?.startsWith("https://") ? (
                   <Image
                     src={(item as any)?.product?.thumbnail}
@@ -352,7 +417,15 @@ export function OrderCard({
                   <div className="w-full h-full bg-storey-foreground flex items-center justify-center text-[10px] text-body-passive font-mono">
                     IMG
                   </div>
-                )}
+                )} */}
+
+                <AppImage
+                  src={(item as any)?.product?.thumbnail}
+                  alt={productName}
+                  width={61}
+                  height={61}
+                  className="object-cover w-full h-full"
+                />
               </div>
 
               {/* Info */}
@@ -360,10 +433,6 @@ export function OrderCard({
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-5 flex-wrap">
                     <h5>{productName}</h5>
-                    <TableTag
-                      className={itemStatusStyles.styles}
-                      text={itemStatusStyles.text}
-                    />
                     {actionLoading && operatingId === item.id && (
                       <Spinner className="size-4" />
                     )}
@@ -456,25 +525,31 @@ export function OrderCard({
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 mdxl:grid-cols-3 lg:grid-cols-4 gap-[8px] py-3">
-                  <span className="font-mono text-[12px] text-body-passive tracking-[0.08em] leading-[1.2]">
-                    QTY:{" "}
-                    <span className="text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
-                      {item.quantity}
+                <div className="flex justify-between items-center flex-wrap gap-sm py-3">
+                  <div className="flex gap-sm items-center flex-wrap">
+                    <TableTag
+                      className={itemStatusStyles.styles}
+                      text={itemStatusStyles.text}
+                    />
+                    <span className="font-mono text-[12px] text-body-passive tracking-[0.08em] leading-[1.2]">
+                      QTY:{" "}
+                      <span className="text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
+                        {item.quantity}
+                      </span>
                     </span>
-                  </span>
-                  <span className="font-mono text-[12px] lg:place-self-center text-body-passive tracking-[0.08em] leading-[1.2]">
-                    SIZE:{" "}
-                    <span className="text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
-                      {item?.product?.packSize?.name ?? "—"}
+                    <span className="font-mono text-[12px] lg:place-self-center text-body-passive tracking-[0.08em] leading-[1.2]">
+                      SIZE:{" "}
+                      <span className="text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
+                        {item?.product?.packSize?.name ?? "—"}
+                      </span>
                     </span>
-                  </span>
-                  <span className="font-mono text-[12px] lg:place-self-center text-body-passive tracking-[0.08em] leading-[1.2]">
-                    TYPE:{" "}
-                    <span className="text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
-                      {item?.product?.packType?.name ?? "—"}
+                    <span className="font-mono text-[12px] lg:place-self-center text-body-passive tracking-[0.08em] leading-[1.2]">
+                      TYPE:{" "}
+                      <span className="text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
+                        {item?.product?.packType?.name ?? "—"}
+                      </span>
                     </span>
-                  </span>
+                  </div>
                   <span className="font-mono text-[12px] text-body-passive tracking-[0.08em] leading-[1.2] lg:ml-auto">
                     PRICE:{" ₦"}
                     <span className="ml-1 text-body font-garantpro font-semibold text-[13px] tracking-[0.05em]">
@@ -502,9 +577,15 @@ export function OrderCard({
           <span className="text-[12px] font-normal tracking-[0.08em] text-body uppercase">
             Amount:
           </span>
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <Image src="/dashboard/N.svg" width={16} height={16} alt="Naira" />
             <h3 className="text-body!">
+              {formatCurrency(order.totalAmount ?? order.subtotal ?? 0)}
+            </h3>
+          </div> */}
+          <div className="flex items-center gap-5">
+            <h3 className="text-body! flex items-center gap-1">
+              <span className="text-[20px]">₦</span>
               {formatCurrency(order.totalAmount ?? order.subtotal ?? 0)}
             </h3>
           </div>

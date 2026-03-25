@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import EmptyState from "@/components/general/EmptyState";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CloudUpload, Trash2, X } from "lucide-react";

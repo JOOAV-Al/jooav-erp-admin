@@ -11,7 +11,7 @@ import { InitialsAvatar } from "@/features/orders/components/OrderCard";
 import { useGetOrderDetails } from "@/features/orders/services/orders.api";
 import { X } from "lucide-react";
 // import OrderCardSkeleton from "@/features/orders/components/OrderCardSkeleton";
-import Spinner from "@/components/general/Spinner";
+import {PageSpinner} from "@/components/ui/spinner";
 
 interface FormOrderListProps {
   order: Order;
@@ -19,13 +19,17 @@ interface FormOrderListProps {
   onRemoveItem?: (item: OrderItem) => void;
 }
 
-const FormOrderList = ({ order, orderNumber, onRemoveItem }: FormOrderListProps) => {
-  console.log(order)
+const FormOrderList = ({
+  order,
+  orderNumber,
+  onRemoveItem,
+}: FormOrderListProps) => {
+  console.log(order);
   const { data, isPending } = useGetOrderDetails({
     orderNumber: orderNumber ?? "",
   });
   const items = data?.data?.items ?? [];
-  const dynamicOrder = data?.data
+  const dynamicOrder = data?.data;
 
   const wholesaler =
     (dynamicOrder?.wholesaler?.firstName ?? "") +
@@ -46,7 +50,7 @@ const FormOrderList = ({ order, orderNumber, onRemoveItem }: FormOrderListProps)
     return (
       <div className="flex flex-col flex-1 gap-main justify-center items-center h-50">
         {/* <OrderCardSkeleton itemCount={3} /> */}
-        <Spinner />
+        <PageSpinner />
       </div>
     );
   }
@@ -131,7 +135,10 @@ const FormOrderList = ({ order, orderNumber, onRemoveItem }: FormOrderListProps)
                     className="flex-shrink-0"
                     onClick={() => onRemoveItem?.(item)}
                   >
-                    <X size={20} className={`text-outline-passive cursor-pointer`} />
+                    <X
+                      size={20}
+                      className={`text-outline-passive cursor-pointer`}
+                    />
                   </div>
                 </div>
 

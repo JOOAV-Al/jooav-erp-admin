@@ -63,7 +63,7 @@ const ProcurementOrderLogsPageComponent = () => {
       processingOrders: allOrders.filter((o) =>
         PROCESSING_STATUSES.includes(
           o.assignmentStatus as (typeof PROCESSING_STATUSES)[number],
-        ),
+        ) && o.status !== "COMPLETED",
       ),
     };
   }, [allOrders]);

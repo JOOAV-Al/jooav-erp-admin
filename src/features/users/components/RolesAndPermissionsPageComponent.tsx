@@ -190,6 +190,7 @@ const RolesAndPermissionsPageComponent = () => {
               isCustomWidth
               customWidthStyle="aspect-460/958 max-w-md mdl:max-w-md lg:max-w-[460px]"
               showTrigger
+              triggerText="Create user"
               openDrawer={(isOpen) => {
                 setShowLink(false);
                 if (isOpen) setSelectedUser(undefined);

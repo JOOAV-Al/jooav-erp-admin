@@ -1,6 +1,6 @@
 "use client";
 import DashboardStatsCard from "@/components/general/DashboardStatsCard";
-import Spinner from "@/components/general/Spinner";
+import {PageSpinner} from "@/components/ui/spinner";
 import DashboardActiveOrders from "@/features/orders/components/DashboardActiveOrders";
 import DashboardOutOfStock from "@/features/orders/components/DashboardOutOfStock";
 import DashboardUsers from "@/features/users/components/DashboardUsers";
@@ -41,7 +41,7 @@ const SuperAdminDashboardHome = () => {
     <div className="flex flex-col gap-5 px-sm pb-main">
       {isPending ? (
         <div className="flex min-h-[80vh] justify-center items-center">
-          <Spinner />
+          <PageSpinner />
         </div>
       ) : (
         <>

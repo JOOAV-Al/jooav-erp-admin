@@ -1,6 +1,6 @@
 "use client";
 
-import Spinner from "@/components/general/Spinner";
+import {PageSpinner} from "@/components/ui/spinner";
 import { useState, useEffect } from "react";
 
 const PaymentScreen = ({
@@ -44,7 +44,7 @@ const PaymentScreen = ({
       {/* Loader */}
       {iframeLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-          <Spinner className="size-6" />
+          <PageSpinner className="size-6" />
         </div>
       )}
 

@@ -26,14 +26,14 @@ import FieldIcon from "@/components/general/FieldIcon";
 import { ROLES } from "@/lib/rbac/roles";
 import {
   isValidPhoneNumber,
-  parsePhoneNumberFromString,
+  // parsePhoneNumberFromString,
 } from "libphonenumber-js";
 import { Button } from "@/components/ui/button";
 import CopyLinkBox from "@/components/general/CopyLinkBox";
 import Image from "next/image";
 import { useRegenerateResetToken } from "@/features/users/services/users.api";
 import { normalizePhone } from "@/lib/utils";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
@@ -353,7 +353,7 @@ export function UserForm({
                       Generate login link
                     </span>
                     {resetting && (
-                      <Spinner className="size-4" color="#FF803F" />
+                      <Spinner className="size-4" />
                     )}
                   </Button>
                 </div>

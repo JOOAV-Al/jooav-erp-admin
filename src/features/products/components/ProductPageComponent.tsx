@@ -386,7 +386,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
               }
               customImage={"/dashboard/wide-drawer-top-img.svg"}
               showTrigger
-              triggerText={hasDraft ? "Finish draft" : "New product"}
+              triggerText={hasDraft ? "Finish draft" : "Create product"}
               openDrawer={(isOpen) => {
                 if (isOpen) {
                   setSelectedProduct(undefined);

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import TableTag from "@/components/general/TableTag";
-import Spinner from "@/components/general/Spinner";
+import {Spinner} from "@/components/ui/spinner";
 import {
   DropdownMenu,
   DropdownMenuContent,
