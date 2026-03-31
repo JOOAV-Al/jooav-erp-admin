@@ -69,9 +69,7 @@ const UserPageComponent = () => {
   } = useGetUsers({ search: debouncedQuery, role });
   const users = data?.data;
 
-  console.log(messageObject);
   const handleCreate = async (values: any) => {
-    console.log({ finalValues: values });
     const waPhone = normalizePhone(values.phone);
     setMessageObject({ phone: waPhone, role: values.role });
     if (selectedUser) {

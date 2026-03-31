@@ -28,7 +28,7 @@ export const useAuthHydration = () => {
         role = res?.data?.data?.role
       } catch {
         dispatch(logout());
-        router.push(getLoginRoute(role ?? decoded?.role ?? ""));
+        router.push(getLoginRoute(role ? role : decoded?.role ?? ""));
       }
     };
 

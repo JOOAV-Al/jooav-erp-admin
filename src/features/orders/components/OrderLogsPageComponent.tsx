@@ -8,19 +8,20 @@ import {
   useDeleteMultipleOrders,
   useGetOrders,
   useGetOrdersStats,
-  useInitiateOrderPayment,
+  // useInitiateOrderPayment,
   useUpdateDraftOrder,
   useUpdateOrderItemStatus,
-  useReInitiateOrderPayment,
+  // useReInitiateOrderPayment,
   // useGetOrderDetails,
   useConfirmOrderPayment,
+  useReInitiateManualOrderPayment,
 } from "@/features/orders/services/orders.api";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   CreateOrderPayload,
   Order,
   OrderItem,
-  OrderVirtualAccount,
+  // OrderVirtualAccount,
 } from "@/features/orders/types";
 import FilterContainer from "@/components/filters/FilterContainer";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -38,6 +39,7 @@ import { getItemStatusStyles, getOrderStatusStyles } from "@/lib/utils";
 import PaymentScreen from "@/features/orders/components/PaymentScreen";
 import FormOrderList from "@/features/orders/components/FormOrderList";
 import { useSearchParams } from "next/navigation";
+import ManualPaymentScreen from "@/features/orders/components/ManualPaymentScreen";
 
 // ─── Drawer view states ───────────────────────────────────────────────────────
 // "form"        → OrderForm (create brand new / add item to draft / edit draft item / view non-draft item)
@@ -78,13 +80,19 @@ const OrderLogsPageComponent = () => {
     useCreateDraftOrder();
   const { mutateAsync: updateDraftOrder, isPending: updating } =
     useUpdateDraftOrder();
-  const { mutateAsync: initiatePayment, isPending: initiatingPayment } =
-    useInitiateOrderPayment();
-  const { mutateAsync: reInitiatePayment, isPending: reInitiatingPayment } =
-    useReInitiateOrderPayment();
+  // const { mutateAsync: initiatePayment, isPending: initiatingPayment } =
+  //   useInitiateOrderPayment();
+  // const { mutateAsync: reInitiatePayment, isPending: reInitiatingPayment } =
+  //   useReInitiateOrderPayment();
+  const {
+    mutateAsync: initiateManualPayment,
+    isPending: initiatingManualPayment,
+  } = useReInitiateManualOrderPayment();
   const { mutateAsync: deleteOrder, isPending: deleting } = useDeleteOrder();
   const { mutateAsync: updateItemStatus, isPending: updatingItem } =
     useUpdateOrderItemStatus();
+  const { mutateAsync: confirmPayment, isPending: isConfirmingPayment } =
+    useConfirmOrderPayment();
   const {
     mutateAsync: deleteMultipleOrders,
     isPending: deletingMultiple,
@@ -132,7 +140,7 @@ const OrderLogsPageComponent = () => {
   // ── Drawer footer config ───────────────────────────────────────────────────
 
   const showDrawerFooter = (() => {
-    if (drawerView === "payment") return false;
+    if (drawerView === "payment") return true;
     if (drawerView === "order-list") {
       // Only show footer when there are actions to take
       return isDraft(selectedOrder) || isPaymentPending(selectedOrder);
@@ -145,6 +153,7 @@ const OrderLogsPageComponent = () => {
   const primaryLabel = (() => {
     if (drawerView === "form") return "Save entry";
     if (drawerView === "order-list") return "Proceed to payment";
+    if (drawerView === "payment") return "Confirm payment";
     return undefined;
   })();
 
@@ -228,40 +237,45 @@ const OrderLogsPageComponent = () => {
   const handleProceedToPayment = async () => {
     if (!selectedOrder) return;
 
+    // REMOVED: Monify payment integration
     // Check if a previous checkout URL exists and is still valid
-    const now = new Date();
-    const expiresAt = selectedOrder.paymentExpiresAt
-      ? new Date(selectedOrder.paymentExpiresAt)
-      : null;
-    const isExpired = !expiresAt || expiresAt <= now;
-    const hasValidCheckout = !!selectedOrder.checkoutUrl && !isExpired;
+    // const now = new Date();
+    // const expiresAt = selectedOrder.paymentExpiresAt
+    //   ? new Date(selectedOrder.paymentExpiresAt)
+    //   : null;
+    // const isExpired = !expiresAt || expiresAt <= now;
+    // const hasValidCheckout = !!selectedOrder.checkoutUrl && !isExpired;
 
-    if (hasValidCheckout) {
-      // Still valid — skip re-initiation, show existing virtual accounts
-      setCheckoutUrl(selectedOrder?.checkoutUrl);
-      setDrawerView("payment");
-      return;
-    }
+    // if (hasValidCheckout) {
+    //   // Still valid — skip re-initiation, show existing virtual accounts
+    //   setCheckoutUrl(selectedOrder?.checkoutUrl);
+    //   setDrawerView("payment");
+    //   return;
+    // }
 
     // Expired or never initiated — call initiate-payment endpoint
-    const res =
-      selectedOrder?.status === "DRAFT"
-        ? await initiatePayment({
-            orderNumber: selectedOrder.orderNumber,
-          })
-        : await reInitiatePayment({
-            orderNumber: selectedOrder.orderNumber,
-          });
-    
+    // const res =
+    //   selectedOrder?.status === "DRAFT"
+    //     ? await initiatePayment({
+    //         orderNumber: selectedOrder.orderNumber,
+    //       })
+    //     : await reInitiatePayment({
+    //         orderNumber: selectedOrder.orderNumber,
+    //       });
+
+    //Manual payment integration
+    const res = await initiateManualPayment({
+      orderNumber: selectedOrder.orderNumber,
+    });
 
     if (res.data.status === "success") {
-      refetch()
+      refetch();
       // Sync updated order data (new paymentExpiresAt, checkoutUrl)
       setSelectedOrder(res.data.data?.order ?? selectedOrder);
       setDynamicOrderNumber(
         res.data.data?.order?.orderNumber ?? selectedOrder?.orderNumber,
       );
-      setCheckoutUrl(res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl);
+      // setCheckoutUrl(res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl);
       setDrawerView("payment");
     }
   };
@@ -285,7 +299,7 @@ const OrderLogsPageComponent = () => {
       id: itemId,
       payload: { status, processingNotes: "" },
     });
-    refetch()
+    refetch();
     setSelectedOrder(undefined);
     setDynamicOrderNumber(undefined);
     setCheckoutUrl(undefined);
@@ -295,15 +309,15 @@ const OrderLogsPageComponent = () => {
     await deleteOrder({ id: selectedOrder?.id ?? "" });
     setOpen(false);
     resetDrawer();
-    refetch()
+    refetch();
   };
 
-  // const handleConfirmPayment = async () => {
-  //   const res = await confirmPayment({ orderNumber: dynamicOrderNumber ?? "" });
-  //   console.log(res);
-  //   setOpen(false)
-  //   resetDrawer()
-  // };
+  const handleConfirmPayment = async () => {
+    const res = await confirmPayment({ orderNumber: dynamicOrderNumber ?? "", mode: "manual" });
+    console.log(res);
+    setOpen(false);
+    resetDrawer();
+  };
 
   // ── Row click handlers ─────────────────────────────────────────────────────
 
@@ -373,7 +387,11 @@ const OrderLogsPageComponent = () => {
               submitFormId={submitFormId}
               // Fires directly when on order-list (no form to submit)
               onPrimaryAction={
-                drawerView === "order-list" ? handleProceedToPayment : undefined
+                drawerView === "order-list"
+                  ? handleProceedToPayment
+                  : drawerView === "payment"
+                    ? handleConfirmPayment
+                    : undefined
               }
               // Secondary fires "Add item" on order-list for drafts
               onSecondaryAction={
@@ -385,29 +403,38 @@ const OrderLogsPageComponent = () => {
                 creating ||
                 updating ||
                 deleting ||
-                initiatingPayment ||
-                reInitiatingPayment
+                // initiatingPayment ||
+                // reInitiatingPayment ||
+                initiatingManualPayment ||
+                isConfirmingPayment
               }
               secondarySubmitLoading={false}
               submitLabel={primaryLabel}
               secondarySubmitLabel={secondaryLabel}
               showSecondaryButton={!!secondaryLabel}
               showFooter={showDrawerFooter}
-              showHeader={drawerView !== "payment"}
+              // showHeader={drawerView !== "payment"}
             >
               {/* ── Payment screen ─────────────────────────────────────── */}
               {drawerView === "payment" && (
                 <DrawerBoxContent
-                  fillHeight
+                  // fillHeight
+                  // content={
+                  //   <PaymentScreen
+                  //     checkoutUrl={checkoutUrl ?? ""}
+                  //     setOpen={setOpen}
+                  //     refetch={refetch}
+                  //     setFormView={setDrawerView}
+                  //   />
+                  // }
+                  heading="Payment Confirmation"
                   content={
-                    (
-                      <PaymentScreen
-                        checkoutUrl={checkoutUrl ?? ""}
-                        setOpen={setOpen}
-                        refetch={refetch}
-                        setFormView={setDrawerView}
-                      />
-                    )
+                    <ManualPaymentScreen
+                      order={selectedOrder}
+                      orderNumber={dynamicOrderNumber}
+                      // isPending={isPending}
+                      // onRemoveItem={handleRemoveItem}
+                    />
                   }
                 />
               )}

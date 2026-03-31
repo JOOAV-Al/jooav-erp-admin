@@ -42,7 +42,7 @@ const DashboardUsers = ({
               </span>
             </div>
           </div>
-          <ScrollArea isSidebar className="h-[70vh]">
+          <ScrollArea orientation="horizontal" isSidebar >
             <div className="px-md flex flex-col gap-5">
               {users?.map((user, idx) => {
                 const userInitials =
@@ -65,7 +65,7 @@ const DashboardUsers = ({
                     </p>
                     <div className="ml-auto px-sm">
                       <TableTag
-                        className={`${userStatusStyles?.styles}`}
+                        className={`${userStatusStyles?.styles} text-nowrap`}
                         text={userStatusStyles?.text}
                       />
                     </div>

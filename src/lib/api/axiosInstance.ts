@@ -1,3 +1,4 @@
+import { showToast } from "@/lib/toast";
 import axios, {
   AxiosInstance,
   AxiosError,
@@ -134,12 +135,16 @@ axiosInstance.interceptors.response.use(
     
     if (isMutation && !config.noToast) {
       const successMessage = response.data?.message || "Operation successful";
-      // toast.success(successMessage);
-      toast.success("Success!", {
+      // toast.success("Success!", {
+      //   description: successMessage,
+      //   className: "force-white-toast",
+      //   style: { backgroundColor: "hsl(216 82% 55%)", borderRadius: "12px" },
+      // });
+      showToast({
+        variant: "success",
+        title: "Success",
         description: successMessage,
-        className: "force-white-toast",
-        style: { backgroundColor: "hsl(216 82% 55%)", borderRadius: "12px" },
-      });
+  });
     }
 
     return response;
@@ -218,11 +223,16 @@ axiosInstance.interceptors.response.use(
     if (isMutation && !originalRequest.noToast) {
       const errorMessage = getErrorMessage(error);
       // toast.error(errorMessage);
-      toast.error("Failed", {
-        style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+      // toast.error("Failed", {
+      //   style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+      //   description: errorMessage,
+      //   className: "force-white-toast",
+      // })
+      showToast({
+        variant: "error",
+        title: "Failed",
         description: errorMessage,
-        className: "force-white-toast",
-      })
+      });
     }
 
     /* ============================
@@ -231,45 +241,65 @@ axiosInstance.interceptors.response.use(
     switch (status) {
       case 403:
         // Forbidden - user doesn't have permission
-        if (!originalRequest.noToast) {
-          toast.error("Failed", {
-            style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
-            description: "You don't have permission to perform this action",
-            className: "force-white-toast",
-          })
-        }
+        // if (!originalRequest.noToast) {
+        //   toast.error("Failed", {
+        //     style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+        //     description: "You don't have permission to perform this action",
+        //     className: "force-white-toast",
+        //   })
+        // }
+        showToast({
+          variant: "error",
+          title: "Permission denied",
+          description: "You don't have permission to perform this action",
+        });
         break;
 
       case 404:
         // Not found
         if (!originalRequest.noToast && isMutation) {
-          toast.error("Failed", {
-            style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          // toast.error("Failed", {
+          //   style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          //   description: "The requested resource was not found",
+          //   className: "force-white-toast",
+          // })
+          showToast({
+            variant: "error",
+            title: "Not Found",
             description: "The requested resource was not found",
-            className: "force-white-toast",
-          })
+          });
         }
         break;
 
       case 422:
         // Validation error
         if (!originalRequest.noToast) {
-          toast.error("Failed", {
-            style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          // toast.error("Failed", {
+          //   style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          //   description: "Please check your input and try again",
+          //   className: "force-white-toast",
+          // })
+          showToast({
+            variant: "error",
+            title: "Bad Input",
             description: "Please check your input and try again",
-            className: "force-white-toast",
-          })
+          });
         }
         break;
 
       case 429:
         // Rate limit
         if (!originalRequest.noToast) {
-          toast.error("Failed", {
-            style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          // toast.error("Failed", {
+          //   style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          //   description: "Too many requests. Please try again later",
+          //   className: "force-white-toast",
+          // })
+          showToast({
+            variant: "error",
+            title: "Many Request",
             description: "Too many requests. Please try again later",
-            className: "force-white-toast",
-          })
+          });
         }
         break;
 
@@ -279,11 +309,16 @@ axiosInstance.interceptors.response.use(
       case 504:
         // Server errors
         if (!originalRequest.noToast) {
-          toast.error("Failed", {
-            style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          // toast.error("Failed", {
+          //   style: { backgroundColor: '#F43F5E', borderRadius: "12px" },
+          //   description: "Server error. Please try again later",
+          //   className: "force-white-toast",
+          // })
+          showToast({
+            variant: "error",
+            title: "Server Error",
             description: "Server error. Please try again later",
-            className: "force-white-toast",
-          })
+          });
         }
         break;
     }

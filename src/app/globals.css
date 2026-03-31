@@ -185,7 +185,7 @@
   --button-primary-foreground: var(--blue-100);
   --button-secondary-background: var(--cosmic-latte-500);
   --button-secondary-background-hover: var(--cosmic-latte-700);
-  --button-secondary-foreground: var(--gray-600);
+  --button-secondary-foreground: var(--gray-500);
   --button-text-link: var(--orange-500);
   --button-text-link-hover: var(--orange-700);
 
@@ -369,6 +369,8 @@
 
   --shadow-card:
     0px 0px 0px 3px rgba(6, 16, 30, 0.02), 0px 6px 3px 0px rgba(6, 16, 30, 0.04);
+  --shadow-toaster:
+    0px 12px 20px 0px rgba(6, 16, 30, 0.04), 0px 16px 24px 0px rgba(6, 16, 30, 0.04);
 
   /* Sidebar links elevation effect */
   --sidebar-link:
@@ -700,6 +702,7 @@
   /* Use: shadow-input, shadow-card, shadow-sm, shadow-lg */
   --box-shadow-input: var(--shadow-input);
   --box-shadow-card: var(--shadow-card);
+  --box-shadow-toaster: var(--shadow-toaster);
   --box-select-dropdown-shadow: var(--select-dropdown-shadow);
   --box-shadow-sidebar-link: var(--sidebar-link);
   --box-shadow-user-dropdown: var(--user-dropdown);
@@ -818,6 +821,9 @@
 
   .shadow-card {
     box-shadow: var(--shadow-card);
+  }
+  .shadow-toaster {
+    box-shadow: var(--shadow-toaster) !important;
   }
   .select-dropdown-shadow {
     box-shadow: var(--select-dropdown-shadow);

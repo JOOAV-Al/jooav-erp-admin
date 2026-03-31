@@ -54,7 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "focus-visible:bg-background",
 
             // Disabled state
-            "disabled:bg-background disabled:text-body disabled:cursor-not-allowed disabled:pointer-events-none",
+            "disabled:bg-background disabled:text-body-passive disabled:cursor-not-allowed disabled:pointer-events-none",
 
             // File input styles
             "file:inline-flex file:h-7 file:border-0 file:bg-transparent",

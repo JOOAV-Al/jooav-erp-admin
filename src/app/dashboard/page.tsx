@@ -8,6 +8,7 @@ import {
   useGetDashboardData,
   useGetOutOfStockReports,
 } from "@/hooks/dashboard.api";
+import { showToast } from "@/lib/toast";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 
@@ -37,6 +38,7 @@ const SuperAdminDashboardHome = () => {
       label: "All Users",
     },
   ];
+  
   return (
     <div className="flex flex-col gap-5 px-sm pb-main">
       {isPending ? (
@@ -55,11 +57,11 @@ const SuperAdminDashboardHome = () => {
             ))}
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-11 gap-main">
-            <div className="col-span-10 xl:col-span-7 pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[70vh]">
-              <DashboardActiveOrders orders={orders} />
+            <div className="col-span-11 xl:col-span-7 pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[70vh]">
+              <DashboardActiveOrders orders={orders} refetchOrders={refetch} />
             </div>
-            <div className="col-span-10 xl:col-span-4 flex flex-col gap-main min-h-[70vh]">
-              <div className="pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[33vh]">
+            <div className="col-span-11 xl:col-span-4 flex flex-col gap-main min-h-[70vh]">
+              <div className="pt-sm pb-md bg-white rounded-2xl flex flex-col">
                 <DashboardOutOfStock reports={outOfStockReports} />
               </div>
               <div className="pt-sm pb-md bg-white rounded-2xl flex flex-col min-h-[35vh] flex-1">

@@ -1,4 +1,5 @@
 import { BulkMutationResponse, DefaultBulkMutationData } from "@/interfaces/general";
+import { showToast } from "@/lib/toast";
 import { clsx, type ClassValue } from "clsx"
 import { format } from "date-fns";
 import parsePhoneNumberFromString from "libphonenumber-js";
@@ -238,10 +239,15 @@ export function handleBulkMutationMessage (response: BulkMutationResponse<Defaul
   const hasSuccess = res?.successful > 0
   const title = `${res.successful ?? 0} Successful. ${res?.failed ?? 0} Failed`
   const message = hasFailed ? `Failed to delete some ${entity} associated to a product` : `Multiple ${entity} deleted successfully`
-    toast.error(title, {
-    style: { backgroundColor: hasFailed ? '#F43F5E' : "hsl(216 82% 55%)", borderRadius: "12px" },
-    description: message,
-    className: "force-white-toast",
-  })
+  //   toast.error(title, {
+  //   style: { backgroundColor: hasFailed ? '#F43F5E' : "hsl(216 82% 55%)", borderRadius: "12px" },
+  //   description: message,
+  //   className: "force-white-toast",
+  // })
+  showToast({
+  variant: hasFailed ? "error" : "success",
+  title,
+  description: message,
+});
   return {hasFailed, hasSuccess}
 }
