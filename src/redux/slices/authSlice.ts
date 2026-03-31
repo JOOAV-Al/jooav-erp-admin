@@ -27,6 +27,9 @@ export const authSlice = createSlice({
     setAvailabilityStatus: (state, action: PayloadAction<{availabilityStatus: string | null}>) => {
       state.availabilityStatus = action.payload?.availabilityStatus;
     },
+    updateUserData: (state, action: PayloadAction<{user: User | null}>) => {
+      state.user = action.payload?.user;
+    },
     logout: (state) => {
       state.isUserLoading = true;
       state.token = null;
@@ -37,5 +40,5 @@ export const authSlice = createSlice({
   }
 })
 
-export const { setCredentials, setAvailabilityStatus, logout} = authSlice.actions;
+export const { setCredentials, setAvailabilityStatus, updateUserData, logout} = authSlice.actions;
 export default authSlice.reducer

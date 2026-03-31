@@ -54,6 +54,7 @@ const RightDrawerContent = React.forwardRef<
       <RightDrawerOverlay />
       <DialogPrimitive.Content
         ref={ref}
+        onCloseAutoFocus={(event) => event.preventDefault()}
         className={cn(
           "fixed z-50 flex flex-col bg-white shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-300",
           // Position from right with spacing
@@ -64,23 +65,25 @@ const RightDrawerContent = React.forwardRef<
         )}
         {...props}
       >
-        {showHeader && <div
-          style={{
-            background: customImage
-              ? `url(${customImage})`
-              : `url("/dashboard/drawer-top-img.svg")`,
-          }}
-          className="h-24 rounded-t-2xl p-main"
-        >
-          <div className="flex justify-between items-center">
-            <div></div>
-            <RightDrawerClose>
-              <div className="size-9 rounded-full p-sm sidebar-link bg-white hover:bg-storey-foreground flex justify-center items-center text-outline cursor-pointer">
-                <X size={20} />
-              </div>
-            </RightDrawerClose>
+        {showHeader && (
+          <div
+            style={{
+              background: customImage
+                ? `url(${customImage})`
+                : `url("/dashboard/drawer-top-img.svg")`,
+            }}
+            className="h-24 rounded-t-2xl p-main"
+          >
+            <div className="flex justify-between items-center">
+              <div></div>
+              <RightDrawerClose>
+                <div className="size-9 rounded-full p-sm sidebar-link bg-white hover:bg-storey-foreground flex justify-center items-center text-outline cursor-pointer">
+                  <X size={20} />
+                </div>
+              </RightDrawerClose>
+            </div>
           </div>
-        </div>}
+        )}
         {children}
       </DialogPrimitive.Content>
     </RightDrawerPortal>

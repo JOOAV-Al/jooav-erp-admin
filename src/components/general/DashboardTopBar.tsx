@@ -31,7 +31,7 @@ const DashboardTopBar = ({
         )}
         <h3 className="py-5 hidden smd:block">{pageHeading}</h3>
       </div>
-      <LogoutButton />
+      {/* <LogoutButton /> */}
     </div>
   );
 };

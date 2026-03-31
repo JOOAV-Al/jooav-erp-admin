@@ -8,26 +8,47 @@ import {
   getItemStatusStyles,
 } from "@/lib/utils";
 import { InitialsAvatar } from "@/features/orders/components/OrderCard";
-import { useGetOrderDetails } from "@/features/orders/services/orders.api";
-import { X } from "lucide-react";
+import {
+  useGetOrderDetails,
+  useUpdateOrderItemStatus,
+} from "@/features/orders/services/orders.api";
+import { MoreHorizontal, X } from "lucide-react";
 // import OrderCardSkeleton from "@/features/orders/components/OrderCardSkeleton";
-import {PageSpinner} from "@/components/ui/spinner";
+import { PageSpinner, Spinner } from "@/components/ui/spinner";
+import TableTag from "@/components/general/TableTag";
+import FormDropdown from "@/components/general/FormDropdown";
+import { useState } from "react";
+import { array } from "zod";
+import { Button } from "@/components/ui/button";
 
 interface FormOrderListProps {
   order: Order;
   orderNumber?: string;
   onRemoveItem?: (item: OrderItem) => void;
+  showItemStatus?: boolean;
+  showItemStatusActions?: boolean;
+  showWhatsAppShare?: boolean;
+  showAssignedTo?: boolean;
+  refetchOrders?: () => void;
 }
 
 const FormOrderList = ({
   order,
   orderNumber,
   onRemoveItem,
+  showItemStatus = false,
+  showItemStatusActions = false,
+  showWhatsAppShare = false,
+  showAssignedTo = false,
+  refetchOrders,
 }: FormOrderListProps) => {
   console.log(order);
-  const { data, isPending } = useGetOrderDetails({
+  const { data, isPending, refetch } = useGetOrderDetails({
     orderNumber: orderNumber ?? "",
   });
+  const { mutateAsync: updateItemStatus, isPending: updatingItem } =
+    useUpdateOrderItemStatus();
+  const [operatingId, setOperatingId] = useState<string | undefined>("");
   const items = data?.data?.items ?? [];
   const dynamicOrder = data?.data;
 
@@ -35,6 +56,8 @@ const FormOrderList = ({
     (dynamicOrder?.wholesaler?.firstName ?? "") +
     " " +
     (dynamicOrder?.wholesaler?.lastName ?? "");
+
+  const procurement = dynamicOrder?.procurementOfficerName ?? "";
 
   const address = dynamicOrder?.deliveryAddress
     ? [
@@ -45,6 +68,38 @@ const FormOrderList = ({
         .filter(Boolean)
         .join(", ")
     : "—";
+
+  // ── Item status updates ────────────────────────────────────────────────────
+
+  const handleUpdateOrderItemStatus = async (
+    status: string,
+    itemId: string,
+    orderNumber: string,
+  ) => {
+    setOperatingId(itemId);
+    await updateItemStatus({
+      orderNumber,
+      id: itemId,
+      payload: { status, processingNotes: "" },
+    });
+    refetch();
+    refetchOrders?.();
+    // setSelectedOrder(undefined);
+  };
+
+  const warehouseContacts = [
+    {
+      name: "Warehouse 1",
+      phone: "2349030997226",
+    },
+    {
+      name: "Warehouse 2",
+      phone: "2349030997226",
+    },
+    { name: "Warehouse 3", phone: "2349030997226" },
+
+    { name: "Warehouse 4", phone: "2349030997226" },
+  ];
 
   if (isPending) {
     return (
@@ -57,21 +112,84 @@ const FormOrderList = ({
 
   return (
     <div className="flex flex-col flex-1 gap-5 py-main">
-      {/* ── Order meta ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-col border-y-[2px] border-border-main">
-        <div className="flex flex-col gap-5 py-main border-b-[2px] border-border-main">
-          <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-            Ordered By:
-          </span>
-          <div className="flex items-center gap-5">
-            <InitialsAvatar name={wholesaler || "—"} />
-            <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-              {wholesaler || "—"}
-            </span>
+      {showWhatsAppShare && (
+        <div className="rounded-3xl py-lg px-main flex flex-col gap-5 bg-storey-foreground">
+          <div className="py-sm px-3 flex flex-col gap-3 ">
+            <h4>Share order with warehouse</h4>
+            <p className="font-medium text-[15px] tracking-[0.03em] leading-[1.5] text-body-passive">
+              Share order with warehouse contact using whatsapp
+            </p>
+          </div>
+          <div className="flex flex-col gap-main rounded-xl p-lg bg-white shadow-card">
+            {warehouseContacts.map((contact, idx) => {
+              return (
+                <div
+                  className="flex justify-between items-center gap-2"
+                  key={idx}
+                >
+                  <div className="flex items-center gap-6 min-w-0 w-full text-body leading-[1.5] font-medium text-sm">
+                    <span className="p-3 tracking-[0.04em]">{idx + 1}.</span>
+                    <span className="p-3 text-base tracking-[0.03em]">
+                      {contact.name}
+                    </span>
+                  </div>
+                  <Button
+                    type={"button"}
+                    size={"icon"}
+                    variant="input"
+                    // disabled={!!link}
+                    onClick={() => {
+                      console.log("share");
+                      window.open(
+                        `https://wa.me/${contact.phone}?text=Hi%20${contact.name}%2C%20Please%20process%20the%20order%20with%20order%20number%3A%20${orderNumber}`,
+                        "_blank",
+                      );
+                    }}
+                    className="p-4 hover:bg-storey-foreground font-semibold"
+                  >
+                    <Image
+                      src={"/dashboard/whatsApp.svg"}
+                      width={21}
+                      height={17}
+                      alt="Whatsapp"
+                    />
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </div>
+      )}
+      {/* ── Order meta ─────────────────────────────────────────────────────── */}
+      <div className="flex flex-col">
+        <div className="flex justify-between gap-x-lg gap-y-sm py-main border-y-[2px] border-border-main">
+          <div className="flex flex-col gap-5">
+            <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+              Ordered By:
+            </span>
+            <div className="flex items-center gap-5">
+              <InitialsAvatar name={wholesaler || "—"} />
+              <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                {wholesaler || "—"}
+              </span>
+            </div>
+          </div>
+          {showAssignedTo && (
+            <div className="flex flex-col gap-5">
+              <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+                Assigned To:
+              </span>
+              <div className="flex items-center gap-5">
+                <InitialsAvatar name={procurement || "—"} />
+                <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                  {procurement || "—"}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-lg gap-y-sm py-xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-lg gap-y-sm py-xl border-b-[2px] border-border-main">
           <div className="flex flex-col gap-5">
             <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
               Delivery Address:
@@ -126,20 +244,65 @@ const FormOrderList = ({
               {/* Info */}
               <div className="flex-1 flex flex-col gap-main min-w-0">
                 <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-5 flex-wrap">
+                  <div className="flex gap-5 flex-wrap">
                     <h5>{item?.product?.name}</h5>
+                    {showItemStatus && (
+                      <TableTag
+                        small
+                        className={statusStyles.styles}
+                        text={statusStyles.text}
+                      />
+                    )}
+                    {updatingItem && operatingId === item.id && (
+                      <Spinner className="size-4" />
+                    )}
                   </div>
 
                   {/* Item status dropdown */}
-                  <div
-                    className="flex-shrink-0"
-                    onClick={() => onRemoveItem?.(item)}
-                  >
-                    <X
-                      size={20}
-                      className={`text-outline-passive cursor-pointer`}
+                  {showItemStatusActions ? (
+                    <FormDropdown
+                      heading="Select item status"
+                      onMarkItemPending={() =>
+                        handleUpdateOrderItemStatus(
+                          "PENDING",
+                          item.id,
+                          orderNumber ?? "",
+                        )
+                      }
+                      onMarkItemCancelled={() => {
+                        // setOperatingId(item?.id);
+                        handleUpdateOrderItemStatus(
+                          "CANCELLED",
+                          item.id,
+                          orderNumber ?? "",
+                        );
+                      }}
+                      onMarkItemComplete={() =>
+                        handleUpdateOrderItemStatus(
+                          "DELIVERED",
+                          item.id,
+                          orderNumber ?? "",
+                        )
+                      }
+                      onMarkItemInProgress={() =>
+                        handleUpdateOrderItemStatus(
+                          "SOURCING",
+                          item.id,
+                          orderNumber ?? "",
+                        )
+                      }
                     />
-                  </div>
+                  ) : (
+                    <div
+                      className="flex-shrink-0"
+                      onClick={() => onRemoveItem?.(item)}
+                    >
+                      <X
+                        size={20}
+                        className={`text-outline-passive cursor-pointer`}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-[8px]">

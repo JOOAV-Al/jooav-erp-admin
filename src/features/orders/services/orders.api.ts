@@ -64,11 +64,18 @@ export const useReInitiateOrderPayment = () => {
     invalidateQueries: [["order-details"], ["orders-stats"]],
   });
 };
+export const useReInitiateManualOrderPayment = () => {
+  return useInvalidatingMutation({
+    mutationFn: ({ orderNumber }: { orderNumber: string }) =>
+      api.post<MutationResponse<{order: Order, virtualAccounts: OrderVirtualAccount[], checkoutUrl: string; paymentExpiresAt: string;}>>(`/orders/${orderNumber}/initiate-manual-payment`, {}, {noToast: true} as CustomAxiosRequestConfig),
+    invalidateQueries: [["order-details"], ["orders-stats"]],
+  });
+};
 
 export const useConfirmOrderPayment = () => {
   return useInvalidatingMutation({
-    mutationFn: ({ orderNumber }: { orderNumber: string }) =>
-      api.post<MutationResponse<ConfirmationData>>(`/orders/${orderNumber}/verify-payment`,),
+    mutationFn: ({ orderNumber, mode }: { orderNumber: string, mode?: "auto" | "manual" }) =>
+      api.post<MutationResponse<ConfirmationData>>(`/orders/${orderNumber}/verify-payment`, {mode}),
     invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"]],
   });
 };

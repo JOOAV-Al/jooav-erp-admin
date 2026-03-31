@@ -32,6 +32,7 @@ import {
   // Bike,
   CheckCheck,
   ListTree,
+  ChevronRight,
   // Router,
 } from "lucide-react";
 import SidebarLink from "./SidebarLink";
@@ -50,6 +51,7 @@ import { RootState } from "@/redux/store";
 import { HideIfRole } from "@/lib/rbac/HideIfRole";
 import SidebarDropdown from "@/features/users/components/SidebarDropdown";
 import AdminSidebarDropdown from "@/features/users/components/AdminSidebarDropdown";
+import InitialsAvatar from "@/features/users/components/InitialsAvatar";
 // import { logout } from "@/redux/slices/authSlice";
 interface SidebarProps {
   isOpen: boolean;
@@ -153,6 +155,8 @@ export default function Sidebar({
 
   if (isHidden) return null; // completely hidden
 
+  const username = (user?.firstName ?? "") + " " + (user?.lastName ?? "");
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -215,7 +219,11 @@ export default function Sidebar({
             </div>
           </div>
           <div className="px-md">
-            {isProcurement ? <SidebarDropdown isCollapsed={isCollapsed} /> : <AdminSidebarDropdown isCollapsed={isCollapsed} />}
+            {isProcurement ? (
+              <SidebarDropdown isCollapsed={isCollapsed} />
+            ) : (
+              <AdminSidebarDropdown isCollapsed={isCollapsed} />
+            )}
           </div>
           {/* Divider */}
           <ScrollArea isSidebar className="flex-1 min-h-52 min-w-0">
@@ -325,8 +333,8 @@ export default function Sidebar({
             </div>
           </ScrollArea>
           {/* Banner section */}
-          <div className="flex-none p-sm">
-            <div className="w-full rounded-lg">
+          <div className="flex-none px-sm py-md">
+            {/* <div className="w-full rounded-lg">
               <Image
                 height={150}
                 width={300}
@@ -337,7 +345,30 @@ export default function Sidebar({
                 }
                 alt="sidebar image"
               />
-            </div>
+            </div> */}
+            {isCollapsed ? (
+              <div
+                onClick={() => router.push("/dashboard/profile")}
+                className="cursor-pointer flex justify-between items-center shadow-input bg-border-main py-sm px-md rounded-lg h-10.5 gap-[8px] max-w-12 mx-auto"
+              >
+                <div className="flex items-center gap-5">
+                  <InitialsAvatar name={username || "—"} />
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => router.push("/dashboard/profile")}
+                className="cursor-pointer flex justify-between items-center shadow-input bg-border-main py-sm px-md rounded-lg h-10.5 gap-[8px]"
+              >
+                <div className="flex items-center gap-5">
+                  <InitialsAvatar name={username || "—"} />
+                  <span className="text-[15px] font-semibold text-[#555555] leading-[1] tracking-[0.02em]">
+                    {username || "—"}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="text-outline" />
+              </div>
+            )}
           </div>
         </div>
       </aside>

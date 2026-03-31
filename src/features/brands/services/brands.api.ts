@@ -5,8 +5,7 @@ import { api, CustomAxiosRequestConfig } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
 import { handleBulkMutationMessage } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosHeaders, AxiosRequestHeaders } from "axios";
-import { toast } from "sonner";
+import { AxiosRequestHeaders } from "axios";
 
 
 export const useGetBrands = (params: GeneralFetchingParams) => {

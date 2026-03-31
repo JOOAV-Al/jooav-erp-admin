@@ -55,7 +55,7 @@ const DashboardOutOfStock = ({ reports }: { reports?: OutOfStockReport[] }) => {
               </div>
             </div>
 
-            <ScrollArea isSidebar className="h-[30vh]">
+            <ScrollArea isSidebar orientation="horizontal">
               <div className="px-md flex flex-col gap-5">
                 {outOfStockItems.map(({ report, item }, idx) => {
                   const isLast = idx === outOfStockItems.length - 1;
@@ -67,7 +67,7 @@ const DashboardOutOfStock = ({ reports }: { reports?: OutOfStockReport[] }) => {
                   return (
                     <div
                       key={item.id}
-                      className={`flex items-center gap-5 min-h-[42px] ${isLast ? "" : "border-b border-border-main"} py-sm hover:bg-storey-foreground rounded-lg px-sm`}
+                      className={`flex items-center gap-5 min-h-[37px] ${isLast ? "mb-1" : "border-b border-border-main"} py-5 px-md hover:bg-storey-foreground select-option rounded-lg`}
                     >
                       <p className="font-medium text-sm leading-normal tracking-[0.04em] text-body flex-1">
                         {truncateText(itemLabel, 28)}
@@ -75,9 +75,9 @@ const DashboardOutOfStock = ({ reports }: { reports?: OutOfStockReport[] }) => {
 
                       <Button
                         type="button"
-                        variant="input"
-                        size="filter"
-                        className="text-body text-[12px]"
+                        variant="tag"
+                        size="tag"
+                        className="text-body bg-white border-[#FEFAEB] p-sm! text-[12px]"
                         onClick={() => handleOpenDetails(report)}
                       >
                         View

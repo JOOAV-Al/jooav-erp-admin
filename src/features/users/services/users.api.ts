@@ -1,5 +1,6 @@
 import { fetchDeletedUsers, fetchUserDetails, fetchUsers, fetchUsersStats, fetchUsersByManufacturer } from "@/features/users/services/queryFunctions";
 import { UserItem, CreateUserPayload } from "@/features/users/types";
+import { User } from "@/interfaces/authentication";
 import { GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
 import { api } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
@@ -56,6 +57,21 @@ export const useUpdateUser = () => {
   });
 };
 
+export const useUpdateProfile = () => {
+  return useInvalidatingMutation({
+    mutationFn: ({payload}: {payload: CreateUserPayload}) =>
+      api.patch<MutationResponse<User>>(`/users/me/profile`, payload), 
+    invalidateQueries: [["all-users"], ["admin-auth-me"]]
+  });
+};
+
+export const useDeleteUserAccount = () => {
+  return useInvalidatingMutation({
+    mutationFn: () =>
+      api.delete(`/users/me/account`), 
+    invalidateQueries: [["all-users"], ["users-stats"]]
+  });
+};
 export const useDeleteUser = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>

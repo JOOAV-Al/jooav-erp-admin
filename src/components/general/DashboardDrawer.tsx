@@ -78,7 +78,7 @@ const DashboardDrawer = ({
             <span className="h-4 w-5 flex justify-center">
               <Plus size={16} />
             </span>
-            {triggerText}
+            <span className="px-2 py-4">{triggerText}</span>
           </Button>
         </RightDrawerTrigger>
       )}
@@ -160,7 +160,7 @@ const DashboardDrawer = ({
                 if (!submitFormId) onPrimaryAction?.();
               }}
             >
-              <span className="px-2">
+              <span className="">
                 {submitLoading && submitAction === "primary" ? (
                   <Spinner color="white" />
                 ) : (

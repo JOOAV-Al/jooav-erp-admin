@@ -21,6 +21,14 @@ export interface User {
     canAccessAnalytics: boolean,
     canModifySystemConfig: boolean
   },
+  userAddress: {
+    address: string,
+    state: string,
+    city: string,
+    phone: string,
+    name: string
+  }[]
+    
   lastLogin: string;
   createdAt: string;
   updatedAt: string;
