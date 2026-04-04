@@ -45,7 +45,7 @@ export function ManufacturerForm({
 
   useEffect(() => {
     reset({
-      name: "",
+      name: manufacturer?.name ?? "",
     });
   }, [manufacturer?.id, reset]);
 
@@ -53,7 +53,7 @@ export function ManufacturerForm({
     onResetReady?.(() => {
       console.log(2);
       reset({
-        name: "",
+        name: manufacturer?.name ?? "",
       });
     });
   }, [manufacturer?.id, reset]);

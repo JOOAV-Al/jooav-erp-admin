@@ -89,6 +89,7 @@ const CategoryPageComponent = () => {
       await createCategory(values);
     }
     // close drawer on success
+    refetch();
     setOpen(false);
     setSelectedCategory(undefined);
   };
@@ -96,10 +97,12 @@ const CategoryPageComponent = () => {
   const handleBulkDelete = async (selectedCategories: CategoryItem[]) => {
     const idsToDelete = selectedCategories.map((category) => category?.id);
     await deleteMultipleCategories({ subcategoryIds: idsToDelete });
+    refetch();
   };
 
   const handleDelete = async () => {
     await deleteCategory({ id: selectedCategory?.id ?? "" });
+    refetch();
     setOpen(false);
     setSelectedCategory(undefined);
   };
@@ -220,7 +223,7 @@ const CategoryPageComponent = () => {
             console.log("Delete these:", selectedRows);
             handleBulkDelete(selectedRows);
           }}
-          loading={isCategoriesPending || isRefetching}
+          loading={isCategoriesPending}
           deletingMultiple={deletingMultiple}
           deletingMultipleStatus={status}
           data={categories ?? []}

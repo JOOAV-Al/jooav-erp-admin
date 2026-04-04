@@ -6,7 +6,7 @@ interface ShowToastOptions {
   title: string;
   description?: string;
   variant: "success" | "error";
-  action?: { label: string; onClick: () => void };
+  action?: { label: string; onClick?: () => void };
   cancel?: { label: string; onClick?: () => void };
   duration?: number;
 }

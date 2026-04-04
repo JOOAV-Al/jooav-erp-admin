@@ -18,7 +18,7 @@ import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import TableTag from "@/components/general/TableTag";
 import FormDropdown from "@/components/general/FormDropdown";
 import { useState } from "react";
-import { array } from "zod";
+import { array, undefined } from "zod";
 import { Button } from "@/components/ui/button";
 
 interface FormOrderListProps {
@@ -292,7 +292,7 @@ const FormOrderList = ({
                         )
                       }
                     />
-                  ) : (
+                  ) : dynamicOrder?.status === "DRAFT" ? (
                     <div
                       className="flex-shrink-0"
                       onClick={() => onRemoveItem?.(item)}
@@ -302,6 +302,8 @@ const FormOrderList = ({
                         className={`text-outline-passive cursor-pointer`}
                       />
                     </div>
+                  ) : (
+                    <></>
                   )}
                 </div>
 

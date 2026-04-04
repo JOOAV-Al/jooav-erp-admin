@@ -54,7 +54,7 @@ export const useCreateManufacturer = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateManufacturerPayload) =>
       api.post("/manufacturers", payload), 
-    invalidateQueries: [["all-manufacturers"], ["manufacturers-stats"]]
+    invalidateQueries: [["manufacturers-stats"]]
   });
 };
 
@@ -62,7 +62,7 @@ export const useUpdateManufacturer = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload, id}: {payload: CreateManufacturerPayload, id: string}) =>
       api.patch(`/manufacturers/${id}`, payload), 
-    invalidateQueries: [["all-manufacturers"], ["manufacturer-details"]]
+    invalidateQueries: [["manufacturer-details"]]
   });
 };
 
@@ -70,7 +70,7 @@ export const useDeleteManufacturer = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete(`/manufacturers/${id}`), 
-    invalidateQueries: [["all-manufacturers"], ["manufacturers-stats"]]
+    invalidateQueries: [["manufacturers-stats"]]
   });
 };
 
@@ -79,12 +79,12 @@ export const useDeleteMultipleManufacturers = () => {
   return useInvalidatingMutation({
     mutationFn: ({manufacturerIds}: {manufacturerIds: string[]}) =>
       api.post(`/manufacturers/bulk/delete`, {manufacturerIds}, {noToast: true} as CustomAxiosRequestConfig), 
-    // invalidateQueries: [["all-manufacturers"], ["manufacturers-stats"]],
+    // invalidateQueries: [["manufacturers-stats"]],
     onSuccess: (data) => {
       const res = data?.data
       const {hasSuccess} = handleBulkMutationMessage(res, "Manufacturers")
       if(hasSuccess) {
-        queryClient.invalidateQueries({queryKey: ["all-manufacturers"]})
+        // queryClient.invalidateQueries({queryKey: ["all-manufacturers"]})
         queryClient.invalidateQueries({queryKey: ["manufacturers-stats"]})
       }
     }

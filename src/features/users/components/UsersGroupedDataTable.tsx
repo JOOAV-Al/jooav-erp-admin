@@ -9,6 +9,7 @@ import {Spinner} from "@/components/ui/spinner";
 import EmptyState from "@/components/general/EmptyState";
 import { TableSkeleton } from "@/components/general/TableSkeleton";
 import GroupTableHeader from "@/components/general/GroupTableHeader";
+import ConfirmationDialogue from "@/components/general/ConfirmationDialogue";
 // import GroupTableHeader from "@/components/general/GroupTableHeader";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -210,6 +211,7 @@ function GroupedDataTable<T>({
   emptyCta,
   onEmptyCta,
 }: GroupedDataTableProps<T>) {
+  const [isOpen, openDialog] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<Set<any>>(new Set());
 
   const allData = groups.flatMap((g) => g.data);
@@ -236,14 +238,19 @@ function GroupedDataTable<T>({
 
   const handleClearSelection = () => updateSelection(new Set());
 
-  const handleDelete = () =>
-    onDelete?.(allData.filter((r) => selectedRows.has(getRowId(r))));
+  const handleDelete = () => {
+    // onDelete?.(allData.filter((r) => selectedRows.has(getRowId(r))));
+    openDialog(true);
+  }
 
   const handlePublish = () =>
     onPublish?.(allData.filter((r) => selectedRows.has(getRowId(r))));
 
   useEffect(() => {
-    if (deletingMultipleStatus === "success") handleClearSelection();
+    if (deletingMultipleStatus === "success") {
+      handleClearSelection();
+      openDialog(false);
+    } 
   }, [deletingMultipleStatus]);
 
   useEffect(() => {
@@ -313,7 +320,7 @@ function GroupedDataTable<T>({
       {withCheckbox && selectedRows.size > 0 && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center max-w-97.5 w-full gap-6">
           <div className="bg-storey-foreground rounded-lg shadow-input flex items-center h-11">
-            <span className="text-body text-[15px] px-md py-sm border-r-2 border-border-main">
+            <span className="text-body px-md py-sm border-r-2 border-border-main">
               {selectedRows.size} Selected
             </span>
             <button
@@ -347,15 +354,24 @@ function GroupedDataTable<T>({
               className="bg-storey-foreground hover:bg-border-main rounded-lg shadow-input px-main py-md flex items-center gap-5 group cursor-pointer h-11"
               aria-label="Delete selected"
             >
-              {deletingMultiple ? (
+              {/* {deletingMultiple ? (
                 <Spinner className="w-5 h-5" />
               ) : (
-                <Trash2 className="w-5 h-5 text-outline group-hover:text-red-500 group-hover:scale-105" />
-              )}
+              )} */}
+              <Trash2 className="w-5 h-5 text-outline group-hover:text-red-500 group-hover:scale-105" />
             </button>
           )}
         </div>
       )}
+      <ConfirmationDialogue
+        header={selectedRows?.size > 1 ? "Delete Entities" : "Delete Entity"}
+        onAction={() => {
+          onDelete?.(allData.filter((r) => selectedRows.has(getRowId(r))));
+        }}
+        loading={deletingMultiple}
+        isOpen={isOpen}
+        openDialog={openDialog}
+      />
     </div>
   );
 }

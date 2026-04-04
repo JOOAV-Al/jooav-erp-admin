@@ -76,7 +76,9 @@ const ManufacturerPageComponent = () => {
     onUpload: async (formData) => {
       await bulkUpload(formData);
     },
-    onSuccess: () => setOpen(false),
+    onSuccess: () => {
+      setOpen(false)
+    }
   });
 
   const handleCreate = async (values: any) => {
@@ -86,6 +88,7 @@ const ManufacturerPageComponent = () => {
       await createManufacturer(values);
     }
     // close drawer on success
+    refetch()
     setOpen(false);
     setSelectedManufacturer(undefined);
   };
@@ -97,10 +100,12 @@ const ManufacturerPageComponent = () => {
       (manufacturer) => manufacturer?.id,
     );
     await deleteMultipleManufacturers({ manufacturerIds: idsToDelete });
+    refetch()
   };
 
   const handleDelete = async () => {
     await deleteManufacturer({ id: selectedManufacturer?.id ?? "" });
+    refetch()
     setOpen(false);
     setSelectedManufacturer(undefined);
   };
@@ -212,7 +217,7 @@ const ManufacturerPageComponent = () => {
             console.log("Delete these:", selectedRows);
             handleBulkDelete(selectedRows);
           }}
-          loading={isManufacturersPending || isRefetching}
+          loading={isManufacturersPending}
           deletingMultiple={deletingMultiple}
           deletingMultipleStatus={status}
           data={manufacturers ?? []}

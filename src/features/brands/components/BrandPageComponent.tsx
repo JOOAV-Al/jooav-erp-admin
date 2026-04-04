@@ -82,6 +82,7 @@ const BrandPageComponent = () => {
       await createBrand(values);
     }
     // close drawer on success
+    refetch();
     setOpen(false);
     setSelectedBrand(undefined);
   };
@@ -89,10 +90,12 @@ const BrandPageComponent = () => {
   const handleBulkDelete = async (selectedBrands: BrandItem[]) => {
     const idsToDelete = selectedBrands.map((brand) => brand?.id);
     await deleteMultipleBrands({ brandIds: idsToDelete });
+    refetch();
   };
 
   const handleDelete = async () => {
     await deleteBrand({ id: selectedBrand?.id ?? "" });
+    refetch();
     setOpen(false);
     setSelectedBrand(undefined);
   };
@@ -204,7 +207,7 @@ const BrandPageComponent = () => {
             console.log("Delete these:", selectedRows);
             handleBulkDelete(selectedRows);
           }}
-          loading={isBrandsPending || isRefetching}
+          loading={isBrandsPending}
           deletingMultiple={deletingMultiple}
           deletingMultipleStatus={status}
           data={brands ?? []}

@@ -44,7 +44,7 @@ export const useCreateVariant = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateVariantPayload) =>
       api.post<VariantItem>("/variants", payload), 
-    invalidateQueries: [["all-variants"], ["variants-stats"]]
+    invalidateQueries: [["variants-stats"]]
   });
 };
 
@@ -52,7 +52,7 @@ export const useUpdateVariant = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload, id}: {payload: CreateVariantPayload, id: string}) =>
       api.patch<VariantItem>(`/variants/${id}`, payload), 
-    invalidateQueries: [["all-variants"], ["variant-details"]]
+    invalidateQueries: [["variant-details"]]
   });
 };
 
@@ -60,7 +60,7 @@ export const useDeleteVariant = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete(`/variants/${id}`), 
-    invalidateQueries: [["all-variants"], ["variant-details"], ["variants-stats"]]
+    invalidateQueries: [["variant-details"], ["variants-stats"]]
   });
 };
 
@@ -69,7 +69,7 @@ export const useDeleteMultipleVariants = () => {
   return useInvalidatingMutation({
     mutationFn: ({variantIds}: {variantIds: string[]}) =>
       api.post(`/variants/bulk/delete`, {variantIds}), 
-    invalidateQueries: [["all-variants"], ["variants-stats"]],
+    invalidateQueries: [["variants-stats"]],
         onSuccess: (data) => {
       const res = data?.data
       const {hasSuccess} = handleBulkMutationMessage(res, "Variant")
@@ -85,7 +85,7 @@ export const useUpdateVariantStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({id, status}: {id: string, status: string}) =>
       api.patch<VariantItem>(`/variants/${id}/status`, {status}), 
-    invalidateQueries: [["all-variants"], ["variant-details"]]
+    invalidateQueries: [["variant-details"]]
   });
 };
 

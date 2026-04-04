@@ -1,4 +1,4 @@
-// components/ui/AppToast.tsx
+
 import { toast } from "sonner";
 import { CircleCheck, OctagonX, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ interface AppToastProps {
   variant: "success" | "error";
   action?: {
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
   };
   cancel?: {
     label: string;
@@ -23,11 +23,13 @@ const VARIANTS = {
     icon: CircleCheck,
     titleColor: "text-brand-primary", // your blue
     iconColor: "text-brand-primary",
+    btnBg: "bg-brand-primary",
   },
   error: {
     icon: OctagonX,
     titleColor: "text-destructive", // your red
     iconColor: "text-destructive",
+    btnBg: "bg-destructive",
   },
 };
 
@@ -39,7 +41,7 @@ export function AppToast({
   action,
   cancel,
 }: AppToastProps) {
-  const { icon: Icon, titleColor, iconColor } = VARIANTS[variant];
+  const { icon: Icon, titleColor, iconColor, btnBg } = VARIANTS[variant];
 
   return (
     <div className="flex flex-col gap-5 w-full min-w-[280px] max-w-[469px] rounded-3xl bg-white p-main shadow-toaster">
@@ -69,7 +71,7 @@ export function AppToast({
 
       {/* Actions — only renders when provided */}
       {(action || cancel) && (
-        <div className="flex items-center gap-5 py-2">
+        <div className="flex items-center justify-end gap-5 py-2">
           {cancel && (
             <Button
               onClick={() => {
@@ -87,12 +89,12 @@ export function AppToast({
           {action && (
             <Button
               onClick={() => {
-                action.onClick();
+                action.onClick?.();
                 toast.dismiss(t);
               }}
               type="button"
               size={"neutral"}
-              className={`text-[15px] ${titleColor} tracking-[0.02em] leading-[1] shadow-input hover:opacity-80`}
+              className={`text-[15px] ${btnBg} text-white tracking-[0.02em] leading-[1] shadow-input hover:opacity-80`}
             >
               <span className="py-4 px-2">{action.label}</span>
             </Button>

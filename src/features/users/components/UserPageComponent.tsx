@@ -29,8 +29,8 @@ import { getUserTagStyles, normalizePhone } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 const UserPageComponent = () => {
-  const searchParams = useSearchParams()
-  const autoOpenDrawer = searchParams?.get("open")
+  const searchParams = useSearchParams();
+  const autoOpenDrawer = searchParams?.get("open");
   const [page, setPage] = useState<number>(1);
   const [open, setOpen] = useState<boolean>(!!autoOpenDrawer);
   const [query, setQuery] = useState<string>("");
@@ -74,7 +74,6 @@ const UserPageComponent = () => {
     setMessageObject({ phone: waPhone, role: values.role });
     if (selectedUser) {
       await updateUser(values);
-
       setOpen(false);
     } else {
       const res = await createUser(values);
@@ -82,16 +81,19 @@ const UserPageComponent = () => {
       setShowLink(true);
     }
     // show link on success
+    refetch();
     setSelectedUser(undefined);
   };
 
   const handleBulkDelete = async (selectedUsers: UserItem[]) => {
     const idsToDelete = selectedUsers.map((user) => user?.id);
     await deleteMultipleUsers({ userIds: idsToDelete });
+    refetch();
   };
 
   const handleDelete = async () => {
     await deleteUser({ id: selectedUser?.id ?? "" });
+    refetch();
     setOpen(false);
     setSelectedUser(undefined);
   };
@@ -218,7 +220,7 @@ const UserPageComponent = () => {
             console.log("Delete these:", selectedRows);
             handleBulkDelete(selectedRows);
           }}
-          loading={isUsersPending || isRefetching}
+          loading={isUsersPending}
           deletingMultiple={deletingMultiple}
           deletingMultipleStatus={status}
           data={users ?? []}

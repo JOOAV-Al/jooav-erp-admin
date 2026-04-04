@@ -90,15 +90,18 @@ const RolesAndPermissionsPageComponent = () => {
       setResetLink(res?.data?.data?.resetUrl);
       setShowLink(true);
     }
+    refetch()
     setSelectedUser(undefined);
   };
 
   const handleBulkDelete = async (rows: UserItem[]) => {
     await deleteMultipleUsers({ userIds: rows.map((u) => u.id) });
+    refetch();
   };
 
   const handleDelete = async () => {
     await deleteUser({ id: selectedUser?.id ?? "" });
+    refetch();
     setOpen(false);
     setSelectedUser(undefined);
   };
@@ -256,7 +259,7 @@ const RolesAndPermissionsPageComponent = () => {
         <GroupedDataTable<UserItem>
           groups={groups}
           columns={columns}
-          loading={isUsersPending || isRefetching}
+          loading={isUsersPending}
           onRowClick={(row) => {
             setSelectedUser(row);
             setOpen(true);

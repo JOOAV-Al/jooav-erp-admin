@@ -89,6 +89,7 @@ const VariantPageComponent = () => {
       await createVariant(values);
     }
     // close drawer on success
+    refetch();
     setOpen(false);
     setSelectedVariant(undefined);
   };
@@ -96,10 +97,12 @@ const VariantPageComponent = () => {
   const handleBulkDelete = async (selectedVariants: VariantItem[]) => {
     const idsToDelete = selectedVariants.map((variant) => variant?.id);
     await deleteMultipleVariants({ variantIds: idsToDelete });
+    refetch();
   };
 
   const handleDelete = async () => {
     await deleteVariant({ id: selectedVariant?.id ?? "" });
+    refetch();
     setOpen(false);
     setSelectedVariant(undefined);
   };
@@ -212,14 +215,14 @@ const VariantPageComponent = () => {
           withCheckbox
           getRowId={(row) => row.id}
           onSelectionChange={(selectedRows) => {
-            console.log("Selected rows:", selectedRows);
+            // console.log("Selected rows:", selectedRows);
             setSelectedVariants(selectedRows);
           }}
           onDelete={(selectedRows) => {
-            console.log("Delete these:", selectedRows);
+            // console.log("Delete these:", selectedRows);
             handleBulkDelete(selectedRows);
           }}
-          loading={isVariantsPending || isRefetching}
+          loading={isVariantsPending}
           deletingMultiple={deletingMultiple}
           deletingMultipleStatus={status}
           data={variants ?? []}

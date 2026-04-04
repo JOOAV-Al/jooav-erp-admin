@@ -46,7 +46,7 @@ export const useCreateProduct = () => {
       api.post<ProductItem>("/products", payload, {headers: {
           "Content-Type": "multipart/form-data",
         } as AxiosRequestHeaders}), 
-    invalidateQueries: [["all-products"], ["products-stats"]]
+    invalidateQueries: [["products-stats"]]
   });
 };
 
@@ -56,15 +56,15 @@ export const useUpdateProduct = () => {
       api.patch<ProductItem>(`/products/${id}`, payload, {headers: {
           "Content-Type": "multipart/form-data",
         } as AxiosRequestHeaders}), 
-    invalidateQueries: [["all-products"], ["product-details"]]
+    invalidateQueries: [["product-details"]]
   });
 };
 
 export const useDeleteProduct = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
-      api.delete<ProductItem>(`/products/${id}`), 
-    invalidateQueries: [["all-products"], ["product-details"], ["products-stats"]]
+      api.delete<ProductItem>(`/products/${id}`),
+    invalidateQueries: [["product-details"], ["products-stats"]]
   });
 };
 
@@ -72,7 +72,7 @@ export const useDeleteMultipleProducts = () => {
   return useInvalidatingMutation({
     mutationFn: ({productIds}: {productIds: string[]}) =>
       api.post(`/products/bulk`, {productIds}), 
-    invalidateQueries: [["all-products"], ["product-details"], ["products-stats"]]
+    invalidateQueries: [["product-details"], ["products-stats"]]
   });
 };
 
@@ -80,7 +80,7 @@ export const usePublishMultipleProducts = () => {
   return useInvalidatingMutation({
     mutationFn: ({productIds}: {productIds: string[]}) =>
       api.post(`/products/bulk-publish`, {productIds}), 
-    invalidateQueries: [["all-products"], ["product-details"], ["products-stats"]]
+    invalidateQueries: [["product-details"], ["products-stats"]]
   });
 };
 
@@ -88,7 +88,7 @@ export const useUpdateMultipleProductStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload}: {payload: {productIds: string[], status: string}}) =>
       api.patch(`/products/bulk/status`, payload), 
-    invalidateQueries: [["all-products"], ["product-details"], ["products-stats"]]
+    invalidateQueries: [["product-details"], ["products-stats"]]
   });
 };
 
@@ -104,7 +104,7 @@ export const useActivateProduct = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.post<ProductItem>(`/products/${id}/activate`), 
-    invalidateQueries: [["all-products"], ["product-details"]]
+    invalidateQueries: [["product-details"]]
   });
 };
 
