@@ -45,7 +45,7 @@ export const useCreateUser = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateUserPayload) =>
       api.post<MutationResponse<UserItem>>("/users", payload,), 
-    invalidateQueries: [["all-users"], ["users-stats"]]
+    invalidateQueries: [["users-stats"], ["dashboard-data"]]
   });
 };
 
@@ -53,7 +53,7 @@ export const useUpdateUser = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload, id}: {payload: CreateUserPayload, id: string}) =>
       api.patch<MutationResponse<UserItem>>(`/users/${id}`, payload), 
-    invalidateQueries: [["all-users"], ["user-details"]]
+    invalidateQueries: [["user-details"], ["dashboard-data"]]
   });
 };
 
@@ -61,7 +61,7 @@ export const useUpdateProfile = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload}: {payload: CreateUserPayload}) =>
       api.patch<MutationResponse<User>>(`/users/me/profile`, payload), 
-    invalidateQueries: [["all-users"], ["admin-auth-me"]]
+    invalidateQueries: [["all-users"], ["admin-auth-me"], ["dashboard-data"]]
   });
 };
 
@@ -69,14 +69,14 @@ export const useDeleteUserAccount = () => {
   return useInvalidatingMutation({
     mutationFn: () =>
       api.delete(`/users/me/account`), 
-    invalidateQueries: [["all-users"], ["users-stats"]]
+    invalidateQueries: [["all-users"], ["users-stats"], ["dashboard-data"]]
   });
 };
 export const useDeleteUser = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete(`/users/${id}`), 
-    invalidateQueries: [["all-users"], ["user-details"], ["users-stats"]]
+    invalidateQueries: [["user-details"], ["users-stats"], ["dashboard-data"]]
   });
 };
 
@@ -92,7 +92,7 @@ export const useDeleteMultipleUsers = () => {
   return useInvalidatingMutation({
     mutationFn: ({userIds}: {userIds: string[]}) =>
       api.post(`/users/bulk/delete`, {userIds}), 
-    invalidateQueries: [["all-users"], ["user-details"], ["users-stats"]]
+    invalidateQueries: [["user-details"], ["users-stats"], ["dashboard-data"]]
   });
 };
 
@@ -100,7 +100,7 @@ export const useUpdateUserStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({id, status}: {id: string, status: string}) =>
       api.patch<UserItem>(`/users/${id}/status`, {status}), 
-    invalidateQueries: [["all-users"], ["user-details"]]
+    invalidateQueries: [["all-users"], ["user-details"], ["dashboard-data"]]
   });
 };
 

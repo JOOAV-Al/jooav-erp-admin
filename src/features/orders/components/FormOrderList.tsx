@@ -18,7 +18,7 @@ import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import TableTag from "@/components/general/TableTag";
 import FormDropdown from "@/components/general/FormDropdown";
 import { useState } from "react";
-import { array } from "zod";
+import { array, undefined } from "zod";
 import { Button } from "@/components/ui/button";
 
 interface FormOrderListProps {
@@ -90,15 +90,15 @@ const FormOrderList = ({
   const warehouseContacts = [
     {
       name: "Warehouse 1",
-      phone: "2349030997226",
+      phone: "2348167163339",
     },
     {
       name: "Warehouse 2",
-      phone: "2349030997226",
+      phone: "2348167163339",
     },
-    { name: "Warehouse 3", phone: "2349030997226" },
+    { name: "Warehouse 3", phone: "2348167163339" },
 
-    { name: "Warehouse 4", phone: "2349030997226" },
+    { name: "Warehouse 4", phone: "2348167163339" },
   ];
 
   if (isPending) {
@@ -292,7 +292,7 @@ const FormOrderList = ({
                         )
                       }
                     />
-                  ) : (
+                  ) : dynamicOrder?.status === "DRAFT" ? (
                     <div
                       className="flex-shrink-0"
                       onClick={() => onRemoveItem?.(item)}
@@ -302,6 +302,8 @@ const FormOrderList = ({
                         className={`text-outline-passive cursor-pointer`}
                       />
                     </div>
+                  ) : (
+                    <></>
                   )}
                 </div>
 

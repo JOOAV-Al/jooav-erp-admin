@@ -27,14 +27,14 @@ const OutOfStockRequestDetails = ({
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}` : "";
 
   return (
-    <div className="flex flex-col min-h-full bg-white">
+    <div className="flex flex-col min-h-full">
       <div className="px-xl pt-main pb-main border-b border-border-main flex justify-between items-center">
         <h4>Stock requests</h4>
         <MoreHorizontal size={18} className="text-outline" />
       </div>
 
-      <div className="px-xl py-main border-b border-border-main flex flex-col gap-main">
-        <div className="flex justify-between items-start gap-6">
+      <div className="px-xl py-main border-b border-border-main flex flex-col gap-4">
+        <div className="flex justify-between items-start gap-6 py-main border-b border-border-main">
           <div className="flex flex-col gap-5">
             <span className="font-mono text-[12px] text-body-passive tracking-[0.08em] leading-[1.2] uppercase">
               Request from
@@ -50,44 +50,40 @@ const OutOfStockRequestDetails = ({
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 items-end">
+          {whatsappLink && <div className="flex flex-col gap-5 items-end">
             <span className="font-mono text-[12px] text-body-passive tracking-[0.08em] leading-[1.2] uppercase">
               Phone number
             </span>
             <div className="flex items-center gap-3">
               <span className="text-[14px] font-medium text-body leading-normal tracking-[0.04em]">
-                {report.wholesaler?.phone ?? "—"}
+                {report.wholesaler?.phone ?? "Unavailable"}
               </span>
-              {whatsappLink ? (
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Open WhatsApp"
-                  className="size-6 rounded-full border border-border-main flex items-center justify-center bg-white hover:bg-storey-foreground"
-                >
-                  <Image
-                    src="/dashboard/whatsApp.svg"
-                    alt="WhatsApp"
-                    width={12}
-                    height={12}
-                  />
-                </a>
-              ) : (
-                <span className="size-6 rounded-full border border-border-main flex items-center justify-center opacity-50 bg-white">
-                  <Image
-                    src="/dashboard/whatsApp.svg"
-                    alt="WhatsApp"
-                    width={12}
-                    height={12}
-                  />
-                </span>
-              )}
+
+              <Button
+                type={"button"}
+                size={"icon"}
+                variant="input"
+                disabled={!!whatsappLink}
+                onClick={() => {
+                  if (!whatsappLink) {
+                    return;
+                  }
+                  window.open(`${whatsappLink}`, "_blank");
+                }}
+                className="p-4 hover:bg-storey-foreground font-semibold"
+              >
+                <Image
+                  src={"/dashboard/whatsApp.svg"}
+                  width={21}
+                  height={17}
+                  alt="Whatsapp"
+                />
+              </Button>
             </div>
-          </div>
+          </div>}
         </div>
 
-        <div className="flex justify-between items-end gap-6">
+        <div className="flex justify-between items-end gap-6 py-main">
           <div className="flex flex-col gap-5">
             <span className="font-mono text-[12px] text-body-passive tracking-[0.08em] leading-[1.2] uppercase">
               Requested on:

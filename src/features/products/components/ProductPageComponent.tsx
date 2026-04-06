@@ -116,6 +116,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
     }
     // close drawer on success and reset state
     setSubmitAction("primary");
+    refetch()
     setOpen(false);
     setSelectedProduct(undefined);
   };
@@ -123,6 +124,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
   const handleBulkDelete = async (selectedProducts: ProductItem[]) => {
     const idsToDelete = selectedProducts.map((product) => product?.id);
     await deleteMultipleProducts({ productIds: idsToDelete });
+    refetch();
   };
 
   const handleBulkPublish = async (selectedProducts: ProductItem[]) => {
@@ -133,10 +135,12 @@ const hasDraft = localStorage.getItem("product-form-draft")
       status: "LIVE",
     };
     await publishMultipleProducts({ payload });
+    refetch();
   };
 
   const handleDelete = async () => {
     await deleteProduct({ id: selectedProduct?.id ?? "" });
+    refetch();
     setOpen(false);
     setSelectedProduct(undefined);
   };
@@ -147,6 +151,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
       status,
     };
     await publishMultipleProducts({ payload });
+    refetch();
     setOpen(false);
     setSelectedProduct(undefined);
   };
@@ -450,7 +455,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
           onPublish={(selectedRows) => {
             handleBulkPublish(selectedRows);
           }}
-          loading={isProductsPending || isRefetching}
+          loading={isProductsPending}
           publishingMultiple={publishingMultiple}
           publishingMultipleStatus={publishingStatus}
           data={products ?? []}

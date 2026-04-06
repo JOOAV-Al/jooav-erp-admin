@@ -8,11 +8,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import EmptyState from "@/components/general/EmptyState";
-import {Spinner} from "@/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CloudUpload, Trash2, X } from "lucide-react";
 import { TableSkeleton } from "@/components/general/TableSkeleton";
+import ConfirmationDialogue from "@/components/general/ConfirmationDialogue";
 // import Pagination from "./Pagination";
 // import CustomLoader from "@/components/layouts/landing-page/CustomLoader";
 // import NoDataBox from "./NoDataBox";
@@ -98,6 +99,7 @@ function DataTable<T>({
   onPublish,
 }: // isRefetching = false,
 DataTableProps<T>) {
+  const [isOpen, openDialog] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<Set<any>>(new Set());
   // Handle select all checkbox
   const handleSelectAll = (checked: boolean) => {
@@ -137,10 +139,11 @@ DataTableProps<T>) {
 
   // Handle delete action
   const handleDelete = async () => {
-    const selectedRowObjects = data.filter((r) =>
-      selectedRows.has(getRowId(r)),
-    );
-    onDelete?.(selectedRowObjects);
+    // const selectedRowObjects = data.filter((r) =>
+    //   selectedRows.has(getRowId(r)),
+    // );
+    openDialog(true);
+    // onDelete?.(selectedRowObjects);
   };
 
   // Handle publish action
@@ -154,6 +157,7 @@ DataTableProps<T>) {
   useEffect(() => {
     if (deletingMultipleStatus !== "success") return;
     handleClearSelection();
+    openDialog(false)
   }, [deletingMultipleStatus]);
 
   useEffect(() => {
@@ -263,7 +267,6 @@ DataTableProps<T>) {
                   {withCheckbox && (
                     <TableCell className="w-12">
                       <Checkbox
-                        
                         checked={isSelected}
                         onCheckedChange={(checked) =>
                           handleSelectRow(row, !!checked)
@@ -374,15 +377,24 @@ DataTableProps<T>) {
               className="bg-storey-foreground hover:bg-border-main rounded-lg shadow-input px-main py-md flex items-center gap-5 group cursor-pointer h-[44px]"
               aria-label="Delete selected"
             >
-              {deletingMultiple ? (
+              {/* {deletingMultiple ? (
                 <Spinner color="red" className="w-5 h-5" />
               ) : (
-                <Trash2 className="w-5 h-5 text-outline group-hover:text-red-500 group-hover:scale-105" />
-              )}
+              )} */}
+              <Trash2 className="w-5 h-5 text-outline group-hover:text-red-500 group-hover:scale-105" />
             </button>
           )}
         </div>
       )}
+      <ConfirmationDialogue
+        header={selectedRows?.size > 1? "Delete Entities" : "Delete Entity"}
+        onAction={() => {
+          onDelete?.(data.filter((r) => selectedRows.has(getRowId(r))));
+        }}
+        loading={deletingMultiple}
+        isOpen={isOpen}
+        openDialog={openDialog}
+      />
     </div>
   );
 }

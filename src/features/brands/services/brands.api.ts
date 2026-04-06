@@ -47,7 +47,7 @@ export const useCreateBrand = () => {
       api.post<BrandItem>("/brands", payload, {headers: {
           "Content-Type": "multipart/form-data",
         } as AxiosRequestHeaders}), 
-    invalidateQueries: [["all-brands"], ["brands-stats"]]
+    invalidateQueries: [["brands-stats"]]
   });
 };
 
@@ -57,7 +57,7 @@ export const useUpdateBrand = () => {
       api.patch<BrandItem>(`/brands/${id}`, payload, {headers: {
           "Content-Type": "multipart/form-data",
         } as AxiosRequestHeaders}), 
-    invalidateQueries: [["all-brands"], ["brand-details"]]
+    invalidateQueries: [["brand-details"]]
   });
 };
 
@@ -65,7 +65,7 @@ export const useDeleteBrand = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete(`/brands/${id}`), 
-    invalidateQueries: [["all-brands"], ["brand-details"], ["brands-stats"]]
+    invalidateQueries: [["brand-details"], ["brands-stats"]]
   });
 };
 
@@ -74,7 +74,7 @@ export const useDeleteMultipleBrands = () => {
   return useInvalidatingMutation({
     mutationFn: ({brandIds}: {brandIds: string[]}) =>
       api.post<BulkMutationResponse<DefaultBulkMutationData>>(`/brands/bulk/delete`, {brandIds}, {noToast: true} as CustomAxiosRequestConfig), 
-    // invalidateQueries: [["all-brands"], ["brand-details"], ["brands-stats"]],
+    // invalidateQueries: [["brand-details"], ["brands-stats"]],
     onSuccess: (data) => {
       const res = data?.data
       const {hasSuccess} = handleBulkMutationMessage(res, "Brands")
@@ -91,7 +91,7 @@ export const useUpdateBrandStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({id, status}: {id: string, status: string}) =>
       api.patch<BrandItem>(`/brands/${id}/status`, {status}), 
-    invalidateQueries: [["all-brands"], ["brand-details"]]
+    invalidateQueries: [["brand-details"]]
   });
 };
 

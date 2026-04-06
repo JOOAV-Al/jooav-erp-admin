@@ -53,7 +53,7 @@ export const useCreateCategory = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateCategoryPayload) =>
       api.post<CategoryItem>("/categories", payload), 
-    invalidateQueries: [["all-categories"], ["all-subcategories"], ["categories-stats"]]
+    invalidateQueries: [["all-categories"], ["categories-stats"]]
   });
 };
 
@@ -61,7 +61,7 @@ export const useUpdateCategory = () => {
   return useInvalidatingMutation({
     mutationFn: ({payload, id}: {payload: CreateCategoryPayload, id: string}) =>
       api.put<CategoryItem>(`/categories/${id}`, payload), 
-    invalidateQueries: [["all-categories"], ["all-subcategories"], ["category-details"]]
+    invalidateQueries: [["all-categories"], ["category-details"]]
   });
 };
 
@@ -69,7 +69,7 @@ export const useDeleteCategory = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
       api.delete<CategoryItem>(`/categories/${id}`), 
-    invalidateQueries: [["all-categories"], ["all-subcategories"], ["category-details"], ["categories-stats"]]
+    invalidateQueries: [["all-categories"], ["category-details"], ["categories-stats"]]
   });
 };
 
@@ -91,7 +91,7 @@ export const useDeleteMultipleSubCategories = () => {
       const res = data?.data
       const {hasSuccess} = handleBulkMutationMessage(res, "Categories")
       if(hasSuccess) {
-        queryClient.invalidateQueries({queryKey: ["all-subcategories"]})
+        // queryClient.invalidateQueries({queryKey: ["all-subcategories"]})
         queryClient.invalidateQueries({queryKey: ["all-categories"]})
         queryClient.invalidateQueries({queryKey: ["categories-stats"]})
       }
