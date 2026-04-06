@@ -90,15 +90,15 @@ const FormOrderList = ({
   const warehouseContacts = [
     {
       name: "Warehouse 1",
-      phone: "2349030997226",
+      phone: "2348167163339",
     },
     {
       name: "Warehouse 2",
-      phone: "2349030997226",
+      phone: "2348167163339",
     },
-    { name: "Warehouse 3", phone: "2349030997226" },
+    { name: "Warehouse 3", phone: "2348167163339" },
 
-    { name: "Warehouse 4", phone: "2349030997226" },
+    { name: "Warehouse 4", phone: "2348167163339" },
   ];
 
   if (isPending) {
