@@ -23,7 +23,7 @@ const SuperAdminDashboardHome = () => {
   const displayStats = [
     {
       value: stats?.totalRevenue ? `${stats?.totalRevenue}` : "0",
-      label: "Revenue",
+      label: "Transactions",
     },
     {
       value: stats?.completedOrders ? `${stats?.completedOrders}` : "0",
