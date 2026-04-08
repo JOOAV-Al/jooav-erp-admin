@@ -31,7 +31,7 @@ interface RefreshTokenResponse {
 /* ============================
    AXIOS INSTANCE
 ============================ */
-const activeUrl = process.env.NEXT_PUBLIC_BACKEND_STAGING_URL
+const activeUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: activeUrl || "http://localhost:8000",
   // timeout: 30000, // 30 seconds
