@@ -294,26 +294,36 @@ const OrderLogsPageComponent = () => {
     itemId: string,
     orderNumber: string,
   ) => {
-    await updateItemStatus({
+    const res = await updateItemStatus({
       orderNumber,
       id: itemId,
       payload: { status, processingNotes: "" },
     });
+    console.log(res.data.data);
+    if (res.data.status === "success") {
+      const item = res.data.data.item;
+      if (selectedOrderItem) {
+        setSelectedOrderItem({ ...selectedOrderItem, status: item?.status });
+      }
+    }
     refetch();
-    setSelectedOrder(undefined);
-    setDynamicOrderNumber(undefined);
-    setCheckoutUrl(undefined);
+    // setSelectedOrder(undefined);
+    // setDynamicOrderNumber(undefined);
+    // setCheckoutUrl(undefined);
   };
 
   const handleDelete = async () => {
-    await deleteOrder({ id: selectedOrder?.id ?? "" });
+    await deleteOrder({ id: selectedOrder?.orderNumber ?? "" });
     setOpen(false);
     resetDrawer();
     refetch();
   };
 
   const handleConfirmPayment = async () => {
-    const res = await confirmPayment({ orderNumber: dynamicOrderNumber ?? "", mode: "manual" });
+    const res = await confirmPayment({
+      orderNumber: dynamicOrderNumber ?? "",
+      mode: "manual",
+    });
     console.log(res);
     setOpen(false);
     resetDrawer();
@@ -402,7 +412,7 @@ const OrderLogsPageComponent = () => {
               submitLoading={
                 creating ||
                 updating ||
-                deleting ||
+                // deleting ||
                 // initiatingPayment ||
                 // reInitiatingPayment ||
                 initiatingManualPayment ||
@@ -447,45 +457,20 @@ const OrderLogsPageComponent = () => {
                     <FormOrderList
                       order={selectedOrder}
                       orderNumber={dynamicOrderNumber}
+                      refetchOrders={refetch}
                       // isPending={isPending}
                       onRemoveItem={handleRemoveItem}
                     />
                   }
-                  // actionDropdown={
-                  //   isReadOnly(selectedOrder) ? (
-                  //     <FormDropdown
-                  //       heading="Order actions"
-                  //       onMarkItemPending={() =>
-                  //         handleUpdateOrderItemStatus(
-                  //           "PENDING",
-                  //           selectedOrderItem?.id ?? "",
-                  //           selectedOrder.orderNumber,
-                  //         )
-                  //       }
-                  //       onMarkItemCancelled={() =>
-                  //         handleUpdateOrderItemStatus(
-                  //           "CANCELLED",
-                  //           selectedOrderItem?.id ?? "",
-                  //           selectedOrder.orderNumber,
-                  //         )
-                  //       }
-                  //       onMarkItemComplete={() =>
-                  //         handleUpdateOrderItemStatus(
-                  //           "DELIVERED",
-                  //           selectedOrderItem?.id ?? "",
-                  //           selectedOrder.orderNumber,
-                  //         )
-                  //       }
-                  //       onMarkItemInProgress={() =>
-                  //         handleUpdateOrderItemStatus(
-                  //           "SOURCING",
-                  //           selectedOrderItem?.id ?? "",
-                  //           selectedOrder.orderNumber,
-                  //         )
-                  //       }
-                  //     />
-                  //   ) : undefined
-                  // }
+                  actionDropdown={
+                    isDraft(selectedOrder) ? (
+                      <FormDropdown
+                        heading="Order actions"
+                        deleteAction={handleDelete}
+                        deleting={deleting}
+                      />
+                    ) : undefined
+                  }
                   statusTag={
                     <TableTag
                       small
@@ -501,6 +486,7 @@ const OrderLogsPageComponent = () => {
               {/* ── Order form ─────────────────────────────────────────── */}
               {drawerView === "form" && (
                 <DrawerBoxContent
+                  loading={updatingItem}
                   heading={
                     formMode === "create"
                       ? "New order details"
@@ -526,7 +512,7 @@ const OrderLogsPageComponent = () => {
                     />
                   }
                   actionDropdown={
-                    selectedOrderItem && isDraft(selectedOrder) ? (
+                    selectedOrderItem && isReadOnly(selectedOrder) ? (
                       <FormDropdown
                         heading="Select item status"
                         onMarkItemPending={() =>
@@ -615,8 +601,11 @@ const OrderLogsPageComponent = () => {
           emptyHeader="No orders yet"
           emptyDescription="No order records yet. Orders will appear here once placed."
           emptyImage="/dashboard/import-csv.svg"
-          emptyCta="Refresh"
-          onEmptyCta={refetch}
+          emptyCta="Create order"
+          onEmptyCta={() => {
+            setQuery("");
+            setOpen(true);
+          }}
           refetch={refetch}
         />
       </div>

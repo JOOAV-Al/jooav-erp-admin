@@ -144,6 +144,7 @@ const VariantPageComponent = () => {
             actionDropdown: (
               <FormDropdown
                 deleteAction={handleDelete}
+                deleting={deleting}
                 onReset={() => variantFormResetRef.current?.()}
               />
             ),
@@ -195,7 +196,7 @@ const VariantPageComponent = () => {
               }}
               isOpen={open}
               submitFormId={activeFormId}
-              submitLoading={updating || creating || deleting || bulkUploading}
+              submitLoading={updating || creating || bulkUploading}
               submitLabel={isBulkTab ? "Upload CSV" : "Save record"}
               children={
                 <DrawerTabs
@@ -271,7 +272,11 @@ const VariantPageComponent = () => {
           header="Create variant"
           description="No variant record yet. Add records to see variant list"
           image={"/dashboard/import-csv.svg"}
-          cta="Add Variant"
+          cta="Add variant"
+          onCTAClick={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>

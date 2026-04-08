@@ -1,5 +1,5 @@
 import { fetchOrderDetails, fetchOrders, fetchOrdersStats } from "@/features/orders/services/queryFunctions";
-import { Order, CreateOrderPayload, UpdateOrderItemStatusPayload, UpdateMultipleOrderItemStatusPayload, OrderVirtualAccount } from "@/features/orders/types";
+import { Order, CreateOrderPayload, UpdateOrderItemStatusPayload, UpdateMultipleOrderItemStatusPayload, OrderVirtualAccount, OrderItem } from "@/features/orders/types";
 import { ConfirmationData, GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
 import { api, CustomAxiosRequestConfig } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
@@ -99,7 +99,11 @@ export const useDeleteMultipleOrders = () => {
 export const useUpdateOrderItemStatus = () => {
   return useInvalidatingMutation({
     mutationFn: ({orderNumber, id, payload}: {orderNumber: string; id: string, payload: UpdateOrderItemStatusPayload}) =>
-      api.patch<Order>(`/orders/${orderNumber}/items/${id}/status`, payload), 
+      api.patch<MutationResponse<{
+          item: OrderItem,
+          message: string,
+          success: boolean
+      }>>(`/orders/${orderNumber}/items/${id}/status`, payload), 
     invalidateQueries: [["order-details"], ["orders-stats"], ["dashboard-data"]]
   });
 };

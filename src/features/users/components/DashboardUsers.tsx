@@ -58,10 +58,10 @@ const DashboardUsers = ({
                       <InitialsAvatar name={userInitials || "—"} />
                     </div>
                     <p className="px-sm justify-self-start font-medium text-sm leading-[1.5] tracking-[0.04em] text-body">
-                      {truncateText(user?.firstName, 5)}
+                      {user?.firstName}
                     </p>
                     <p className="px-sm font-medium text-sm leading-[1.5] tracking-[0.04em] text-body">
-                      {truncateText(user?.lastName, 5)}
+                      {user?.lastName}
                     </p>
                     <div className="ml-auto px-sm">
                       <TableTag

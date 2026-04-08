@@ -145,6 +145,7 @@ const CategoryPageComponent = () => {
             actionDropdown: (
               <FormDropdown
                 deleteAction={handleDelete}
+                deleting={deleting}
                 onReset={() => categoryFormResetRef.current?.()}
               />
             ),
@@ -195,7 +196,7 @@ const CategoryPageComponent = () => {
               }}
               isOpen={open}
               submitFormId={activeFormId}
-              submitLoading={updating || creating || deleting || bulkUploading}
+              submitLoading={updating || creating || bulkUploading}
               submitLabel={isBulkTab ? "Upload CSV" : "Save record"}
               children={
                 <DrawerTabs
@@ -251,7 +252,11 @@ const CategoryPageComponent = () => {
           header="Create category"
           description="No category record yet. Add records to see category list"
           image={"/dashboard/import-csv.svg"}
-          cta="Add Category"
+          cta="Add category"
+          onCTAClick={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>

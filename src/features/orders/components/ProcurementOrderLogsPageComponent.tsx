@@ -14,6 +14,11 @@ import StatsSkeleton from "@/components/general/StatsSkeleton";
 import OrdersGroupedTable from "@/features/orders/components/OrdersGroupedTable";
 import SearchBox from "@/components/filters/SearchBox";
 import { Button } from "@/components/ui/button";
+import DashboardDrawer from "@/components/general/DashboardDrawer";
+import DrawerBoxContent from "@/components/general/DrawerBoxContent";
+import FormOrderList from "@/features/orders/components/FormOrderList";
+import TableTag from "@/components/general/TableTag";
+import { getOrderStatusStyles } from "@/lib/utils";
 
 // Assignment statuses that map to each view
 const PENDING_STATUSES = ["PENDING_ACCEPTANCE", "REASSIGNED"] as const;
@@ -22,6 +27,7 @@ const PROCESSING_STATUSES = ["ACCEPTED"] as const;
 type ActiveView = "pending" | "processing";
 
 const ProcurementOrderLogsPageComponent = () => {
+  const [open, setOpen] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [query, setQuery] = useState<string>("");
   const [activeView, setActiveView] = useState<ActiveView>("pending");
@@ -60,10 +66,11 @@ const ProcurementOrderLogsPageComponent = () => {
           o.assignmentStatus as (typeof PENDING_STATUSES)[number],
         ),
       ),
-      processingOrders: allOrders.filter((o) =>
-        PROCESSING_STATUSES.includes(
-          o.assignmentStatus as (typeof PROCESSING_STATUSES)[number],
-        ) && o.status !== "COMPLETED",
+      processingOrders: allOrders.filter(
+        (o) =>
+          PROCESSING_STATUSES.includes(
+            o.assignmentStatus as (typeof PROCESSING_STATUSES)[number],
+          ) && o.status !== "COMPLETED",
       ),
     };
   }, [allOrders]);
@@ -83,13 +90,14 @@ const ProcurementOrderLogsPageComponent = () => {
       payload: { status, processingNotes: "" },
     });
     setSelectedOrder(undefined);
-    refetch()
+    refetch();
   };
 
   // ── Row click handlers ─────────────────────────────────────────────────────
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
     setSelectedOrderItem(undefined);
+    setOpen(true)
   };
 
   const handleOrderItemClick = (item: OrderItem, order: Order) => {
@@ -102,6 +110,11 @@ const ProcurementOrderLogsPageComponent = () => {
     setActiveView(view);
     setPage(1);
   };
+
+  const resetDrawer = () => {
+    setSelectedOrder(undefined);
+    setOpen(false)
+  } 
 
   // ── Stats ──────────────────────────────────────────────────────────────────
   const displayStats = [
@@ -122,7 +135,10 @@ const ProcurementOrderLogsPageComponent = () => {
         <div className="flex justify-between flex-wrap gap-6">
           {/* View toggle buttons */}
           <div className="flex items-center">
-            <div onClick={() => handleViewChange("pending")} className="p-main cursor-pointer">
+            <div
+              onClick={() => handleViewChange("pending")}
+              className="p-main cursor-pointer"
+            >
               <h4
                 className={`${activeView === "pending" ? "" : "text-body-passive"}`}
               >
@@ -192,6 +208,39 @@ const ProcurementOrderLogsPageComponent = () => {
           refetch={refetch}
         />
       </div>
+      <DashboardDrawer
+        showTrigger={false}
+        openDrawer={(isOpen) => {
+          if (!isOpen) resetDrawer();
+          setOpen(isOpen);
+        }}
+        isOpen={open}
+        secondarySubmitLabel={undefined}
+        showSecondaryButton={false}
+        showFooter={false}
+      >
+        <DrawerBoxContent
+          heading="Order details"
+          content={
+            <FormOrderList
+              order={selectedOrder!}
+              orderNumber={selectedOrder?.orderNumber}
+              showItemStatus
+              showItemStatusActions={activeView === "processing"}
+              showWhatsAppShare
+              showAssignedTo
+              refetchOrders={refetch}
+            />
+          }
+          statusTag={
+            <TableTag
+              small
+              className={getOrderStatusStyles(selectedOrder?.status).styles}
+              text={getOrderStatusStyles(selectedOrder?.status).text}
+            />
+          }
+        />
+      </DashboardDrawer>
     </div>
   );
 };

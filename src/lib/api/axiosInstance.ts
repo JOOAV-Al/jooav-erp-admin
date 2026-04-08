@@ -31,9 +31,9 @@ interface RefreshTokenResponse {
 /* ============================
    AXIOS INSTANCE
 ============================ */
-
+const activeUrl = process.env.NEXT_PUBLIC_BACKEND_STAGING_URL
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:8000",
+  baseURL: activeUrl || "http://localhost:8000",
   // timeout: 30000, // 30 seconds
   headers: {
     "Content-Type": "application/json",
@@ -176,7 +176,7 @@ axiosInstance.interceptors.response.use(
 
         // Call refresh endpoint
         const refreshResponse = await axios.post<RefreshTokenResponse>(
-          `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/admin/auth/refresh`,
+          `${activeUrl}/admin/auth/refresh`,
           { refreshToken },
           { 
             withCredentials: true,
@@ -364,7 +364,7 @@ export const refreshAccessToken = async (): Promise<boolean> => {
     }
 
     const response = await axios.post<RefreshTokenResponse>(
-      `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/admin/auth/refresh`,
+      `${activeUrl}/admin/auth/refresh`,
       { refreshToken },
       { withCredentials: true }
     );

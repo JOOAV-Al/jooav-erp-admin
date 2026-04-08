@@ -34,6 +34,7 @@ interface OrdersGroupedTableProps {
   emptyImage?: string;
   emptyCta?: string;
   onEmptyCta?: () => void;
+  showCTA?: boolean;
   refetch?: () => void;
 }
 
@@ -60,6 +61,7 @@ function OrdersGroupedTable({
   emptyImage = "/dashboard/import-csv.svg",
   emptyCta,
   onEmptyCta,
+  showCTA,
   refetch,
 }: OrdersGroupedTableProps) {
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(
@@ -147,6 +149,7 @@ function OrdersGroupedTable({
     return (
       <div className="bg-white rounded-2xl border border-border-main p-8">
         <EmptyState
+          showCTA={showCTA}
           header={emptyHeader}
           description={emptyDescription}
           image={emptyImage}

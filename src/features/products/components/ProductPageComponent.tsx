@@ -104,11 +104,11 @@ const ProductPageComponent = () => {
     clearFiles,
   } = useFileObjectUpload(true);
 
-const hasDraft = localStorage.getItem("product-form-draft")
+  const hasDraft = localStorage.getItem("product-form-draft");
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
   const handleCreate = async (values: any) => {
-    console.log(values)
+    console.log(values);
     if (selectedProduct) {
       await updateProduct(values);
     } else {
@@ -116,7 +116,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
     }
     // close drawer on success and reset state
     setSubmitAction("primary");
-    refetch()
+    refetch();
     setOpen(false);
     setSelectedProduct(undefined);
   };
@@ -256,6 +256,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
             actionDropdown: (
               <FormDropdown
                 deleteAction={handleDelete}
+                deleting={deleting}
                 publish={
                   selectedProduct?.status !== "LIVE"
                     ? () => handleStatusChange("LIVE")
@@ -281,7 +282,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
           text={getTagStyles(selectedProduct?.status)?.text}
         />
       ),
-      loading: publishingMultiple || deleting,
+      loading: publishingMultiple,
     },
     {
       value: "bulk",
@@ -300,7 +301,9 @@ const hasDraft = localStorage.getItem("product-form-draft")
           {files.length > 0 ? (
             <div className="flex flex-col gap-main">
               <div className={`flex flex-col gap-5 py-main`}>
-                <h4 className="leading-[1.2] tracking-[0.01em]">File Uploaded</h4>
+                <h4 className="leading-[1.2] tracking-[0.01em]">
+                  File Uploaded
+                </h4>
                 <p className="text-body-passive text-[15px] font-medium leading-normal tracking-[0.03em]">
                   The list shows files you selected
                 </p>
@@ -402,10 +405,10 @@ const hasDraft = localStorage.getItem("product-form-draft")
               }}
               isOpen={open}
               submitFormId={activeFormId}
-              submitLoading={updating || creating || deleting || bulkUploading}
+              submitLoading={updating || creating || bulkUploading}
               submitLabel={isBulkTab ? "Upload CSV" : "Queue"}
               secondarySubmitLabel={isBulkTab ? undefined : "Publish"}
-              secondarySubmitLoading={updating || creating || deleting}
+              secondarySubmitLoading={updating || creating}
               submitAction={submitAction}
               onSubmitActionChange={setSubmitAction}
               primaryBtnIcon={
@@ -486,7 +489,7 @@ const hasDraft = localStorage.getItem("product-form-draft")
               key: "sku",
               label: "SKU",
               activeColor: true,
-              render: (row) => toProperCase(row?.sku ?? "")
+              render: (row) => toProperCase(row?.sku ?? ""),
             },
             {
               key: "price",
@@ -513,7 +516,11 @@ const hasDraft = localStorage.getItem("product-form-draft")
           header="Create product"
           description="No product record yet. Add records to see product list"
           image={"/dashboard/import-csv.svg"}
-          cta="Add Product"
+          cta="Add product"
+          onCTAClick={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>

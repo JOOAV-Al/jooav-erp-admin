@@ -236,7 +236,13 @@ DataTableProps<T>) {
                   description={description}
                   cta={cta}
                   image={image}
-                  onCTAClick={() => refetch?.()}
+                  onCTAClick={() => {
+                    if(onCTAClick) {
+                      onCTAClick?.();
+                    }else {
+                      refetch?.()
+                    }
+                  }}
                 />
               </TableCell>
             </TableRow>
