@@ -14,6 +14,7 @@ export const useGetBrands = (params: GeneralFetchingParams) => {
     queryKey: ["all-brands", search, status, manufacturerId, sortBy, sortOrder, page, limit],
     queryFn: () => fetchBrands(params),
     retry: 2,
+    staleTime: 10000
   });
 };
 
@@ -38,6 +39,7 @@ export const useGetBrandDetails = ({id}: {id: string}) => {
     queryKey: ["brand-details", id],
     queryFn: () => fetchBrandDetails({id}),
     retry: 2,
+    staleTime: 10000
   });
 };
 

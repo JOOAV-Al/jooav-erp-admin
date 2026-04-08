@@ -13,6 +13,7 @@ export const useGetProducts = (params: GeneralFetchingParams) => {
     queryKey: ["all-products", search, status, brandId, page, limit],
     queryFn: () => fetchProducts(params),
     retry: 2,
+    staleTime: 10000
   });
 };
 
@@ -37,6 +38,7 @@ export const useGetProductDetails = ({id}: {id: string}) => {
     queryKey: ["product-details", id],
     queryFn: () => fetchProductDetails({id}),
     retry: 2,
+    staleTime: 10000
   });
 };
 
