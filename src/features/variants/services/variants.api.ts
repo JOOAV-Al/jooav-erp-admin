@@ -13,6 +13,7 @@ export const useGetVariants = (params: GeneralFetchingParams) => {
     queryKey: ["all-variants", search, status, brandId, sortBy, sortOrder, page, limit],
     queryFn: () => fetchVariants(params),
     retry: 2,
+    staleTime: 10000
   });
 };
 
@@ -37,6 +38,7 @@ export const useGetVariantDetails = ({id}: {id: string}) => {
     queryKey: ["variant-details", id],
     queryFn: () => fetchVariantDetails({id}),
     retry: 2,
+    staleTime: 10000
   });
 };
 

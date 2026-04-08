@@ -13,6 +13,7 @@ export const useGetCategories = (params: GeneralFetchingParams) => {
     queryKey: ["all-categories", search, status, manufacturerId, sortBy, sortOrder, page, limit],
     queryFn: () => fetchCategories(params),
     retry: 2,
+    staleTime: 10000
   });
 };
 
@@ -38,6 +39,7 @@ export const useGetSubcategories = (params: GeneralFetchingParams) => {
     queryKey: ["all-subcategories", search, status, manufacturerId, sortBy, sortOrder, page, limit],
     queryFn: () => fetchSubcategories(params),
     retry: 2,
+    staleTime: 10000
   });
 };
 
@@ -46,6 +48,7 @@ export const useGetCategoryDetails = ({id}: {id: string}) => {
     queryKey: ["category-details", id],
     queryFn: () => fetchCategoryDetails({id}),
     retry: 2,
+    staleTime: 10000
   });
 };
 

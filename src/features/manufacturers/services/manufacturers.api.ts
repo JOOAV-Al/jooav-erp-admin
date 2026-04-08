@@ -13,6 +13,7 @@ export const useGetManufacturers = (params: GeneralFetchingParams) => {
     queryKey: ["all-manufacturers", search, status, sortOrder, page, limit],
     queryFn: () => fetchManufacturers(params),
     retry: 2,
+    staleTime: 10000
   });
 };
 
