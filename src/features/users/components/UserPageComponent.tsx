@@ -146,7 +146,7 @@ const UserPageComponent = () => {
               }}
               isOpen={open}
               submitFormId={"user-form"}
-              submitLoading={updating || creating || deleting}
+              submitLoading={updating || creating}
               submitLabel="Save user"
               showFooter={!showLink}
             >
@@ -196,6 +196,7 @@ const UserPageComponent = () => {
                     selectedUser ? (
                       <FormDropdown
                         deleteAction={handleDelete}
+                        deleting={deleting}
                         onReset={() => usersFormResetRef.current?.()}
                       />
                     ) : undefined
@@ -279,7 +280,11 @@ const UserPageComponent = () => {
           header="Create user"
           description="No user record yet. Add records to see user list"
           image={"/dashboard/import-csv.svg"}
-          cta="Add User"
+          cta="Add user"
+          onCTAClick={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>

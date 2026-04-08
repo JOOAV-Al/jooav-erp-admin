@@ -61,7 +61,7 @@ const SidebarDropdown = ({ isCollapsed }: { isCollapsed?: boolean }) => {
   };
   const statusStyles = getUserStatusStyles(status);
   return (
-    <div className="flex items-center px-sm rounded-md">
+    <div className="flex items-center justify-between px-sm rounded-md">
       {!isCollapsed && <div
         onClick={() => setTriggerOpen(true)}
         className="flex gap-[8px] mr-2 items-center cursor-pointer"

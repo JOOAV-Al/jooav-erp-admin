@@ -152,6 +152,7 @@ const FulfilledOrderLogsPageComponent = () => {
           emptyHeader="No orders yet"
           emptyDescription="No order records yet. Orders will appear here once placed."
           emptyImage="/dashboard/import-csv.svg"
+          showCTA={false}
           emptyCta="Refresh"
           onEmptyCta={refetch}
           showActions={false}

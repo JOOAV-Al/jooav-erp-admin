@@ -139,6 +139,7 @@ const ManufacturerPageComponent = () => {
             actionDropdown: (
               <FormDropdown
                 deleteAction={handleDelete}
+                deleting={deleting}
                 onReset={() => manufacturerFormResetRef.current?.()}
               />
             ),
@@ -189,7 +190,7 @@ const ManufacturerPageComponent = () => {
               }}
               isOpen={open}
               submitFormId={activeFormId}
-              submitLoading={updating || creating || deleting || bulkUploading}
+              submitLoading={updating || creating || bulkUploading}
               submitLabel={isBulkTab ? "Upload CSV" : "Save record"}
               children={
                 <DrawerTabs
@@ -237,6 +238,10 @@ const ManufacturerPageComponent = () => {
           description="No manufacturer record yet. Add records to see manufacturer list"
           image={"/dashboard/import-csv.svg"}
           cta="Add Manufacturer"
+          onCTAClick={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>

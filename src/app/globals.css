@@ -861,10 +861,14 @@
   .hover\:shadow-button-hover:hover {
     box-shadow: var(--shadow-button-hover);
   }
+  .hover\:shadow-button-hover {
+    box-shadow: var(--shadow-button-hover);
+  }
 
   .shadow-button-neutral {
     box-shadow: var(--shadow-button-neutral);
   }
+
 
   /* Text shadows */
   .btn-text-shadow {

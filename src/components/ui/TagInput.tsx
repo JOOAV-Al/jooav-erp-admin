@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
+import TagInputExplainerBanner from "@/features/products/components/TagInputExplainerBanner";
 
 interface TagInputProps {
   value?: string[];
@@ -201,7 +202,7 @@ const TagInput = React.forwardRef<TagInputHandle, TagInputProps>(
           </div>
         </div>
         {/* Existing Tags (when editing) */}
-        {existingTags.length > 0 && (
+        {existingTags.length > 0 ? (
           <div className="flex flex-wrap gap-5">
             {existingTags.map((tag, index) => (
               <div
@@ -223,10 +224,12 @@ const TagInput = React.forwardRef<TagInputHandle, TagInputProps>(
               </div>
             ))}
           </div>
+        ) : (
+          <TagInputExplainerBanner />
         )}
       </div>
     );
-  }
+  },
 );
 
 TagInput.displayName = "TagInput";

@@ -48,11 +48,11 @@ const DashboardOutOfStock = ({ reports }: { reports?: OutOfStockReport[] }) => {
           <div className="flex flex-col gap-3 h-full">
             <div className="flex justify-between items-center py-sm px-lg border-b border-border-main">
               <h4>Stock request</h4>
-              <div className="py-sm rounded-lg">
+              {/* <div className="py-sm rounded-lg">
                 <span className="py-4 px-2 text-body-passive tracking-[0.02em] font-semibold text-[15px]">
                   View requests
                 </span>
-              </div>
+              </div> */}
             </div>
 
             <ScrollArea isSidebar orientation="horizontal">

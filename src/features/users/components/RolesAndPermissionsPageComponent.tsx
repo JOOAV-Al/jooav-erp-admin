@@ -201,7 +201,7 @@ const RolesAndPermissionsPageComponent = () => {
               }}
               isOpen={open}
               submitFormId="user-form"
-              submitLoading={updating || creating || deleting}
+              submitLoading={updating || creating}
               submitLabel="Save user"
               showFooter={!showLink}
             >
@@ -245,6 +245,7 @@ const RolesAndPermissionsPageComponent = () => {
                     selectedUser ? (
                       <FormDropdown
                         deleteAction={handleDelete}
+                        deleting={deleting}
                         onReset={() => usersFormResetRef.current?.()}
                       />
                     ) : undefined
@@ -273,8 +274,11 @@ const RolesAndPermissionsPageComponent = () => {
           emptyHeader="Create user"
           emptyDescription="No user record yet. Add records to see user list"
           emptyImage="/dashboard/import-csv.svg"
-          emptyCta="Add User"
-          onEmptyCta={refetch}
+          emptyCta="Add user"
+          onEmptyCta={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>

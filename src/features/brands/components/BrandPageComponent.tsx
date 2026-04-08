@@ -130,6 +130,7 @@ const BrandPageComponent = () => {
             actionDropdown: (
               <FormDropdown
                 deleteAction={handleDelete}
+                deleting={deleting}
                 onReset={() => brandFormResetRef.current?.()}
               />
             ),
@@ -180,7 +181,7 @@ const BrandPageComponent = () => {
               }}
               isOpen={open}
               submitFormId={activeFormId}
-              submitLoading={updating || creating || deleting || bulkUploading}
+              submitLoading={updating || creating || bulkUploading}
               submitLabel={isBulkTab ? "Upload CSV" : "Save record"}
               children={
                 <DrawerTabs
@@ -261,7 +262,11 @@ const BrandPageComponent = () => {
           header="Create brand"
           description="No brand record yet. Add records to see brand list"
           image={"/dashboard/import-csv.svg"}
-          cta="Add Brand"
+          cta="Add brand"
+          onCTAClick={() => {
+            setQuery("");
+            setOpen(true);
+          }}
         />
       </div>
     </div>
