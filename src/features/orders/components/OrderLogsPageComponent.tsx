@@ -152,7 +152,11 @@ const OrderLogsPageComponent = () => {
   // Primary button label per view
   const primaryLabel = (() => {
     if (drawerView === "form") return "Save entry";
-    if (drawerView === "order-list") return "Proceed to payment";
+    if (drawerView === "order-list") {
+      // Initiated (PENDING_PAYMENT) orders skip straight to confirm
+      if (selectedOrder?.status === "PENDING_PAYMENT") return "Confirm payment";
+      return "Proceed to payment";
+    }
     if (drawerView === "payment") return "Confirm payment";
     return undefined;
   })();
@@ -397,10 +401,12 @@ const OrderLogsPageComponent = () => {
               submitFormId={submitFormId}
               // Fires directly when on order-list (no form to submit)
               onPrimaryAction={
-                drawerView === "order-list"
-                  ? handleProceedToPayment
-                  : drawerView === "payment"
-                    ? handleConfirmPayment
+                drawerView === "payment" ||
+                (drawerView === "order-list" &&
+                  selectedOrder?.status === "PENDING_PAYMENT")
+                  ? handleConfirmPayment
+                  : drawerView === "order-list"
+                    ? handleProceedToPayment
                     : undefined
               }
               // Secondary fires "Add item" on order-list for drafts
