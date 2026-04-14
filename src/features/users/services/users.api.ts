@@ -5,7 +5,6 @@ import { GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
 import { api } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
 import { useQuery } from "@tanstack/react-query";
-import { AxiosHeaders, AxiosRequestHeaders } from "axios";
 
 
 export const useGetUsers = (params: GeneralFetchingParams) => {
