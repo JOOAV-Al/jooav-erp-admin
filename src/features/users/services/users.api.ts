@@ -71,6 +71,7 @@ export const useDeleteUserAccount = () => {
     invalidateQueries: [["all-users"], ["users-stats"], ["dashboard-data"]]
   });
 };
+
 export const useDeleteUser = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>
