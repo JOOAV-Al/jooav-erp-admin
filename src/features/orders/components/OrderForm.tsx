@@ -230,7 +230,7 @@ export function OrderForm({
                     )}
                   </div>
                   <Select
-                    disabled={!isEditable || formMode !== "create"}
+                    disabled={!isEditable}
                     isOpen={wholesalerIdDropdownOpen}
                     setIsOpen={setWholesalerIdDropdownOpen}
                     options={
