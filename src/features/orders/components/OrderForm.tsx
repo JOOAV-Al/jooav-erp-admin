@@ -113,7 +113,6 @@ export function OrderForm({
     const { productId, wholesalerId, address, quantity } = values;
     const action = formMode?.toUpperCase();
     const sharedPayload: CreateOrderPayload = {
-      // wholesalerId,
       ...(order?.id
         ? {
             item: {

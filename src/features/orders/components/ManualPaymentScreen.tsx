@@ -26,6 +26,12 @@ interface ManualPaymentScreenProps {
   orderNumber?: string;
 }
 
+const ACCOUNT_DETAILS = {
+  accountName: "Jooav Companies Limited",
+  accountNumber: "6548385435",
+  bankName: "Moniepoint MFB",
+};
+
 const ManualPaymentScreen = ({
   order,
   orderNumber,
@@ -147,7 +153,7 @@ const ManualPaymentScreen = ({
                   Account name:
                 </span>
                 <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                  JOOAV LLC
+                  {ACCOUNT_DETAILS.accountName}
                 </span>
               </div>
               <div className="h-7 w-[1.38px] bg-[#D9D9D9]"></div>
@@ -156,7 +162,7 @@ const ManualPaymentScreen = ({
                   bank name:
                 </span>
                 <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                  Moniepoint
+                  {ACCOUNT_DETAILS.bankName}
                 </span>
               </div>
             </div>
@@ -165,7 +171,7 @@ const ManualPaymentScreen = ({
               <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
                 Account No:
               </span>
-              <h4 className="text-body">5478890487</h4>
+              <h4 className="text-body">{ACCOUNT_DETAILS.accountNumber}</h4>
             </div>
           </div>
         </div>
