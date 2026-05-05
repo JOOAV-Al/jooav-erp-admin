@@ -68,7 +68,7 @@ const DashboardActiveOrders = ({
               >
                 <span className="col-span-2">Order No.</span>
                 <span>Items</span>
-                <span className="text-nowrap">Delivery Date</span>
+                {/* <span className="text-nowrap">Delivery Date</span> */}
                 <span>Ordered For</span>
                 <span className="ml-auto">Order Amount</span>
               </div>
@@ -129,12 +129,12 @@ const DashboardActiveOrders = ({
                       </div>
 
                       {/* Date */}
-                      <span className="text-[14px] font-medium text-body">
+                      {/* <span className="text-[14px] font-medium text-body">
                         {format(
                           order.orderDate ?? order.createdAt,
                           "dd/MM/yyyy",
                         )}
-                      </span>
+                      </span> */}
 
                       {/* Wholesaler */}
                       <div className="flex items-center gap-2 min-w-0">
