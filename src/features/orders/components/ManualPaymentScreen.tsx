@@ -125,14 +125,14 @@ const ManualPaymentScreen = ({
                 )}
               </span>
             </div>
-            <div className="flex flex-col gap-5">
+            {/* <div className="flex flex-col gap-5">
               <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
                 est delivery date:
               </span>
               <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
                 {format(dummyFiveDaysEstimated, "dd/MM/yyyy.")}
               </span>
-            </div>
+            </div> */}
           </div>
           <div className="h-[0.5px] bg-[#E6E6E6] w-full"></div>
         </div>
