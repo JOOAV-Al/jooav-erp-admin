@@ -103,11 +103,13 @@ export interface ConfirmationData {
   message: string;
   success: boolean;
   paymentDetails: {
-    transactionReference: string,
-    amountPaid: string, 
-    paidOn: string; 
+    transactionReference: string;
+    // Number, not string: the backend normalizes provider amounts to numbers
+    // before they are returned, so `amountPaid` arrives as a number.
+    amountPaid: number;
+    paidOn: string;
     paymentMethod: string;
-  }
+  };
 }
 
 export interface DefaultBulkMutationData {

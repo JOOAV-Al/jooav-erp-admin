@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {PageSpinner} from "@/components/ui/spinner";
 import { useConfirmOrderPayment } from "@/features/orders/services/orders.api";
 
@@ -12,8 +12,16 @@ export default function PaymentVerificationPageComponent() {
 
   const { mutateAsync: confirmPayment } = useConfirmOrderPayment();
 
+  // Ensures verify-payment is issued once, despite StrictMode double-invoke.
+  const hasVerifiedRef = useRef(false);
+
   //TODO: Replace wildcard with app domain
   useEffect(() => {
+    // React StrictMode double-invokes effects in dev, which would otherwise
+    // issue two concurrent verify-payment calls for the same order.
+    if (hasVerifiedRef.current) return;
+    hasVerifiedRef.current = true;
+
     const verify = async () => {
       if (!paymentReference) return;
 
