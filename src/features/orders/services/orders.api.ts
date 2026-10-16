@@ -80,6 +80,14 @@ export const useConfirmOrderPayment = () => {
   });
 };
 
+export const useRejectPaymentClaim = () => {
+  return useInvalidatingMutation({
+    mutationFn: ({ orderNumber, reason }: { orderNumber: string; reason?: string }) =>
+      api.post<MutationResponse<Order>>(`/orders/${orderNumber}/payment-claim/reject`, { reason }),
+    invalidateQueries: [["all-orders"], ["order-details"], ["orders-stats"], ["dashboard-data"]],
+  });
+};
+
 export const useDeleteOrder = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>

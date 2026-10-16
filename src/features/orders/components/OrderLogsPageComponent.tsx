@@ -8,7 +8,7 @@ import {
   useDeleteMultipleOrders,
   useGetOrders,
   useGetOrdersStats,
-  // useInitiateOrderPayment,
+  useInitiateOrderPayment,
   useUpdateDraftOrder,
   useUpdateOrderItemStatus,
   // useReInitiateOrderPayment,
@@ -40,6 +40,8 @@ import PaymentScreen from "@/features/orders/components/PaymentScreen";
 import FormOrderList from "@/features/orders/components/FormOrderList";
 import { useSearchParams } from "next/navigation";
 import ManualPaymentScreen from "@/features/orders/components/ManualPaymentScreen";
+import PaymentClaimReview from "@/features/orders/components/PaymentClaimReview";
+import { useGetPaymentSettings } from "@/features/settings/services/settings.api";
 
 // ─── Drawer view states ───────────────────────────────────────────────────────
 // "form"        → OrderForm (create brand new / add item to draft / edit draft item / view non-draft item)
@@ -88,6 +90,9 @@ const OrderLogsPageComponent = () => {
     mutateAsync: initiateManualPayment,
     isPending: initiatingManualPayment,
   } = useReInitiateManualOrderPayment();
+  const { mutateAsync: initiatePayment, isPending: initiatingPayment } =
+    useInitiateOrderPayment();
+  const { data: paymentSettings } = useGetPaymentSettings();
   const { mutateAsync: deleteOrder, isPending: deleting } = useDeleteOrder();
   const { mutateAsync: updateItemStatus, isPending: updatingItem } =
     useUpdateOrderItemStatus();
@@ -161,10 +166,19 @@ const OrderLogsPageComponent = () => {
     return undefined;
   })();
 
-  // Secondary button label — "Add item" only on order-list for a draft
+  // Secondary button label — "Add item" for drafts, "View payment details"
+  // while an order is still awaiting payment.
+  const canViewPaymentDetails = (order?: Order) =>
+    order?.status === "PENDING_PAYMENT" &&
+    (!!order?.checkoutUrl ||
+      order?.paymentChannel === "MANUAL" ||
+      (!order?.paymentChannel && !order?.monnifyInvoiceRef));
+
   const secondaryLabel = (() => {
     if (drawerView === "order-list" && isDraft(selectedOrder))
       return "Add new item";
+    if (drawerView === "order-list" && canViewPaymentDetails(selectedOrder))
+      return "View payment details";
     return undefined;
   })();
 
@@ -267,19 +281,34 @@ const OrderLogsPageComponent = () => {
     //         orderNumber: selectedOrder.orderNumber,
     //       });
 
-    //Manual payment integration
-    const res = await initiateManualPayment({
-      orderNumber: selectedOrder.orderNumber,
-    });
+    // Orders follow the payment method configured in settings; the channel is
+    // frozen on the order at initiation.
+    const method = paymentSettings?.method ?? "MONNIFY";
+
+    const res =
+      method === "MANUAL"
+        ? await initiateManualPayment({
+            orderNumber: selectedOrder.orderNumber,
+          })
+        : await initiatePayment({
+            orderNumber: selectedOrder.orderNumber,
+          });
 
     if (res.data.status === "success") {
       refetch();
-      // Sync updated order data (new paymentExpiresAt, checkoutUrl)
-      setSelectedOrder(res.data.data?.order ?? selectedOrder);
+      // The initiation response carries a partial order; stamp the initiated
+      // channel so the payment view renders the right screen.
+      setSelectedOrder({
+        ...selectedOrder,
+        ...res.data.data?.order,
+        paymentChannel: method,
+      });
       setDynamicOrderNumber(
         res.data.data?.order?.orderNumber ?? selectedOrder?.orderNumber,
       );
-      // setCheckoutUrl(res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl);
+      setCheckoutUrl(
+        res.data.data?.checkoutUrl ?? selectedOrder?.checkoutUrl ?? undefined,
+      );
       setDrawerView("payment");
     }
   };
@@ -409,17 +438,21 @@ const OrderLogsPageComponent = () => {
                     ? handleProceedToPayment
                     : undefined
               }
-              // Secondary fires "Add item" on order-list for drafts
+              // Secondary fires "Add item" for drafts and opens the payment
+              // view while an order is awaiting payment.
               onSecondaryAction={
                 drawerView === "order-list" && isDraft(selectedOrder)
                   ? handleAddItem
-                  : undefined
+                  : drawerView === "order-list" &&
+                      canViewPaymentDetails(selectedOrder)
+                    ? () => setDrawerView("payment")
+                    : undefined
               }
               submitLoading={
                 creating ||
                 updating ||
                 // deleting ||
-                // initiatingPayment ||
+                initiatingPayment ||
                 // reInitiatingPayment ||
                 initiatingManualPayment ||
                 isConfirmingPayment
@@ -445,12 +478,21 @@ const OrderLogsPageComponent = () => {
                   // }
                   heading="Payment Confirmation"
                   content={
-                    <ManualPaymentScreen
-                      order={selectedOrder}
-                      orderNumber={dynamicOrderNumber}
-                      // isPending={isPending}
-                      // onRemoveItem={handleRemoveItem}
-                    />
+                    selectedOrder?.paymentChannel === "MONNIFY" ? (
+                      <PaymentScreen
+                        checkoutUrl={
+                          checkoutUrl ?? selectedOrder?.checkoutUrl ?? ""
+                        }
+                        setOpen={setOpen}
+                        refetch={refetch}
+                        setFormView={setDrawerView}
+                      />
+                    ) : (
+                      <ManualPaymentScreen
+                        order={selectedOrder}
+                        orderNumber={dynamicOrderNumber}
+                      />
+                    )
                   }
                 />
               )}
@@ -460,13 +502,22 @@ const OrderLogsPageComponent = () => {
                 <DrawerBoxContent
                   heading="Order details"
                   content={
-                    <FormOrderList
-                      order={selectedOrder}
-                      orderNumber={dynamicOrderNumber}
-                      refetchOrders={refetch}
-                      // isPending={isPending}
-                      onRemoveItem={handleRemoveItem}
-                    />
+                    <div className="flex flex-col">
+                      <PaymentClaimReview
+                        order={selectedOrder}
+                        onUpdated={(updated) => {
+                          setSelectedOrder(updated);
+                          refetch();
+                        }}
+                      />
+                      <FormOrderList
+                        order={selectedOrder}
+                        orderNumber={dynamicOrderNumber}
+                        refetchOrders={refetch}
+                        // isPending={isPending}
+                        onRemoveItem={handleRemoveItem}
+                      />
+                    </div>
                   }
                   actionDropdown={
                     isDraft(selectedOrder) ? (
