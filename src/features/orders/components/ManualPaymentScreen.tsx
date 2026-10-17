@@ -1,38 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { Order, OrderItem } from "@/features/orders/types";
-import {
-  formatCurrency,
-  formatOrderDate,
-  getItemStatusStyles,
-} from "@/lib/utils";
-import { InitialsAvatar } from "@/features/orders/components/OrderCard";
-import {
-  useGetOrderDetails,
-  useUpdateOrderItemStatus,
-} from "@/features/orders/services/orders.api";
-import { MoreHorizontal, X } from "lucide-react";
+import { formatCurrency, formatOrderDate } from "@/lib/utils";
+import { useGetOrderDetails } from "@/features/orders/services/orders.api";
 // import OrderCardSkeleton from "@/features/orders/components/OrderCardSkeleton";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
-import TableTag from "@/components/general/TableTag";
-import FormDropdown from "@/components/general/FormDropdown";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { useGetAdminPaymentSettings } from "@/features/settings/services/settings.api";
 
 interface ManualPaymentScreenProps {
-  order?: Order;
   orderNumber?: string;
 }
 
-const ManualPaymentScreen = ({
-  order,
-  orderNumber,
-}: ManualPaymentScreenProps) => {
-  // console.log(order);
-  const { data, isPending, refetch } = useGetOrderDetails({
+const ManualPaymentScreen = ({ orderNumber }: ManualPaymentScreenProps) => {
+  const { data, isPending } = useGetOrderDetails({
     orderNumber: orderNumber ?? "",
   });
   const { data: paymentSettings, isPending: isLoadingSettings } =

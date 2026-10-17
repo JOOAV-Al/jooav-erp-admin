@@ -21,6 +21,7 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: pushMock,
   }),
+  usePathname: () => "/super-admin/login",
 }));
 
 // Mock js-cookie
@@ -30,7 +31,18 @@ jest.mock("js-cookie", () => ({
 
 // Mock PasswordInput to a normal input
 jest.mock("@/features/auth/components/PasswordInput", () => {
-  return function MockPasswordInput({ field, placeholder }: any) {
+  return function MockPasswordInput({
+    field,
+    placeholder,
+  }: {
+    field: {
+      value?: string;
+      onChange?: () => void;
+      onBlur?: () => void;
+      name?: string;
+    };
+    placeholder?: string;
+  }) {
     return <input type="password" placeholder={placeholder} {...field} />;
   };
 });
@@ -124,6 +136,7 @@ describe("LoginForm", () => {
       expect(loginMock).toHaveBeenCalledWith({
         email: "admin@example.com",
         password: "password123",
+        role: "SUPER_ADMIN",
       });
     });
 
