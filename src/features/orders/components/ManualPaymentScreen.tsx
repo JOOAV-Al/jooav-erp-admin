@@ -20,7 +20,7 @@ import FormDropdown from "@/components/general/FormDropdown";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { useGetPaymentSettings } from "@/features/settings/services/settings.api";
+import { useGetAdminPaymentSettings } from "@/features/settings/services/settings.api";
 
 interface ManualPaymentScreenProps {
   order?: Order;
@@ -36,7 +36,7 @@ const ManualPaymentScreen = ({
     orderNumber: orderNumber ?? "",
   });
   const { data: paymentSettings, isPending: isLoadingSettings } =
-    useGetPaymentSettings();
+    useGetAdminPaymentSettings();
   const accounts = paymentSettings?.manualAccounts ?? [];
   const items = data?.data?.items ?? [];
   const dynamicOrder = data?.data;

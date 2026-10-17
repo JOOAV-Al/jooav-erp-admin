@@ -8,7 +8,6 @@ import {
   useDeleteMultipleOrders,
   useGetOrders,
   useGetOrdersStats,
-  useInitiateOrderPayment,
   useUpdateDraftOrder,
   useUpdateOrderItemStatus,
   // useReInitiateOrderPayment,
@@ -41,7 +40,6 @@ import FormOrderList from "@/features/orders/components/FormOrderList";
 import { useSearchParams } from "next/navigation";
 import ManualPaymentScreen from "@/features/orders/components/ManualPaymentScreen";
 import PaymentClaimReview from "@/features/orders/components/PaymentClaimReview";
-import { useGetPaymentSettings } from "@/features/settings/services/settings.api";
 
 // ─── Drawer view states ───────────────────────────────────────────────────────
 // "form"        → OrderForm (create brand new / add item to draft / edit draft item / view non-draft item)
@@ -90,9 +88,6 @@ const OrderLogsPageComponent = () => {
     mutateAsync: initiateManualPayment,
     isPending: initiatingManualPayment,
   } = useReInitiateManualOrderPayment();
-  const { mutateAsync: initiatePayment, isPending: initiatingPayment } =
-    useInitiateOrderPayment();
-  const { data: paymentSettings } = useGetPaymentSettings();
   const { mutateAsync: deleteOrder, isPending: deleting } = useDeleteOrder();
   const { mutateAsync: updateItemStatus, isPending: updatingItem } =
     useUpdateOrderItemStatus();
@@ -281,18 +276,11 @@ const OrderLogsPageComponent = () => {
     //         orderNumber: selectedOrder.orderNumber,
     //       });
 
-    // Orders follow the payment method configured in settings; the channel is
-    // frozen on the order at initiation.
-    const method = paymentSettings?.method ?? "MONNIFY";
-
-    const res =
-      method === "MANUAL"
-        ? await initiateManualPayment({
-            orderNumber: selectedOrder.orderNumber,
-          })
-        : await initiatePayment({
-            orderNumber: selectedOrder.orderNumber,
-          });
+    // Admin-initiated payments always use manual bank transfer and show the
+    // configured accounts; the settings method only governs wholesaler checkout.
+    const res = await initiateManualPayment({
+      orderNumber: selectedOrder.orderNumber,
+    });
 
     if (res.data.status === "success") {
       refetch();
@@ -301,7 +289,7 @@ const OrderLogsPageComponent = () => {
       setSelectedOrder({
         ...selectedOrder,
         ...res.data.data?.order,
-        paymentChannel: method,
+        paymentChannel: "MANUAL",
       });
       setDynamicOrderNumber(
         res.data.data?.order?.orderNumber ?? selectedOrder?.orderNumber,
@@ -452,7 +440,7 @@ const OrderLogsPageComponent = () => {
                 creating ||
                 updating ||
                 // deleting ||
-                initiatingPayment ||
+                // initiatingPayment ||
                 // reInitiatingPayment ||
                 initiatingManualPayment ||
                 isConfirmingPayment
