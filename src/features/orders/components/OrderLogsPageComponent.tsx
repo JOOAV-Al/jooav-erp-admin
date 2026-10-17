@@ -463,15 +463,7 @@ const OrderLogsPageComponent = () => {
               {/* ── Payment screen ─────────────────────────────────────── */}
               {drawerView === "payment" && (
                 <DrawerBoxContent
-                  // fillHeight
-                  // content={
-                  //   <PaymentScreen
-                  //     checkoutUrl={checkoutUrl ?? ""}
-                  //     setOpen={setOpen}
-                  //     refetch={refetch}
-                  //     setFormView={setDrawerView}
-                  //   />
-                  // }
+                  fillHeight={selectedOrder?.paymentChannel === "MONNIFY"}
                   heading="Payment Confirmation"
                   content={
                     selectedOrder?.paymentChannel === "MONNIFY" ? (
