@@ -12,6 +12,7 @@ export interface DashboardData {
     completedOrders: number;
     liveProducts: number;
     allUsers: number;
+    paymentsToVerify: number;
   };
 }
 

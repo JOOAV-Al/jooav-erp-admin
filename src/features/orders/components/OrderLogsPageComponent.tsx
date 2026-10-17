@@ -40,6 +40,10 @@ import FormOrderList from "@/features/orders/components/FormOrderList";
 import { useSearchParams } from "next/navigation";
 import ManualPaymentScreen from "@/features/orders/components/ManualPaymentScreen";
 import PaymentClaimReview from "@/features/orders/components/PaymentClaimReview";
+import {
+  resolveInitialStatusFilter,
+  resolveOrderListFilters,
+} from "@/features/orders/services/helpers";
 
 // ─── Drawer view states ───────────────────────────────────────────────────────
 // "form"        → OrderForm (create brand new / add item to draft / edit draft item / view non-draft item)
@@ -56,7 +60,9 @@ const OrderLogsPageComponent = () => {
   const [drawerView, setDrawerView] = useState<DrawerView>("form");
   const [page, setPage] = useState<number>(1);
   const [query, setQuery] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>(() =>
+    resolveInitialStatusFilter(searchParams?.get("status")),
+  );
   // const [paymentObject, setPaymentObject] = useState<
   //   OrderVirtualAccount | undefined
   // >(undefined);
@@ -104,7 +110,11 @@ const OrderLogsPageComponent = () => {
     data,
     isPending: isOrdersPending,
     refetch,
-  } = useGetOrders({ page, search: debouncedQuery, status: statusFilter });
+  } = useGetOrders({
+    page,
+    search: debouncedQuery,
+    ...resolveOrderListFilters(statusFilter),
+  });
   // const { data: singleOrder, isPending, refetch: refetchSingleOrder } = useGetOrderDetails({
   //   orderNumber: selectedOrder?.orderNumber ?? "",
   // });
@@ -374,13 +384,14 @@ const OrderLogsPageComponent = () => {
     { value: `${stats?.summary?.activeOrders ?? 0}`, label: "Active" },
     { value: `${stats?.summary?.completedOrders ?? 0}`, label: "Completed" },
     { value: `${stats?.statusBreakdown?.confirmed ?? 0}`, label: "Pending" },
+    { value: `${stats?.summary?.claimsToVerify ?? 0}`, label: "To verify" },
     { value: `${stats?.summary?.cancelledOrders ?? 0}`, label: "Cancelled" },
   ];
 
   return (
     <div className="flex flex-col gap-5 pb-main">
       {isStatsPending ? (
-        <StatsSkeleton count={5} />
+        <StatsSkeleton count={6} />
       ) : (
         <StatsContainer stats={displayStats} />
       )}
