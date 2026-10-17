@@ -95,8 +95,12 @@ describe("ResetPasswordForm", () => {
 
     const resetPasswordMock = jest.fn().mockResolvedValue({
       data: {
-        user: { id: "1", email: "user@example.com" },
-        token: "new-access-token",
+        success: true,
+        message: "Password reset successfully",
+        data: {
+          message: "Password has been reset successfully",
+          role: "ADMIN",
+        },
       },
     });
 
@@ -120,8 +124,33 @@ describe("ResetPasswordForm", () => {
       });
     });
 
-    // Reset API returns no role; getLoginRoute falls back to default login route
-    expect(pushMock).toHaveBeenCalledWith("/procurement-officer/login");
+    // The reset API returns the user's role, so redirect to that role's login
+    expect(pushMock).toHaveBeenCalledWith("/admin/login");
+  });
+
+  it("falls back to the default login when the response carries no role", async () => {
+    const user = userEvent.setup();
+
+    const resetPasswordMock = jest.fn().mockResolvedValue({
+      data: { message: "Password has been reset successfully" },
+    });
+
+    (useResetPassword as jest.Mock).mockReturnValue({
+      mutateAsync: resetPasswordMock,
+      isPending: false,
+    });
+
+    renderWithProviders(<ResetPasswordForm />);
+
+    await user.type(screen.getByPlaceholderText(/Enter new password/i), "password123");
+
+    await user.type(screen.getByPlaceholderText(/Enter password/i), "password123");
+
+    await user.click(screen.getByRole("button", { name: /change password/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/procurement-officer/login");
+    });
   });
 
   it("disables submit button while loading", () => {

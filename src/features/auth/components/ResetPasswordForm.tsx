@@ -20,7 +20,10 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/slices/authSlice";
 import AuthCardHeader from "@/features/auth/components/AuthCardHeader";
 import PasswordInput from "@/features/auth/components/PasswordInput";
-import { getLoginRoute } from "@/features/auth/services/helpers";
+import {
+  getLoginRoute,
+  getStoredRole,
+} from "@/features/auth/services/helpers";
 import { Spinner } from "@/components/ui/spinner";
 
 const useResetPasswordSchema = z
@@ -68,7 +71,7 @@ export function ResetPasswordForm() {
     //     token: response?.data.token,
     //   })
     // );
-    router.push(getLoginRoute(response?.data?.role));
+    router.push(getLoginRoute(response?.data?.data?.role ?? getStoredRole()));
   };
 
   const watchedPassword = form.watch("password");
@@ -150,7 +153,7 @@ export function ResetPasswordForm() {
               variant={"ghost"}
               size={"ghost"}
               className="w-fit h-fit p-0"
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(getLoginRoute(getStoredRole()))}
             >
               Back to login?
             </Button>

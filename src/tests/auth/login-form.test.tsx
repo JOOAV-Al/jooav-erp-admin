@@ -144,6 +144,12 @@ describe("LoginForm", () => {
 
     expect(Cookies.set).toHaveBeenCalledWith("refreshToken", "refresh-token");
 
+    expect(Cookies.set).toHaveBeenCalledWith(
+      "userRole",
+      "SUPER_ADMIN",
+      expect.anything()
+    );
+
     expect(pushMock).toHaveBeenCalledWith("/dashboard");
   });
 

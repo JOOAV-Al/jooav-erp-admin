@@ -45,10 +45,12 @@ import { DoorOpen, Edit3 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Root } from "react-dom/client";
 import { useDispatch, useSelector } from "react-redux";
-import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { logout, updateUserData } from "@/redux/slices/authSlice";
-import { getLoginRoute } from "@/features/auth/services/helpers";
+import {
+  getLoginRoute,
+  getStoredRole,
+} from "@/features/auth/services/helpers";
 import { Spinner } from "@/components/ui/spinner";
 
 const createUserSchema = z.object({
@@ -100,15 +102,13 @@ const UserProfileUpdate = () => {
   } = form;
 
   const handleLogout = async () => {
-    const token = Cookies.get("authToken");
-    const decoded = jwtDecode<{ role: string }>(token ?? "");
     try {
       dispatch(logout());
       await logoutUser();
     } finally {
       Cookies.remove("refreshToken");
       Cookies.remove("authToken");
-      router.replace(getLoginRoute(decoded?.role));
+      router.replace(getLoginRoute(getStoredRole()));
     }
   };
 

@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useLogout } from "@/features/auth/services/auth.api";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { logout } from "@/redux/slices/authSlice";
-import { getLoginRoute } from "@/features/auth/services/helpers";
+import {
+  getLoginRoute,
+  getStoredRole,
+} from "@/features/auth/services/helpers";
 import { Spinner } from "@/components/ui/spinner";
 
 const UserDeleteConfirmation = () => {
@@ -19,15 +21,13 @@ const UserDeleteConfirmation = () => {
   const { mutateAsync: deleteUserAccount, isPending } = useDeleteUserAccount();
 
   const handleLogout = async () => {
-    const token = Cookies.get("authToken");
-    const decoded = jwtDecode<{ role: string }>(token ?? "");
     try {
       dispatch(logout());
       await logoutUser();
     } finally {
       Cookies.remove("refreshToken");
       Cookies.remove("authToken");
-      router.replace(getLoginRoute(decoded?.role));
+      router.replace(getLoginRoute(getStoredRole()));
     }
   };
 
