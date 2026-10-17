@@ -103,7 +103,6 @@ const OrderLogsPageComponent = () => {
   const {
     data,
     isPending: isOrdersPending,
-    isRefetching,
     refetch,
   } = useGetOrders({ page, search: debouncedQuery, status: statusFilter });
   // const { data: singleOrder, isPending, refetch: refetchSingleOrder } = useGetOrderDetails({
@@ -195,7 +194,7 @@ const OrderLogsPageComponent = () => {
 
   // ── Save entry (form submit) ───────────────────────────────────────────────
 
-  const handleSaveEntry = async (values: any) => {
+  const handleSaveEntry = async (values: CreateOrderPayload) => {
     let updatedOrder: Order | undefined;
 
     if (formMode === "create") {
@@ -320,7 +319,6 @@ const OrderLogsPageComponent = () => {
       id: itemId,
       payload: { status, processingNotes: "" },
     });
-    console.log(res.data.data);
     if (res.data.status === "success") {
       const item = res.data.data.item;
       if (selectedOrderItem) {
@@ -341,11 +339,10 @@ const OrderLogsPageComponent = () => {
   };
 
   const handleConfirmPayment = async () => {
-    const res = await confirmPayment({
+    await confirmPayment({
       orderNumber: dynamicOrderNumber ?? "",
       mode: "manual",
     });
-    console.log(res);
     setOpen(false);
     resetDrawer();
   };
@@ -477,7 +474,6 @@ const OrderLogsPageComponent = () => {
                       />
                     ) : (
                       <ManualPaymentScreen
-                        order={selectedOrder}
                         orderNumber={dynamicOrderNumber}
                       />
                     )
@@ -543,8 +539,8 @@ const OrderLogsPageComponent = () => {
                   }
                   content={
                     <OrderForm
-                      order={selectedOrder as any}
-                      orderItem={selectedOrderItem as any}
+                      order={selectedOrder}
+                      orderItem={selectedOrderItem}
                       handleSubmitForm={handleSaveEntry}
                       loading={creating || updating}
                       closeDialog={() => setOpen(false)}
