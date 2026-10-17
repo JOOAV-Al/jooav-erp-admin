@@ -7,6 +7,10 @@ import axios, {
 } from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import {
+  getRoleFromToken,
+  setStoredRole,
+} from "@/features/auth/services/helpers";
 
 /* ============================
    TYPES
@@ -94,6 +98,70 @@ const getErrorMessage = (error: AxiosError<ErrorResponse>): string => {
 };
 
 /* ============================
+   TOKEN REFRESH
+============================ */
+
+/**
+ * The API wraps responses as { success, message, data }, so tokens may live
+ * under data.data (wrapped) or directly on data (bare).
+ */
+export const extractRefreshTokens = (
+  body: unknown,
+): { accessToken: string; refreshToken: string } | null => {
+  const payload = (body as { data?: unknown })?.data ?? body;
+  const { accessToken, refreshToken } = (payload ?? {}) as Partial<
+    RefreshTokenResponse
+  >;
+
+  if (typeof accessToken !== "string" || !accessToken) return null;
+  if (typeof refreshToken !== "string" || !refreshToken) return null;
+
+  return { accessToken, refreshToken };
+};
+
+let tokenRefreshPromise: Promise<string> | null = null;
+
+const requestNewTokens = async (): Promise<string> => {
+  const refreshToken = getRefreshToken();
+
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+
+  const refreshResponse = await axios.post<RefreshTokenResponse>(
+    `${activeUrl}/admin/auth/refresh`,
+    { refreshToken },
+    {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const tokens = extractRefreshTokens(refreshResponse.data);
+
+  if (!tokens) {
+    throw new Error("Malformed refresh response");
+  }
+
+  setAuthTokens(tokens.accessToken, tokens.refreshToken);
+  setStoredRole(getRoleFromToken(tokens.accessToken));
+
+  return tokens.accessToken;
+};
+
+// All parallel 401s share a single refresh request.
+const getOrStartTokenRefresh = (): Promise<string> => {
+  if (!tokenRefreshPromise) {
+    tokenRefreshPromise = requestNewTokens().finally(() => {
+      tokenRefreshPromise = null;
+    });
+  }
+  return tokenRefreshPromise;
+};
+
+/* ============================
    REQUEST INTERCEPTOR
    Attach auth token to requests
 ============================ */
@@ -167,47 +235,17 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true; // Prevent infinite loops
 
       try {
-        const refreshToken = getRefreshToken();
-
-        if (!refreshToken) {
-          // No refresh token available, can't refresh
-          throw new Error("No refresh token available");
-        }
-
-        // Call refresh endpoint
-        const refreshResponse = await axios.post<RefreshTokenResponse>(
-          `${activeUrl}/admin/auth/refresh`,
-          { refreshToken },
-          { 
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
-
-        // Update cookies with new tokens
-        setAuthTokens(accessToken, newRefreshToken);
+        // All parallel 401s share a single refresh request
+        const accessToken = await getOrStartTokenRefresh();
 
         // Update the original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         // Retry the original request
         return axiosInstance(originalRequest);
-
       } catch (refreshError) {
         // Refresh failed → clear tokens and reject
         clearAuthTokens();
-
-        // Optional: Dispatch logout action if you have access to store
-        // store.dispatch(logout());
-
-        // Optional: Redirect to login (handle in auth guard instead)
-        if (typeof window !== "undefined") {
-          // window.location.href = "/login";
-        }
 
         return Promise.reject(refreshError);
       }
@@ -357,23 +395,9 @@ export const api = {
  */
 export const refreshAccessToken = async (): Promise<boolean> => {
   try {
-    const refreshToken = getRefreshToken();
-    
-    if (!refreshToken) {
-      return false;
-    }
-
-    const response = await axios.post<RefreshTokenResponse>(
-      `${activeUrl}/admin/auth/refresh`,
-      { refreshToken },
-      { withCredentials: true }
-    );
-
-    const { accessToken, refreshToken: newRefreshToken } = response.data;
-    setAuthTokens(accessToken, newRefreshToken);
-
+    await getOrStartTokenRefresh();
     return true;
-  } catch (error) {
+  } catch {
     clearAuthTokens();
     return false;
   }

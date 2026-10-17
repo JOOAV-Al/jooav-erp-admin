@@ -2,7 +2,10 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getLoginRoute } from "@/features/auth/services/helpers";
+import {
+  getLoginRoute,
+  getStoredRole,
+} from "@/features/auth/services/helpers";
 
 interface UnauthorizedProps {
   title?: string;
@@ -64,7 +67,7 @@ export default function Unauthorized({
               <Button
                 type="button"
                 size={"neutral"}
-                onClick={() => router.push(getLoginRoute(""))}
+                onClick={() => router.push(getLoginRoute(getStoredRole()))}
                 // className="px-4 py-2"
               >
                 {actionLabel}

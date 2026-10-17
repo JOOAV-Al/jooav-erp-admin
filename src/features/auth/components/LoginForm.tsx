@@ -21,6 +21,7 @@ import { usePathname, useRouter } from "next/navigation";
 import AuthCardHeader from "@/features/auth/components/AuthCardHeader";
 import Cookies from "js-cookie";
 import PasswordInput from "@/features/auth/components/PasswordInput";
+import { setStoredRole } from "@/features/auth/services/helpers";
 import FieldIcon from "@/components/general/FieldIcon";
 import { EyeIcon, Mail } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -74,10 +75,10 @@ export function LoginForm({ toggleForm }: { toggleForm: () => void }) {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     const { data } = await login({ ...values, role: getRole() });
-    // console.log(data)
 
     Cookies.set("authToken", data.data.accessToken);
     Cookies.set("refreshToken", data.data.refreshToken);
+    setStoredRole(data?.data?.admin?.role ?? getRole());
 
     // dispatch(
     //   setCredentials({
