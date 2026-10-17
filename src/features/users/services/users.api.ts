@@ -5,7 +5,6 @@ import { GeneralFetchingParams, MutationResponse } from "@/interfaces/general";
 import { api } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
 import { useQuery } from "@tanstack/react-query";
-import { AxiosHeaders, AxiosRequestHeaders } from "axios";
 
 
 export const useGetUsers = (params: GeneralFetchingParams) => {
@@ -45,7 +44,7 @@ export const useCreateUser = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: CreateUserPayload) =>
       api.post<MutationResponse<UserItem>>("/users", payload,), 
-    invalidateQueries: [["users-stats"], ["dashboard-data"]]
+    invalidateQueries: [["users-stats"], ["dashboard-data"], ["all-users"]]
   });
 };
 
@@ -72,6 +71,7 @@ export const useDeleteUserAccount = () => {
     invalidateQueries: [["all-users"], ["users-stats"], ["dashboard-data"]]
   });
 };
+
 export const useDeleteUser = () => {
   return useInvalidatingMutation({
     mutationFn: ({id}: {id: string}) =>

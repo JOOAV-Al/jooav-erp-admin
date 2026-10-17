@@ -2,7 +2,7 @@
 "use client";
 import { useEffect } from "react";
 import {
-  // CreditCard,
+  CreditCard,
   // Home,
   // LibraryBig,
   // NotebookPen,
@@ -128,6 +128,13 @@ const links = {
       label: "Roles & Permissions",
       href: "/dashboard/roles-and-permissions",
       icon: UserCog,
+    },
+  ],
+  settings: [
+    {
+      label: "Payment",
+      href: "/dashboard/settings/payment",
+      icon: CreditCard,
     },
   ],
 };
@@ -319,6 +326,32 @@ export default function Sidebar({
                   )}
                   <nav className="flex flex-col gap-4">
                     {links.user.map((link) => (
+                      <SidebarLink
+                        key={link.href}
+                        href={link.href}
+                        label={link.label}
+                        Icon={link.icon}
+                        isCollapsed={isCollapsed}
+                      />
+                    ))}
+                  </nav>
+                </div>
+              </HideIfRole>
+
+              {/* Settings */}
+              <HideIfRole roles={["PROCUREMENT_OFFICER"]}>
+                <div
+                  className={`flex flex-col gap-7 ${
+                    isCollapsed ? "border-t-2 border-[#EDEDED] pt-main" : ""
+                  }`}
+                >
+                  {!isCollapsed && (
+                    <h6 className="font-mono leading-[1.2] tracking-[0.08em] text-[12px] text-body-passive">
+                      SETTINGS
+                    </h6>
+                  )}
+                  <nav className="flex flex-col gap-4">
+                    {links.settings.map((link) => (
                       <SidebarLink
                         key={link.href}
                         href={link.href}

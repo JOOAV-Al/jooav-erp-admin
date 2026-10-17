@@ -105,6 +105,12 @@ export interface Order {
     contactPhone: string;
   };
   virtualAccounts: OrderVirtualAccount[];
+  paymentChannel: "MONNIFY" | "MANUAL" | null;
+  paymentClaimStatus: "PENDING" | "APPROVED" | "REJECTED" | null;
+  paymentClaimedAt: string | null;
+  paymentClaimReviewedAt: string | null;
+  paymentClaimReviewedById: string | null;
+  paymentClaimRejectionReason: string | null;
   wholesaler: {
     id: string;
     firstName: string;

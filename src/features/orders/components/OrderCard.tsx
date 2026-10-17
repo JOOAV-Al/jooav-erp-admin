@@ -96,9 +96,6 @@ export function OrderCard({
     isProcurement || hideAssignmentStatuses.includes(order?.status);
   const needsResponse = responseStatuses.includes(order?.assignmentStatus);
 
-  // const shouldShowProcurementActions = isProcurement
-  //   ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
-  //   : hideAssignmentStatuses?.includes(order?.status) || order?.status === "COMPLETED" ? false : showActions;
   const shouldShowActions = isProcurement
     ? order?.status !== "COMPLETED" && order?.assignmentStatus === "ACCEPTED"
     : hideAssignmentStatuses?.includes(order?.status) ||
@@ -285,7 +282,7 @@ export function OrderCard({
               {formatOrderDate(order.orderDate ?? order.createdAt)}
             </span>
           </div>
-          <div className="hidden lg:block w-[1.38px] h-7 bg-[#D9D9D9]"></div>
+          {/* <div className="hidden lg:block w-[1.38px] h-7 bg-[#D9D9D9]"></div>
           <div className="flex flex-col gap-5 min-w-fit">
             <span className="text-[12px] font-normal tracking-[0.08em] leading-[1.2] text-body uppercase font-mono">
               delivery date:
@@ -293,7 +290,7 @@ export function OrderCard({
             <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
               {format(dummyFiveDaysEstimated, "dd/MM/yyyy.")}
             </span>
-          </div>
+          </div> */}
           <div className="hidden lg:block w-[1.38px] h-7 bg-[#D9D9D9] justify-self-center"></div>
           {/* Date + Status */}
           <div className="flex flex-col gap-5 lg:ml-auto">

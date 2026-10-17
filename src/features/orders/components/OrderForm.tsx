@@ -113,7 +113,6 @@ export function OrderForm({
     const { productId, wholesalerId, address, quantity } = values;
     const action = formMode?.toUpperCase();
     const sharedPayload: CreateOrderPayload = {
-      // wholesalerId,
       ...(order?.id
         ? {
             item: {
@@ -175,6 +174,24 @@ export function OrderForm({
   }, [order?.id, orderItem?.id, reset]);
 
   const watchedProductId = watch("productId");
+  const watchedWholesalerId = watch("wholesalerId");
+
+  const selectedWholesaler = wholesalers?.find((w) => w.id === watchedWholesalerId);
+  const wholesalerAddresses = selectedWholesaler?.wholesalerProfile?.userAddress || [];
+
+  useEffect(() => {
+    if (!watchedWholesalerId || isEditMode) return;
+
+    if (wholesalerAddresses.length === 1) {
+      setValue("address", wholesalerAddresses[0].address);
+      return;
+    }
+
+    if (wholesalerAddresses.length === 0) {
+      setValue("address", "");
+    }
+  }, [watchedWholesalerId, isEditMode, setValue, wholesalerAddresses.length]);
+
   useEffect(() => {
     if (!watchedProductId) {
       setSelectedProduct(undefined);
@@ -212,7 +229,7 @@ export function OrderForm({
                     )}
                   </div>
                   <Select
-                    disabled={!isEditable || formMode !== "create"}
+                    disabled={!isEditable}
                     isOpen={wholesalerIdDropdownOpen}
                     setIsOpen={setWholesalerIdDropdownOpen}
                     options={
@@ -386,41 +403,47 @@ export function OrderForm({
           <Controller
             control={control}
             name="address"
-            render={({ field: { onChange, value }, fieldState }) => (
+            render={({ field: { onChange, value, ...field }, fieldState }) => (
               <div>
                 <Field data-invalid={fieldState.invalid}>
                   <div className="flex gap-3 items-center">
-                    <FieldLabel dimLabel={addressDropdownOpen}>
+                    <FieldLabel dimLabel={wholesalerAddresses.length > 1 && addressDropdownOpen}>
                       Delivery Address
                     </FieldLabel>
                     {fieldState.error && (
                       <FieldError>: {fieldState.error.message}</FieldError>
                     )}
                   </div>
-                  <Select
-                    disabled={!isEditable}
-                    isOpen={addressDropdownOpen}
-                    setIsOpen={setAddressDropdownOpen}
-                    options={[
-                      {
-                        label: "123 Main St, Springfield, IL 62704",
-                        value: "123 Main St, Springfield, IL 62704",
-                      },
-                      {
-                        label: "456 Maple Avenue, Apt 4B, Gotham, NY 10001",
-                        value: "456 Maple Avenue, Apt 4B, Gotham, NY 10001",
-                      },
-                      {
-                        label: "789 Oak Road, Metropolis, CA 90210",
-                        value: "789 Oak Road, Metropolis, CA 90210",
-                      },
-                    ]}
-                    value={value}
-                    onChange={onChange}
-                    placeholder="Select delivery address"
-                    searchable
-                    leftIcon={<FieldIcon Icon={Package} />}
-                  />
+                  {wholesalerAddresses.length > 1 ? (
+                    <Select
+                      disabled={!isEditable}
+                      isOpen={addressDropdownOpen}
+                      setIsOpen={setAddressDropdownOpen}
+                      options={wholesalerAddresses.map((addr) => {
+                        const labelSegments = [addr.address, addr.city, addr.state].filter(Boolean);
+                        return {
+                          label: labelSegments.join(', '),
+                          value: addr.address,
+                        };
+                      })}
+                      value={value}
+                      onChange={onChange}
+                      placeholder="Select delivery address"
+                      searchable
+                      leftIcon={<FieldIcon Icon={Package} />}
+                    />
+                  ) : (
+                    <Input
+                      {...field}
+                      value={value}
+                      onChange={onChange}
+                      type="text"
+                      placeholder="Enter delivery address"
+                      aria-invalid={fieldState.invalid}
+                      isEdit={isEditMode}
+                      disabled={!isEditable}
+                    />
+                  )}
                 </Field>
               </div>
             )}

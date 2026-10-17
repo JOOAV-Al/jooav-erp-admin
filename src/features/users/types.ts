@@ -30,6 +30,21 @@ export interface UserItem {
     state: string;
     country: string | null;
   }
+  wholesalerProfile?: {
+    id: string;
+    userId: string;
+    regionId: string | null;
+    draftCart: string | null;
+    userAddress: {
+      address: string;
+      state?: string;
+      city?: string;
+      phone?: string;
+      name?: string;
+    }[];
+    totalOrders?: number;
+    totalSpent?: string;
+  };
   resetUrl: string;
   resetTokenExpiry: string;
   createdAt: string;

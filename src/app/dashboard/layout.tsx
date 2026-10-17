@@ -50,7 +50,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 ? "Manage user"
                 : pathname.startsWith("/dashboard/roles-and-permissions")
                   ? "Permission categories"
-                  : pathname.startsWith("/dashboard/order-logs")
+                  : pathname.startsWith("/dashboard/settings")
+                    ? "Settings"
+                    : pathname.startsWith("/dashboard/order-logs")
                     ? "Order Management"
                     : pathname.startsWith("/dashboard/fulfilled-orders")
                       ? auth?.user?.role === "PROCUREMENT_OFFICER"

@@ -20,6 +20,7 @@ import FormDropdown from "@/components/general/FormDropdown";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { useGetAdminPaymentSettings } from "@/features/settings/services/settings.api";
 
 interface ManualPaymentScreenProps {
   order?: Order;
@@ -34,6 +35,9 @@ const ManualPaymentScreen = ({
   const { data, isPending, refetch } = useGetOrderDetails({
     orderNumber: orderNumber ?? "",
   });
+  const { data: paymentSettings, isPending: isLoadingSettings } =
+    useGetAdminPaymentSettings();
+  const accounts = paymentSettings?.manualAccounts ?? [];
   const items = data?.data?.items ?? [];
   const dynamicOrder = data?.data;
 
@@ -119,14 +123,14 @@ const ManualPaymentScreen = ({
                 )}
               </span>
             </div>
-            <div className="flex flex-col gap-5">
+            {/* <div className="flex flex-col gap-5">
               <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
                 est delivery date:
               </span>
               <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
                 {format(dummyFiveDaysEstimated, "dd/MM/yyyy.")}
               </span>
-            </div>
+            </div> */}
           </div>
           <div className="h-[0.5px] bg-[#E6E6E6] w-full"></div>
         </div>
@@ -138,36 +142,51 @@ const ManualPaymentScreen = ({
               <h4>Account Details</h4>
             </div>
           </div>
-          <div className="flex flex-col gap-6">
-            <div className="h-[0.5px] bg-[#E6E6E6] w-full"></div>
 
-            <div className="flex justify-between items-center gap-[16px]">
-              <div className="flex flex-col gap-5 flex-1">
-                <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-                  Account name:
-                </span>
-                <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                  JOOAV LLC
-                </span>
-              </div>
-              <div className="h-7 w-[1.38px] bg-[#D9D9D9]"></div>
-              <div className="flex flex-col gap-5 flex-1">
-                <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-                  bank name:
-                </span>
-                <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
-                  Moniepoint
-                </span>
-              </div>
+          {isLoadingSettings ? (
+            <div className="flex flex-col items-center justify-center py-main">
+              <Spinner />
             </div>
-            <div className="h-[0.5px] bg-[#E6E6E6] w-full"></div>
-            <div className="flex flex-col gap-5">
-              <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
-                Account No:
-              </span>
-              <h4 className="text-body">5478890487</h4>
+          ) : accounts.length === 0 ? (
+            <p className="px-3 pb-main text-[14px] font-medium leading-[1.5] text-body-passive">
+              No bank accounts have been configured yet.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-6">
+              {accounts.map((account) => (
+                <div key={account.id} className="flex flex-col gap-6">
+                  <div className="h-[0.5px] bg-[#E6E6E6] w-full"></div>
+
+                  <div className="flex justify-between items-center gap-[16px]">
+                    <div className="flex flex-col gap-5 flex-1">
+                      <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+                        Account name:
+                      </span>
+                      <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                        {account.accountName}
+                      </span>
+                    </div>
+                    <div className="h-7 w-[1.38px] bg-[#D9D9D9]"></div>
+                    <div className="flex flex-col gap-5 flex-1">
+                      <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+                        bank name:
+                      </span>
+                      <span className="text-[14px] font-medium text-body leading-[1.5] tracking-[0.04em]">
+                        {account.bankName}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-[0.5px] bg-[#E6E6E6] w-full"></div>
+                  <div className="flex flex-col gap-5">
+                    <span className="text-[12px] py-2 font-normal tracking-[0.08em] leading-[1.2] text-body-passive uppercase font-mono">
+                      Account No:
+                    </span>
+                    <h4 className="text-body">{account.accountNumber}</h4>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
 
