@@ -5,6 +5,7 @@ export interface GeneralFetchingParams {
   limit?: number;
   search?: string;
   status?: string;
+  paymentClaimStatus?: string;
   role?: string;
   country?: string;
   state?: string;

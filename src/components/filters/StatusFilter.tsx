@@ -159,6 +159,26 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           >
             Draft
           </Button>
+          <Button
+            onClick={() => handleToggle("PENDING_PAYMENT")}
+            size={"filter"}
+            variant={"filter"}
+            className={`
+          ${status === "PENDING_PAYMENT" ? "bg-storey-foreground text-body hover:bg-storey-foreground" : ""}
+        `}
+          >
+            Initiated
+          </Button>
+          <Button
+            onClick={() => handleToggle("CLAIM_PENDING")}
+            size={"filter"}
+            variant={"filter"}
+            className={`
+          ${status === "CLAIM_PENDING" ? "bg-storey-foreground text-body hover:bg-storey-foreground" : ""}
+        `}
+          >
+            To verify
+          </Button>
           {/* <Button
             onClick={() => handleToggle("CONFIRMED")}
             size={"filter"}

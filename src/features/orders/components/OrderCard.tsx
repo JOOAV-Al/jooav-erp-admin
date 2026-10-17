@@ -351,11 +351,20 @@ export function OrderCard({
                   )}
                 </div>
               ) : (
-                <TableTag
-                  small
-                  className={orderStatusStyles.styles}
-                  text={orderStatusStyles.text}
-                />
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  {isAdmin && order.paymentClaimStatus === "PENDING" && (
+                    <TableTag
+                      small
+                      className="table-tag border-border-main bg-tag-queue text-brand-signal"
+                      text="Payment to verify"
+                    />
+                  )}
+                  <TableTag
+                    small
+                    className={orderStatusStyles.styles}
+                    text={orderStatusStyles.text}
+                  />
+                </div>
               )}
             </div>
             {!isAdmin && isProcurement && needsResponse && (

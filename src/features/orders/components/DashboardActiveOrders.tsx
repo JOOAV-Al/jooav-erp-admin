@@ -21,9 +21,11 @@ import { useState } from "react";
 const DashboardActiveOrders = ({
   orders,
   refetchOrders,
+  paymentsToVerify = 0,
 }: {
   orders?: Order[];
   refetchOrders?: () => void;
+  paymentsToVerify?: number;
 }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -38,22 +40,52 @@ const DashboardActiveOrders = ({
 
   const resetDrawer = () => setSelectedOrder(undefined);
 
+  const hasOrders = !!orders && orders.length > 0;
+
+  const emptyState = (
+    <div className="flex-1 flex justify-center items-center">
+      <EmptyState
+        header="No order summaries"
+        description="You will see a summary of recent orders here once orders are initiated."
+      />
+    </div>
+  );
+
+  // Header bar — outside scroll so it stays put
+  const panelHeader = (
+    <div className="flex justify-between items-center py-sm px-lg border-b border-border-main flex-shrink-0">
+      <h4>Active orders</h4>
+      <div className="flex items-center gap-sm">
+        {paymentsToVerify > 0 && (
+          <div
+            onClick={() =>
+              router.push("/dashboard/order-logs?status=CLAIM_PENDING")
+            }
+            className="py-sm rounded-lg cursor-pointer hover:underline"
+          >
+            <span className="py-4 px-2 text-body tracking-[0.02em] font-semibold text-[15px]">
+              {paymentsToVerify}{" "}
+              {paymentsToVerify === 1 ? "payment" : "payments"} to verify
+            </span>
+          </div>
+        )}
+        <div
+          onClick={() => router.push("/dashboard/order-logs")}
+          className="py-sm rounded-lg cursor-pointer hover:underline"
+        >
+          <span className="py-4 px-2 text-body-passive tracking-[0.02em] font-semibold text-[15px]">
+            View orders
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full">
-      {orders && orders.length > 0 ? (
+      {hasOrders ? (
         <div className="flex flex-col gap-3 h-full">
-          {/* Header bar — outside scroll so it stays put */}
-          <div className="flex justify-between items-center py-sm px-lg border-b border-border-main flex-shrink-0">
-            <h4>Active orders</h4>
-            <div
-              onClick={() => router.push("/dashboard/order-logs")}
-              className="py-sm rounded-lg cursor-pointer hover:underline"
-            >
-              <span className="py-4 px-2 text-body-passive tracking-[0.02em] font-semibold text-[15px]">
-                View orders
-              </span>
-            </div>
-          </div>
+          {panelHeader}
 
           {/* Horizontally scrollable table body */}
           <ScrollArea
@@ -157,13 +189,13 @@ const DashboardActiveOrders = ({
             </div>
           </ScrollArea>
         </div>
-      ) : (
-        <div className="flex-1 flex justify-center items-center">
-          <EmptyState
-            header="No order summaries"
-            description="You will see a summary of recent orders here once orders are initiated."
-          />
+      ) : paymentsToVerify > 0 ? (
+        <div className="flex flex-col gap-3 h-full">
+          {panelHeader}
+          {emptyState}
         </div>
+      ) : (
+        emptyState
       )}
 
       <DashboardDrawer

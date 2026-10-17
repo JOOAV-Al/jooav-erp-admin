@@ -146,6 +146,7 @@ export interface OrderStatsItem {
     activeOrders: number;
     completedOrders: number;
     cancelledOrders: number;
+    claimsToVerify: number;
   }
   statusBreakdown: {
     draft: number;

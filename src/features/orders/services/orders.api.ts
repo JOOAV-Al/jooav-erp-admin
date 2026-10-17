@@ -8,9 +8,9 @@ import { AxiosHeaders, AxiosRequestHeaders } from "axios";
 
 
 export const useGetOrders = (params: GeneralFetchingParams) => {
-  const {search, status, sortOrder, page, limit} = params
+  const {search, status, paymentClaimStatus, sortOrder, page, limit} = params
   return useQuery({
-    queryKey: ["all-orders", search, status, sortOrder, page, limit],
+    queryKey: ["all-orders", search, status, paymentClaimStatus, sortOrder, page, limit],
     queryFn: () => fetchOrders(params),
     retry: 2,
   });

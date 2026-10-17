@@ -4,10 +4,11 @@ import { api, CustomAxiosRequestConfig } from "@/lib/api/axiosInstance"
 
 const LIMIT = 20
 export async function fetchOrders (params: GeneralFetchingParams): Promise<PaginatedOrdersResponse<Order>> {
-  const {search, status, sortOrder, page, limit} = params
+  const {search, status, paymentClaimStatus, sortOrder, page, limit} = params
   const filterParams = new URLSearchParams({})
   if(search) filterParams.append('search', search)
   if(status) filterParams.append('status', status)
+  if(paymentClaimStatus) filterParams.append('paymentClaimStatus', paymentClaimStatus)
   if(sortOrder) filterParams.append('sortOrder', sortOrder)
   if(page) filterParams.append('page', page.toString())
   if(limit) filterParams.append('limit', limit.toString())
