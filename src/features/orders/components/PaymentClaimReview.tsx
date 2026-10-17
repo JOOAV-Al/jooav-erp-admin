@@ -15,7 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useRejectPaymentClaim } from "@/features/orders/services/orders.api";
 import { Order } from "@/features/orders/types";
-import { formatOrderDate } from "@/lib/utils";
+import { formatOrderDateTime } from "@/lib/utils";
 
 interface PaymentClaimReviewProps {
   order: Order;
@@ -80,7 +80,7 @@ const PaymentClaimReview = ({ order, onUpdated }: PaymentClaimReviewProps) => {
               Customer claims payment has been made
             </span>
             <p className="text-[13px] font-medium leading-[1.5] text-body-passive">
-              Claimed {formatOrderDate(order.paymentClaimedAt ?? order.createdAt)}.
+              Claimed {formatOrderDateTime(order.paymentClaimedAt ?? order.createdAt)}.
               Confirm below if the payment has landed, or reject so the customer
               can try again.
             </p>

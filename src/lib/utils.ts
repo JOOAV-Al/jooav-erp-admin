@@ -98,6 +98,14 @@ export const formatOrderDate = (dateStr: string) => {
   }
 };
 
+export const formatOrderDateTime = (dateStr: string) => {
+  try {
+    return format(new Date(dateStr), "dd/MM/yyyy, h:mm a");
+  } catch {
+    return dateStr;
+  }
+};
+
 export const getItemStatusStyles = (status = "") => {
   switch (status?.toUpperCase()) {
     // case "COMPLETED":
