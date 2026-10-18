@@ -7,7 +7,7 @@ import {
   useUpdateOrderItemStatus,
 } from "@/features/orders/services/orders.api";
 import { useState, useMemo } from "react";
-import { Order, OrderItem } from "@/features/orders/types";
+import { Order, OrderItem, OrderStatsItem } from "@/features/orders/types";
 import { useDebounce } from "@/hooks/useDebounce";
 import StatsContainer from "@/components/general/StatsContainer";
 import StatsSkeleton from "@/components/general/StatsSkeleton";
@@ -23,6 +23,14 @@ import { getOrderStatusStyles } from "@/lib/utils";
 // Assignment statuses that map to each view
 const PENDING_STATUSES = ["PENDING_ACCEPTANCE", "REASSIGNED"] as const;
 const PROCESSING_STATUSES = ["ACCEPTED"] as const;
+
+// Stats cards mirror the tabs below: pending = awaiting the officer's
+// acceptance, processing = accepted and still open.
+export const buildProcurementDisplayStats = (stats?: OrderStatsItem) => [
+  { value: `${stats?.summary?.pendingAcceptance ?? 0}`, label: "Pending" },
+  { value: `${stats?.summary?.processingOrders ?? 0}`, label: "Processing" },
+  { value: `${stats?.summary?.completedOrders ?? 0}`, label: "Completed" },
+];
 
 type ActiveView = "pending" | "processing";
 
@@ -49,12 +57,13 @@ const ProcurementOrderLogsPageComponent = () => {
   } = useDeleteMultipleOrders();
 
   const { data: stats, isPending: isStatsPending } = useGetOrdersStats();
+  // Larger page size: the Pending/Processing tabs split these results locally
   const {
     data,
     isPending: isOrdersPending,
     isRefetching,
     refetch,
-  } = useGetOrders({ page, search: debouncedQuery });
+  } = useGetOrders({ page, search: debouncedQuery, limit: 100 });
 
   const allOrders: Order[] = data?.data?.orders ?? [];
 
@@ -117,11 +126,7 @@ const ProcurementOrderLogsPageComponent = () => {
   } 
 
   // ── Stats ──────────────────────────────────────────────────────────────────
-  const displayStats = [
-    { value: `${stats?.totalOrders ?? 0}`, label: "Completed" },
-    { value: `${stats?.summary?.activeOrders ?? 0}`, label: "Pending" },
-    { value: `${stats?.summary?.completedOrders ?? 0}`, label: "Processing" },
-  ];
+  const displayStats = buildProcurementDisplayStats(stats);
 
   return (
     <div className="flex flex-col gap-5 pb-main">

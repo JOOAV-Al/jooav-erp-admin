@@ -147,6 +147,9 @@ export interface OrderStatsItem {
     completedOrders: number;
     cancelledOrders: number;
     claimsToVerify: number;
+    // Assignment-based counts (procurement officer dashboard)
+    pendingAcceptance?: number; // Awaiting the officer's acceptance
+    processingOrders?: number; // Accepted by the officer and still open
   }
   statusBreakdown: {
     draft: number;
