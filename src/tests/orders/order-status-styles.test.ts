@@ -1,9 +1,12 @@
 import { getOrderStatusStyles } from "@/lib/utils";
 
 describe("getOrderStatusStyles", () => {
-  it("shows 'Payment claimed' for pending-payment orders with a pending claim", () => {
+  it("shows 'Claimed' in the standard order-tag frame for a pending claim", () => {
     const styles = getOrderStatusStyles("PENDING_PAYMENT", "PENDING");
-    expect(styles.text).toBe("Payment claimed");
+    expect(styles.text).toBe("Claimed");
+    // Same frame as the other order status tags (Initiated, Confirmed, ...).
+    expect(styles.styles).toContain("border-border-main");
+    expect(styles.styles).toContain("bg-tag-queue");
   });
 
   it("keeps 'Initiated' when there is no pending claim", () => {

@@ -176,12 +176,13 @@ export const getOrderStatusStyles = (
       };
     case "PENDING_PAYMENT":
       if (paymentClaimStatus === "PENDING") {
-        // Customer submitted a payment claim. The claim state lives on the
-        // status tag itself (amber attention styling) instead of a second
-        // badge, so each order shows exactly one tag.
+        // Customer submitted a payment claim. One tag per order: the claim
+        // state replaces "Initiated", wearing the same queue-red tone as the
+        // product "Pending" tag while keeping the standard order-status frame
+        // (compact size, same border/background as Initiated & co).
         return {
-          styles: "table-tag border-border-main bg-tag-queue text-brand-signal",
-          text: "Payment claimed",
+          styles: "table-tag border-border-main bg-tag-queue text-destructive",
+          text: "Claimed",
         };
       }
       return {
