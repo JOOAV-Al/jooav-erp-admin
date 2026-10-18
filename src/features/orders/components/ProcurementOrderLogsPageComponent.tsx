@@ -235,8 +235,18 @@ const ProcurementOrderLogsPageComponent = () => {
           statusTag={
             <TableTag
               small
-              className={getOrderStatusStyles(selectedOrder?.status).styles}
-              text={getOrderStatusStyles(selectedOrder?.status).text}
+              className={
+                getOrderStatusStyles(
+                  selectedOrder?.status,
+                  selectedOrder?.paymentClaimStatus,
+                ).styles
+              }
+              text={
+                getOrderStatusStyles(
+                  selectedOrder?.status,
+                  selectedOrder?.paymentClaimStatus,
+                ).text
+              }
             />
           }
         />

@@ -65,7 +65,7 @@ const DashboardActiveOrders = ({
           >
             <span className="py-4 px-2 text-body tracking-[0.02em] font-semibold text-[15px]">
               {paymentsToVerify}{" "}
-              {paymentsToVerify === 1 ? "payment" : "payments"} to verify
+              {paymentsToVerify === 1 ? "payment" : "payments"} to review
             </span>
           </div>
         )}
@@ -112,7 +112,10 @@ const DashboardActiveOrders = ({
                     (order.wholesaler?.firstName ?? "") +
                     " " +
                     (order.wholesaler?.lastName ?? "");
-                  const orderStatusStyles = getOrderStatusStyles(order.status);
+                  const orderStatusStyles = getOrderStatusStyles(
+                    order.status,
+                    order.paymentClaimStatus,
+                  );
                   const thumbnail = order?.items?.[0]?.product?.thumbnail;
                   const itemName = order?.items?.[0]?.product?.name;
 
@@ -225,8 +228,18 @@ const DashboardActiveOrders = ({
           statusTag={
             <TableTag
               small
-              className={getOrderStatusStyles(selectedOrder?.status).styles}
-              text={getOrderStatusStyles(selectedOrder?.status).text}
+              className={
+                getOrderStatusStyles(
+                  selectedOrder?.status,
+                  selectedOrder?.paymentClaimStatus,
+                ).styles
+              }
+              text={
+                getOrderStatusStyles(
+                  selectedOrder?.status,
+                  selectedOrder?.paymentClaimStatus,
+                ).text
+              }
             />
           }
         />

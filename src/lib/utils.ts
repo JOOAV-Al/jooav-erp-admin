@@ -139,7 +139,10 @@ export const getItemStatusStyles = (status = "") => {
   }
 };
 
-export const getOrderStatusStyles = (status = "") => {
+export const getOrderStatusStyles = (
+  status = "",
+  paymentClaimStatus?: string | null,
+) => {
   switch (status?.toUpperCase()) {
     case "COMPLETED":
     //For order assignment status(Procurement)
@@ -172,6 +175,15 @@ export const getOrderStatusStyles = (status = "") => {
         text: "Archived",
       };
     case "PENDING_PAYMENT":
+      if (paymentClaimStatus === "PENDING") {
+        // Customer submitted a payment claim. The claim state lives on the
+        // status tag itself (amber attention styling) instead of a second
+        // badge, so each order shows exactly one tag.
+        return {
+          styles: "table-tag border-border-main bg-tag-queue text-brand-signal",
+          text: "Payment claimed",
+        };
+      }
       return {
         styles: "table-tag border-border-main bg-tag-draft text-body-passive",
         text: "Initiated",
