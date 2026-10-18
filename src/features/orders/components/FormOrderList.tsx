@@ -23,7 +23,7 @@ import { array, undefined } from "zod";
 import { Button } from "@/components/ui/button";
 
 interface FormOrderListProps {
-  order: Order;
+  order?: Order;
   orderNumber?: string;
   onRemoveItem?: (item: OrderItem) => void;
   showItemStatus?: boolean;
@@ -125,7 +125,7 @@ const FormOrderList = ({
     enabled: showWhatsAppShare,
   });
   const warehouseContacts = warehouseSettings?.contacts ?? [];
-  const shareOrderNumber = orderNumber ?? order.orderNumber;
+  const shareOrderNumber = orderNumber ?? order?.orderNumber ?? "";
   const shareCustomerName = wholesaler.trim() || "—";
 
   if (isPending) {
