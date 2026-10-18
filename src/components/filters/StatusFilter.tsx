@@ -177,7 +177,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           ${status === "CLAIM_PENDING" ? "bg-storey-foreground text-body hover:bg-storey-foreground" : ""}
         `}
           >
-            To verify
+            Claimed payments
           </Button>
           {/* <Button
             onClick={() => handleToggle("CONFIRMED")}

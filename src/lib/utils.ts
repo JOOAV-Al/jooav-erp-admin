@@ -139,7 +139,10 @@ export const getItemStatusStyles = (status = "") => {
   }
 };
 
-export const getOrderStatusStyles = (status = "") => {
+export const getOrderStatusStyles = (
+  status = "",
+  paymentClaimStatus?: string | null,
+) => {
   switch (status?.toUpperCase()) {
     case "COMPLETED":
     //For order assignment status(Procurement)
@@ -172,6 +175,16 @@ export const getOrderStatusStyles = (status = "") => {
         text: "Archived",
       };
     case "PENDING_PAYMENT":
+      if (paymentClaimStatus === "PENDING") {
+        // Customer submitted a payment claim. One tag per order: the claim
+        // state replaces "Initiated", keeping the standard order-status frame
+        // (compact size, same border/background as Initiated & co) with a
+        // queue-amber text tone so it still reads as needing attention.
+        return {
+          styles: "table-tag border-border-main bg-tag-queue text-brand-signal",
+          text: "Claimed",
+        };
+      }
       return {
         styles: "table-tag border-border-main bg-tag-draft text-body-passive",
         text: "Initiated",

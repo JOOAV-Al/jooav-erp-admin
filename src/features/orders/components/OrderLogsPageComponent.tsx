@@ -384,7 +384,7 @@ const OrderLogsPageComponent = () => {
     { value: `${stats?.summary?.activeOrders ?? 0}`, label: "Active" },
     { value: `${stats?.summary?.completedOrders ?? 0}`, label: "Completed" },
     { value: `${stats?.statusBreakdown?.confirmed ?? 0}`, label: "Pending" },
-    { value: `${stats?.summary?.claimsToVerify ?? 0}`, label: "To verify" },
+    { value: `${stats?.summary?.claimsToVerify ?? 0}`, label: "Claimed payments" },
     { value: `${stats?.summary?.cancelledOrders ?? 0}`, label: "Cancelled" },
   ];
 
@@ -519,9 +519,17 @@ const OrderLogsPageComponent = () => {
                     <TableTag
                       small
                       className={
-                        getOrderStatusStyles(selectedOrder.status).styles
+                        getOrderStatusStyles(
+                          selectedOrder.status,
+                          selectedOrder.paymentClaimStatus,
+                        ).styles
                       }
-                      text={getOrderStatusStyles(selectedOrder.status).text}
+                      text={
+                        getOrderStatusStyles(
+                          selectedOrder.status,
+                          selectedOrder.paymentClaimStatus,
+                        ).text
+                      }
                     />
                   }
                 />
@@ -605,9 +613,17 @@ const OrderLogsPageComponent = () => {
                       <TableTag
                         small
                         className={
-                          getOrderStatusStyles(selectedOrder.status).styles
+                          getOrderStatusStyles(
+                            selectedOrder.status,
+                            selectedOrder.paymentClaimStatus,
+                          ).styles
                         }
-                        text={getOrderStatusStyles(selectedOrder.status).text}
+                        text={
+                          getOrderStatusStyles(
+                            selectedOrder.status,
+                            selectedOrder.paymentClaimStatus,
+                          ).text
+                        }
                       />
                     ) : undefined
                   }

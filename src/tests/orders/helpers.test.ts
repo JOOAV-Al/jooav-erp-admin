@@ -4,7 +4,7 @@ import {
 } from "@/features/orders/services/helpers";
 
 describe("resolveOrderListFilters", () => {
-  it("maps the 'To verify' chip to a status + claim-status filter", () => {
+  it("maps the 'Claimed payments' chip to a status + claim-status filter", () => {
     expect(resolveOrderListFilters("CLAIM_PENDING")).toEqual({
       status: "PENDING_PAYMENT",
       paymentClaimStatus: "PENDING",
