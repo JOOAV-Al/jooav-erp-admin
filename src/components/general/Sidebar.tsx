@@ -32,6 +32,7 @@ import {
   // Bike,
   CheckCheck,
   ListTree,
+  Warehouse,
   ChevronRight,
   // Router,
 } from "lucide-react";
@@ -135,6 +136,11 @@ const links = {
       label: "Payment",
       href: "/dashboard/settings/payment",
       icon: CreditCard,
+    },
+    {
+      label: "Warehouse",
+      href: "/dashboard/settings/warehouse",
+      icon: Warehouse,
     },
   ],
 };

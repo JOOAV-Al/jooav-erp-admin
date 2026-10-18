@@ -216,7 +216,7 @@ const DashboardActiveOrders = ({
           heading="Order details"
           content={
             <FormOrderList
-              order={selectedOrder!}
+              order={selectedOrder}
               orderNumber={selectedOrder?.orderNumber}
               showItemStatus
               showItemStatusActions

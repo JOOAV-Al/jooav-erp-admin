@@ -223,7 +223,7 @@ const ProcurementOrderLogsPageComponent = () => {
           heading="Order details"
           content={
             <FormOrderList
-              order={selectedOrder!}
+              order={selectedOrder}
               orderNumber={selectedOrder?.orderNumber}
               showItemStatus
               showItemStatusActions={activeView === "processing"}

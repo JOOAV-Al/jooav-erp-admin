@@ -12,6 +12,7 @@ import {
   useGetOrderDetails,
   useUpdateOrderItemStatus,
 } from "@/features/orders/services/orders.api";
+import { useGetWarehouseSettings } from "@/features/settings/services/settings.api";
 import { MoreHorizontal, X } from "lucide-react";
 // import OrderCardSkeleton from "@/features/orders/components/OrderCardSkeleton";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
@@ -22,7 +23,7 @@ import { array, undefined } from "zod";
 import { Button } from "@/components/ui/button";
 
 interface FormOrderListProps {
-  order: Order;
+  order?: Order;
   orderNumber?: string;
   onRemoveItem?: (item: OrderItem) => void;
   showItemStatus?: boolean;
@@ -31,6 +32,40 @@ interface FormOrderListProps {
   showAssignedTo?: boolean;
   refetchOrders?: () => void;
 }
+
+const buildWarehouseShareMessage = ({
+  contactName,
+  orderNumber,
+  customerName,
+  items,
+}: {
+  contactName: string;
+  orderNumber: string;
+  customerName: string;
+  items: OrderItem[];
+}) => {
+  const lines = [
+    `Hi ${contactName},`,
+    "",
+    "Please process this order:",
+    "",
+    `*Order:* ${orderNumber}`,
+    `*Customer:* ${customerName}`,
+  ];
+
+  if (items.length > 0) {
+    lines.push(
+      "",
+      `*Items (${items.length}):*`,
+      ...items.map(
+        (item, idx) =>
+          `${idx + 1}. ${item.product?.name ?? "Item"} — ${item.quantity} units`,
+      ),
+    );
+  }
+
+  return lines.join("\n");
+};
 
 const FormOrderList = ({
   order,
@@ -42,7 +77,6 @@ const FormOrderList = ({
   showAssignedTo = false,
   refetchOrders,
 }: FormOrderListProps) => {
-  console.log(order);
   const { data, isPending, refetch } = useGetOrderDetails({
     orderNumber: orderNumber ?? "",
   });
@@ -87,19 +121,12 @@ const FormOrderList = ({
     // setSelectedOrder(undefined);
   };
 
-  const warehouseContacts = [
-    {
-      name: "Warehouse 1",
-      phone: "2348167163339",
-    },
-    {
-      name: "Warehouse 2",
-      phone: "2348167163339",
-    },
-    { name: "Warehouse 3", phone: "2348167163339" },
-
-    { name: "Warehouse 4", phone: "2348167163339" },
-  ];
+  const { data: warehouseSettings } = useGetWarehouseSettings({
+    enabled: showWhatsAppShare,
+  });
+  const warehouseContacts = warehouseSettings?.contacts ?? [];
+  const shareOrderNumber = orderNumber ?? order?.orderNumber ?? "";
+  const shareCustomerName = wholesaler.trim() || "—";
 
   if (isPending) {
     return (
@@ -112,7 +139,7 @@ const FormOrderList = ({
 
   return (
     <div className="flex flex-col flex-1 gap-5 py-main">
-      {showWhatsAppShare && (
+      {showWhatsAppShare && warehouseContacts.length > 0 && (
         <div className="rounded-3xl py-lg px-main flex flex-col gap-5 bg-storey-foreground">
           <div className="py-sm px-3 flex flex-col gap-3 ">
             <h4>Share order with warehouse</h4>
@@ -125,7 +152,7 @@ const FormOrderList = ({
               return (
                 <div
                   className="flex justify-between items-center gap-2"
-                  key={idx}
+                  key={contact.id ?? idx}
                 >
                   <div className="flex items-center gap-6 min-w-0 w-full text-body leading-[1.5] font-medium text-sm">
                     <span className="p-3 tracking-[0.04em]">{idx + 1}.</span>
@@ -137,11 +164,16 @@ const FormOrderList = ({
                     type={"button"}
                     size={"icon"}
                     variant="input"
-                    // disabled={!!link}
                     onClick={() => {
-                      console.log("share");
+                      const message = buildWarehouseShareMessage({
+                        contactName: contact.name,
+                        orderNumber: shareOrderNumber,
+                        customerName: shareCustomerName,
+                        items,
+                      });
+
                       window.open(
-                        `https://wa.me/${contact.phone}?text=Hi%20${contact.name}%2C%20Please%20process%20the%20order%20with%20order%20number%3A%20${orderNumber}`,
+                        `https://wa.me/${contact.phone}?text=${encodeURIComponent(message)}`,
                         "_blank",
                       );
                     }}
