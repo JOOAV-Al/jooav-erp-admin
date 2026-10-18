@@ -12,3 +12,13 @@ export interface PaymentSettings {
   method: PaymentMethod;
   manualAccounts: ManualPaymentAccount[];
 }
+
+export interface WarehouseContact {
+  id: string;
+  name: string;
+  phone: string;
+}
+
+export interface WarehouseSettings {
+  contacts: WarehouseContact[];
+}

@@ -1,4 +1,4 @@
-import { PaymentSettings } from "@/features/settings/types";
+import { PaymentSettings, WarehouseSettings } from "@/features/settings/types";
 import { MutationResponse } from "@/interfaces/general";
 import { api, CustomAxiosRequestConfig } from "@/lib/api/axiosInstance";
 import { useInvalidatingMutation } from "@/lib/api/useInvalidatingMutations";
@@ -55,5 +55,36 @@ export const useUpdatePaymentSettings = () => {
         payload,
       ),
     invalidateQueries: [["payment-settings"], ["public-payment-settings"]],
+  });
+};
+
+/**
+ * Warehouse WhatsApp contacts used to share orders from the orders pages.
+ */
+export const useGetWarehouseSettings = (options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ["warehouse-settings"],
+    queryFn: async (): Promise<WarehouseSettings> => {
+      const response = await api.get<MutationResponse<WarehouseSettings>>(
+        "/admin/settings/warehouse",
+        { noToast: true } as CustomAxiosRequestConfig,
+      );
+      return response.data.data;
+    },
+    retry: 2,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useUpdateWarehouseSettings = () => {
+  return useInvalidatingMutation({
+    mutationFn: (payload: {
+      contacts: Array<{ id?: string; name: string; phone: string }>;
+    }) =>
+      api.put<MutationResponse<WarehouseSettings>>(
+        "/admin/settings/warehouse",
+        payload,
+      ),
+    invalidateQueries: [["warehouse-settings"]],
   });
 };
