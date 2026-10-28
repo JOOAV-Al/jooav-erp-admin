@@ -41,7 +41,6 @@ export const useGetPaymentSettings = () => {
 export const useUpdatePaymentSettings = () => {
   return useInvalidatingMutation({
     mutationFn: (payload: {
-      method: string;
       manualAccounts: Array<{
         id?: string;
         accountName: string;
