@@ -58,9 +58,7 @@ const DashboardActiveOrders = ({
       <div className="flex items-center gap-sm">
         {paymentsToVerify > 0 && (
           <div
-            onClick={() =>
-              router.push("/dashboard/order-logs?status=CLAIM_PENDING")
-            }
+            onClick={() => router.push("/dashboard/payment-confirmation")}
             className="py-sm rounded-lg cursor-pointer hover:underline"
           >
             <span className="py-4 px-2 text-body tracking-[0.02em] font-semibold text-[15px]">

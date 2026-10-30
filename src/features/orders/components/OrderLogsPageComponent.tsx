@@ -15,7 +15,7 @@ import {
   useConfirmOrderPayment,
   useReInitiateManualOrderPayment,
 } from "@/features/orders/services/orders.api";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CreateOrderPayload,
   Order,
@@ -37,7 +37,7 @@ import SearchBox from "@/components/filters/SearchBox";
 import { getItemStatusStyles, getOrderStatusStyles } from "@/lib/utils";
 import PaymentScreen from "@/features/orders/components/PaymentScreen";
 import FormOrderList from "@/features/orders/components/FormOrderList";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ManualPaymentScreen from "@/features/orders/components/ManualPaymentScreen";
 import PaymentClaimReview from "@/features/orders/components/PaymentClaimReview";
 import {
@@ -55,6 +55,7 @@ const PAYMENT_PENDING_STATUSES = ["PENDING_PAYMENT", "DRAFT"];
 
 const OrderLogsPageComponent = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const autoOpenDrawer = searchParams?.get("open");
   const [open, setOpen] = useState<boolean>(!!autoOpenDrawer);
   const [drawerView, setDrawerView] = useState<DrawerView>("form");
@@ -78,6 +79,14 @@ const OrderLogsPageComponent = () => {
   const [selectedOrderItem, setSelectedOrderItem] = useState<
     OrderItem | undefined
   >(undefined);
+
+  // Old deep links pointed here for the claim filter; pending payment claims
+  // now have their own page (sidebar: Payment Confirmation).
+  useEffect(() => {
+    if (searchParams?.get("status") === "CLAIM_PENDING") {
+      router.replace("/dashboard/payment-confirmation");
+    }
+  }, [router, searchParams]);
 
   const debouncedQuery = useDebounce(query);
   const ordersFormResetRef = useRef<(() => void) | null>(null);
@@ -379,19 +388,20 @@ const OrderLogsPageComponent = () => {
 
   // ── Stats ──────────────────────────────────────────────────────────────────
 
+  // Pending payment claims have their own page (sidebar: Payment
+  // Confirmation), so the order log keeps only the per-order "Claimed" tag.
   const displayStats = [
     { value: `${stats?.totalOrders ?? 0}`, label: "Orders" },
     { value: `${stats?.summary?.activeOrders ?? 0}`, label: "Active" },
     { value: `${stats?.summary?.completedOrders ?? 0}`, label: "Completed" },
     { value: `${stats?.statusBreakdown?.confirmed ?? 0}`, label: "Pending" },
-    { value: `${stats?.summary?.claimsToVerify ?? 0}`, label: "Claimed payments" },
     { value: `${stats?.summary?.cancelledOrders ?? 0}`, label: "Cancelled" },
   ];
 
   return (
     <div className="flex flex-col gap-5 pb-main">
       {isStatsPending ? (
-        <StatsSkeleton count={6} />
+        <StatsSkeleton count={5} />
       ) : (
         <StatsContainer stats={displayStats} />
       )}
