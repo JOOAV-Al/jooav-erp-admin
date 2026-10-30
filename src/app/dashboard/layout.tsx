@@ -54,11 +54,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     ? "Settings"
                     : pathname.startsWith("/dashboard/order-logs")
                     ? "Order Management"
-                    : pathname.startsWith("/dashboard/fulfilled-orders")
-                      ? auth?.user?.role === "PROCUREMENT_OFFICER"
-                        ? "Order processing"
-                        : "Order Management"
-                      : "Dashboard";
+                    : pathname.startsWith("/dashboard/payment-confirmation")
+                      ? "Payment Confirmation"
+                      : pathname.startsWith("/dashboard/fulfilled-orders")
+                        ? auth?.user?.role === "PROCUREMENT_OFFICER"
+                          ? "Order processing"
+                          : "Order Management"
+                        : "Dashboard";
   };
   return (
     <div className="flex min-h-screen overflow-hidden">

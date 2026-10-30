@@ -169,16 +169,6 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           >
             Initiated
           </Button>
-          <Button
-            onClick={() => handleToggle("CLAIM_PENDING")}
-            size={"filter"}
-            variant={"filter"}
-            className={`
-          ${status === "CLAIM_PENDING" ? "bg-storey-foreground text-body hover:bg-storey-foreground" : ""}
-        `}
-          >
-            Claimed payments
-          </Button>
           {/* <Button
             onClick={() => handleToggle("CONFIRMED")}
             size={"filter"}

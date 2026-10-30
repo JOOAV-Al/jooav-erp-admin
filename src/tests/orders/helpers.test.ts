@@ -4,13 +4,6 @@ import {
 } from "@/features/orders/services/helpers";
 
 describe("resolveOrderListFilters", () => {
-  it("maps the 'Claimed payments' chip to a status + claim-status filter", () => {
-    expect(resolveOrderListFilters("CLAIM_PENDING")).toEqual({
-      status: "PENDING_PAYMENT",
-      paymentClaimStatus: "PENDING",
-    });
-  });
-
   it("passes plain statuses through without a claim filter", () => {
     expect(resolveOrderListFilters("PENDING_PAYMENT")).toEqual({
       status: "PENDING_PAYMENT",
@@ -32,13 +25,14 @@ describe("resolveOrderListFilters", () => {
 
 describe("resolveInitialStatusFilter", () => {
   it("accepts known filter tokens from a deep link", () => {
-    expect(resolveInitialStatusFilter("CLAIM_PENDING")).toBe("CLAIM_PENDING");
     expect(resolveInitialStatusFilter("PENDING_PAYMENT")).toBe(
       "PENDING_PAYMENT",
     );
   });
 
   it("rejects unknown or missing tokens", () => {
+    // CLAIM_PENDING moved to its own page: /dashboard/payment-confirmation
+    expect(resolveInitialStatusFilter("CLAIM_PENDING")).toBe("");
     expect(resolveInitialStatusFilter("GARBAGE")).toBe("");
     expect(resolveInitialStatusFilter(null)).toBe("");
     expect(resolveInitialStatusFilter(undefined)).toBe("");

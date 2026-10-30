@@ -31,6 +31,7 @@ import {
   PackagePlus,
   // Bike,
   CheckCheck,
+  HandCoins,
   ListTree,
   Warehouse,
   ChevronRight,
@@ -50,6 +51,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RootState } from "@/redux/store";
 import { HideIfRole } from "@/lib/rbac/HideIfRole";
+import { Role } from "@/lib/rbac/roles";
 import SidebarDropdown from "@/features/users/components/SidebarDropdown";
 import AdminSidebarDropdown from "@/features/users/components/AdminSidebarDropdown";
 import InitialsAvatar from "@/features/users/components/InitialsAvatar";
@@ -62,7 +64,21 @@ interface SidebarProps {
   isCollapsed: boolean;
   setIsCollapsed?: () => void;
 }
-const links = {
+
+interface SidebarLinkItem {
+  label: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  /** Roles that should not see this link in the sidebar. */
+  hideIfRoles?: Role[];
+}
+const links: {
+  overview: SidebarLinkItem[];
+  order: SidebarLinkItem[];
+  catalog: SidebarLinkItem[];
+  user: SidebarLinkItem[];
+  settings: SidebarLinkItem[];
+} = {
   overview: [
     {
       label: "Dashboard",
@@ -90,6 +106,12 @@ const links = {
       label: "Fulfilled",
       href: "/dashboard/fulfilled-orders",
       icon: CheckCheck,
+    },
+    {
+      label: "Payment Confirmation",
+      href: "/dashboard/payment-confirmation",
+      icon: HandCoins,
+      hideIfRoles: ["PROCUREMENT_OFFICER"],
     },
   ],
   catalog: [
@@ -280,15 +302,26 @@ export default function Sidebar({
                   </h6>
                 )}
                 <nav className="flex flex-col gap-4">
-                  {links.order.map((link) => (
-                    <SidebarLink
-                      key={link.href}
-                      href={link.href}
-                      label={link.label}
-                      Icon={link.icon}
-                      isCollapsed={isCollapsed}
-                    />
-                  ))}
+                  {links.order.map((link) =>
+                    link.hideIfRoles?.length ? (
+                      <HideIfRole key={link.href} roles={link.hideIfRoles}>
+                        <SidebarLink
+                          href={link.href}
+                          label={link.label}
+                          Icon={link.icon}
+                          isCollapsed={isCollapsed}
+                        />
+                      </HideIfRole>
+                    ) : (
+                      <SidebarLink
+                        key={link.href}
+                        href={link.href}
+                        label={link.label}
+                        Icon={link.icon}
+                        isCollapsed={isCollapsed}
+                      />
+                    ),
+                  )}
                 </nav>
               </div>
 
